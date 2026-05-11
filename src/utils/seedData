@@ -18,6 +18,10 @@ const roles = [
         name: "Receptionist",
     },
     {
+        roleCode: "PAT",
+        name: "Patient",
+    },
+    {
         roleCode: "CSH",
         name: "Cashier",
     },

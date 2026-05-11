@@ -1,7 +1,8 @@
 const mongoose= require('mongoose')
-const counter=require('./Counter.model')
+const Counter=require('./Counter.model')
+const User=require('./User.model')
 
-const patientSchema=new mongoose.Schema({
+const patientSchema = new mongoose.Schema({
 
     userId:{
         type:mongoose.Schema.Types.ObjectId,
@@ -61,7 +62,7 @@ const patientSchema=new mongoose.Schema({
     timestamps:true
 });
 
-patientSchema.pre('save', async function (next) {
+patientSchema.pre('save', async function () {
 
     if (this.isNew) {
 
@@ -77,11 +78,9 @@ patientSchema.pre('save', async function (next) {
                 `UHID-${String(counter.seq).padStart(6, '0')}`;
 
         } catch (error) {
-            return next(error);
+            console.error(error);
         }
     }
-
-    next();
 });
 
-mongoose.exports=mongoose.model('Patient',patientSchema);
+module.exports=mongoose.model('Patient',patientSchema);

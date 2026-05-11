@@ -1,22 +1,19 @@
-// const {validationResult}=require('express-validator');
+const { validationResult } = require('express-validator');
 
-// const errorHandler = (req,res,next)=>{
-//     const error =validationResult(req);
-//     if(error)
-//     {
-//         return res.status(305).json({message:error.array()});
-//     }
-//     next();
-// } 
+const errorHandler = (req, res, next) => {
 
+    const error = validationResult(req);
 
-const {validationResult} =require('express-validator');
+    if (!error.isEmpty()) {
 
-const errorHandler=(req,res,next)=>{;
-const error=validationResult(req);
-if(error)
-{
-    return res.status(305).json({message:error.array()});
-}
-next();
-}
+        return res.status(400).json({
+            success: false,
+            errors: error.array()
+        });
+
+    }
+
+    next();
+};
+
+module.exports = errorHandler;
