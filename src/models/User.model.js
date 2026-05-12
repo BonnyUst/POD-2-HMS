@@ -8,7 +8,8 @@ const userSchema=new mongoose.Schema(
             type:String,
             required:true,
             unique:true,
-            lowercase:true
+            lowercase:true,
+            trim:true
         },
         firstName:{
             type:String,
@@ -53,35 +54,5 @@ const userSchema=new mongoose.Schema(
 
 
 
-// userSchema.pre('save',async function (next) {
-//     if(this.isNew){
-//         try{
-//             const counter=await Counter.findOneAndUpdate(
-//                 {
-//                     name:'user'
-//                 },
-//                 {$inc:{seq:1}},//creates Sequence
-//                 {
-//                     new:true,upsert:true
-//                 }
-//             );
-//             this.userId=`USER-${String(counter.seq).padStart(6,'0')}`;
-
-//         }
-//         catch(err){
-//             return next(err);
-//         }
-//     }
-//     next();
-// })
-
 module.exports=mongoose.model('User',userSchema);
 
-
-
-//   roles:{type:[String],enum:['OWNER','ADMIN','DOCTOR','RECEPTIONIST',
-//             'CASHIER','NURSE','LAB_TECH','PHARMACIST'],required:true},
-
-//             employeeId:{type:mongoose.Schema.Types.ObjectId,ref:'Employee',
-//                 required:true
-//             },

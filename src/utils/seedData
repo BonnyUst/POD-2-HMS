@@ -26,8 +26,12 @@ const roles = [
         name: "Cashier",
     },
     {
-        roleCode: "NUR",
-        name: "Nurse",
+        roleCode: "CSH",
+        name: "Cashier",
+    },
+    {
+        roleCode: "EMP",
+        name: "Employee",
     },
     {
         roleCode: "LAB",

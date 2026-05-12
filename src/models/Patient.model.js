@@ -4,15 +4,27 @@ const User=require('./User.model')
 
 const patientSchema = new mongoose.Schema({
 
-    userId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"User",
-        unique:true,
-        required:true
-    },
+
     UHID:{
         type:String,
         unique:true,
+    },
+
+    firstName:{
+        type:String,
+        required:true,
+        trim:true
+    },
+
+    lastName:{
+        type:String,
+        required:true,
+        trim:true
+    },
+    phone:{
+        type:String,
+        required:trim,
+        trim:true
     },
 
     gender:{
@@ -56,6 +68,13 @@ const patientSchema = new mongoose.Schema({
     emergencyContactPhone:{
         type:String,
         required:true,
+    },
+
+    createdBy:
+    {
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Employee",
+        required:true
     }
 },
 {
