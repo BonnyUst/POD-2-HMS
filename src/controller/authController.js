@@ -47,5 +47,26 @@ const verifyEmail=async(req,res)=>{
     };
 };
 
+const login=async(req,res)=>{
+    try{
+        const result=await authService.loginEmployee(req.body);
+        return res
+            .status(200)
+            .json(new ApiResponse(200,"Login Successfull",result));
 
-module.exports={createEmployee,verifyEmail};
+
+    }
+    catch(error)
+    {
+        return res 
+        .status(error.statusCode||500)
+        .json({
+            success:false,
+            message:error.message||"something went wrong"
+        });
+
+    };
+}
+
+
+module.exports={createEmployee,verifyEmail,login};

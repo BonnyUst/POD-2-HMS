@@ -114,3 +114,50 @@ exports.verifyEmployeeEmail=async(token)=>
         message:"Employee Email Verified successfully"
     };
 };
+
+exports.loginEmployee=async({email,password})=>
+{
+    const user=await User.findOne({email});
+
+    if(!user)
+    {
+        throw new ApiError(404,"Employee Not Found");
+    }
+
+    const isPasswordMatch=await bcrypt.compare(password,user.passwordHash);
+
+    if(!isPasswordMatch)
+    {
+        throw new ApiError(401,"Invalid Credentials");
+    }
+
+    if(!user.isVerified)
+    {
+        throw new ApiError(401,"Please verify your mail before login");
+    }
+
+    const loginToken=generateToken({
+        userId:user._id,
+        roleId:user.roleId
+    },'1d');
+
+    user.lastLoginAt=new Date();
+
+    await user.save();
+
+
+    return {
+        token:loginToken,
+        user:{
+            id:user._id,
+            firstName:user.firstName,
+            lastName:user.lastName,
+            email:user.email,
+            roleId:user.roleId,
+            status:user.status
+
+        }
+    };
+
+    
+};
