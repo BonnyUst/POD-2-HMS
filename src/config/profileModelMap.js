@@ -5,5 +5,6 @@ const profileModelMap = {
     PAT: Patient,
     ADM: Employee,
     DOC: Employee,
+    REC: Employee,
 };
 module.exports = profileModelMap;

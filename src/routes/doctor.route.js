@@ -1,6 +1,6 @@
 const express = require('express');
 const { createDoctorUser } = require('../controllers/doctor.controller');
 const router = express.Router();
-
-router.post('/', createDoctorUser);
+const authorize = require('../middlewares/authorize.middleware');
+router.post('/', authorize('CREATE_USER'),createDoctorUser);
 module.exports = router;

@@ -7,6 +7,19 @@ const patient = mongoose.Schema(
             unique: true,
             required: true
         },
+        fullName:{
+            type:String,
+            required:[true,'patient name is required'],
+        },
+        email:{
+            type:String,
+            required:true,
+            unique:true,
+        },
+        phone:{
+            type:String,
+            required:[true,'phone is required'],
+        },
         gender: {
             type: String,
             enum: ["MALE", "FEMALE", "OTHER"],
