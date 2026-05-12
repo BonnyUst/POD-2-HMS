@@ -1,26 +1,26 @@
-const mongoose=require('mongoose')
-const Counter=require('./Counter.model')
+const mongoose = require('mongoose')
+const Counter = require('./Counter.model')
 
-const employeeSchema=new mongoose.Schema(
+const employeeSchema = new mongoose.Schema(
     {
-        employeeCode:{
-            type:String,
-            unique:true
+        employeeCode: {
+            type: String,
+            unique: true
         },
-        userId:{
-            type:mongoose.Schema.Types.ObjectId,
-            ref:"User",
-            required:true,
-            unique:true
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+            unique: true
         },
         // name:{
         //     type:String,
         //     required:true,
         //     trim:true
         // },
-        phone:{
-            type:String,
-            required:true
+        phone: {
+            type: String,
+            required: true
         },
         // email:{
         //     type:String,
@@ -29,52 +29,52 @@ const employeeSchema=new mongoose.Schema(
         //     trim:true,
         //     lowercase:true
         // },
-        department:{
-            type:String,
-            enum:['OPD','IPD','Lab','Pharmacy','Admin']
+        department: {
+            type: String,
+            enum: ['OPD', 'IPD', 'Lab', 'Pharmacy', 'Admin']
         },
-        designation:{
-            type:String,
-            enum:['Jr Doctor','Nurse','Receptionist']
+        designation: {
+            type: String,
+            enum: ['Jr Doctor', 'Nurse', 'Receptionist']
         },
-        status:{
-            type:String,
-            enum:['ACTIVE','INACTIVE'],
-            default:'ACTIVE'
+        status: {
+            type: String,
+            enum: ['ACTIVE', 'INACTIVE'],
+            default: 'ACTIVE'
         },
-        joiningDate:{
-            type:Date,
-            required:true
+        joiningDate: {
+            type: Date,
+            required: true
         },
-        medicalRegistrationNo:{
-            type:String,
-            unique:true,
-            sparse:true
+        medicalRegistrationNo: {
+            type: String,
+            unique: true,
+            sparse: true
         },
-        specialization:{
-            type:String,
-            trim:true
+        specialization: {
+            type: String,
+            trim: true
         },
-        qualification:[
-            {type:String}
+        qualification: [
+            { type: String }
         ],
-        consultationFee:{
-            type:Number
+        consultationFee: {
+            type: Number
         },
-        availabilitySlots:[{
-            
-                date:{
-                    type:Date
-                },
-                startTime:{
-                    type:String
-                },
-                endTime:{type:String},
-                isBooked:{
-                    type:Boolean,
-                    default:false
-                }
-            
+        availabilitySlots: [{
+
+            date: {
+                type: Date
+            },
+            startTime: {
+                type: String
+            },
+            endTime: { type: String },
+            isBooked: {
+                type: Boolean,
+                default: false
+            }
+
         }]
     }
 );
@@ -93,12 +93,12 @@ employeeSchema.pre('save', async function () {
 
             this.employeeCode = `EMP-${String(counter.seq).padStart(6, '0')}`;
         } catch (error) {
-           console.error(error);
+            console.error(error);
         }
     }
 
 
 });
 
-module.exports=mongoose.model("Employee",employeeSchema);
+module.exports = mongoose.model("Employee", employeeSchema);
 

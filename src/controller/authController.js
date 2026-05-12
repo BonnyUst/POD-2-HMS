@@ -22,6 +22,30 @@ const createEmployee=async(req,res,next)=>{
         });
     }
 };
+const verifyEmail=async(req,res)=>{
+    try{
+        const{token}=req.params;
+
+        const result=await authService.verifyEmployeeEmail(token);
+        return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                "Email Verified Successfully",
+                result
+            )
+        );
+    }
+    catch(error){
+         return res
+            .status(error.statusCode || 500)
+            .json({
+                success: false,
+                message: error.message || "something went wrong"
+            });
+    };
+};
 
 
-module.exports={createEmployee};
+module.exports={createEmployee,verifyEmail};

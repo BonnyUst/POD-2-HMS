@@ -2,7 +2,8 @@ const User = require('../models/User.model')
 const RoleModel = require('../models/Role.model');
 const Employee=require('../models/Employee.model')
 const bcrypt = require('bcrypt');
-
+const {generateToken}=require('../utils/jwt')
+const {verifyToken}=require('../utils/jwt')
 const ApiError=require('../utils/ApiError');
 
 exports.createEmployeeUser = async (userData) => {
@@ -49,6 +50,15 @@ exports.createEmployeeUser = async (userData) => {
         status:'ACTIVE'
     });
 
+    const verificationToken=generateToken({
+        userId:user._id,
+        email:user.email
+
+    });
+
+    const verificationLink=
+    `http://localhost:5000/api/users/verify-email/${verificationToken}`;
+    console.log("Verification Link",verificationLink)
 
     const employee = await Employee.create({
         userId: user._id,
@@ -84,3 +94,23 @@ exports.createEmployeeUser = async (userData) => {
 
     };
 }
+
+exports.verifyEmployeeEmail=async(token)=>
+{
+
+    const decoded=verifyToken(token);
+    const user=await User.findById(decoded.userId);
+
+    if(!user){
+        throw new ApiError(404,"User Not Found");
+    }
+
+    user.isVerified=true;
+    await user.save();
+
+    return {
+        email:user.email,
+        isVerified:user.isVerified,
+        message:"Employee Email Verified successfully"
+    };
+};
