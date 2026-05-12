@@ -1,0 +1,127 @@
+Authentication Feature Update
+
+1. Overview
+
+This change set adds a new authentication flow to the backend. It includes:
+- user signup routing,
+- JWT-based login,
+- email verification,
+- protected user info retrieval.
+
+2. User flow
+
+A. Signup flow
+1. Client posts user signup data to `POST /api/users`.
+2. The system creates a new user and patient record.
+3. After creation, the backend generates a `VERIFY_EMAIL` JWT token.
+4. The backend logs a verification link containing the token.
+5. The user must visit `GET /api/auth/verify?token=...` to complete verification.
+
+B. Email verification flow
+1. User calls `GET /api/auth/verify` with the token.
+2. The auth service verifies the token type and payload.
+3. If valid, the user's `isVerified` flag is set to `true`.
+4. Verified users can now log in.
+
+C. Login flow
+1. Client posts credentials to `POST /api/auth/login`.
+2. The auth service verifies the user email and password.
+3. It checks whether the user is verified.
+4. On success, it returns an `ACCESS` JWT token.
+
+D. Protected route flow
+1. Client sends `Authorization: Bearer <token>` to `GET /api/auth/me`.
+2. `jwtAuth` middleware verifies the access token.
+3. The middleware attaches decoded user claims to `req.user`.
+4. The auth controller fetches user and profile data and returns it.
+
+3. What changed and why
+
+Modified files
+
+- `package.json`
+  - Added `jsonwebtoken`.
+  - Why: Needed for JWT token generation and verification.
+
+- `package-lock.json`
+  - Updated to include `jsonwebtoken` and its dependencies.
+  - Why: Keeps dependency lockfile consistent.
+
+- `src/app.js`
+  - Added `userRoute` and `authRoute`.
+  - Mounted routes at `/api/users` and `/api/auth`.
+  - Why: Separates signup routes from auth routes clearly.
+
+- `src/services/user.service.js`
+  - Added JWT generation after signup.
+  - Created an email verification token and logged a verification URL.
+  - Why: Enables email-based account verification.
+
+- `src/utils/ApiResponse.js`
+  - Minor formatting correction.
+  - Why: Cosmetic only.
+
+- `src/utils/idGenerator.js`
+  - Switched to `customAlphabet` for generated IDs.
+  - Changed IDs to 5 characters using uppercase alphanumeric characters.
+  - Why: Standardize ID format and make IDs easier to read.
+
+Deleted files
+
+- `src/routes/user.routes.js`
+  - Removed outdated route file.
+  - Why: Replaced by the new `src/routes/user.route.js` with the desired route name.
+
+Added files
+
+- `src/config/profileModelMap.js`
+  - Maps role codes like `PAT` to profile models such as `Patient`.
+  - Why: Allows the auth service to resolve the correct profile model based on user role.
+
+- `src/controllers/auth.controller.js`
+  - Handles auth routes: verify email, login, and get authenticated user info.
+  - Why: Centralizes auth endpoint handling.
+
+- `src/middlewares/jwtAuth.middleware.js`
+  - Verifies bearer tokens and sets `req.user`.
+  - Why: Protects endpoints and enables authenticated request context.
+
+- `src/routes/auth.route.js`
+  - Defines `GET /verify`, `POST /login`, and `GET /me`.
+  - Why: Provides a dedicated auth API route group.
+
+- `src/routes/user.route.js`
+  - Defines the user signup endpoint under `/api/users`.
+  - Why: Keeps signup and authentication responsibilities separated.
+
+- `src/services/auth.service.js`
+  - Implements email verification, login, and user profile retrieval.
+  - Why: Encapsulates auth business logic away from controllers.
+
+- `src/utils/jwt.js`
+  - Provides JWT token creation and verification for `ACCESS` and `VERIFY_EMAIL` tokens.
+  - Why: Centralizes token logic and prevents duplication.
+
+4. Functional behavior
+
+- Signup now triggers token-based email verification instead of allowing immediate login.
+- Verification uses a dedicated token type so `VERIFY_EMAIL` tokens cannot be used as access tokens.
+- Login issues a short-lived `ACCESS` token that can be used for protected endpoints.
+- `jwtAuth` middleware enforces token validation before sensitive user data is returned.
+- `profileModelMap` enables role-specific profile data loading for the user’s role.
+
+5. Resulting architecture
+
+- `/api/users` is responsible for user creation.
+- `/api/auth` is responsible for authentication actions.
+- `src/utils/jwt.js` is the shared JWT utility.
+- `src/services/auth.service.js` contains the core authentication rules.
+- `src/controllers/auth.controller.js` exposes auth functionality over HTTP.
+
+6. Why this is better
+
+- Clear separation between signup and authentication.
+- More secure onboarding through email verification.
+- Reusable JWT token handling across auth flows.
+- Protected routes now require a valid access token.
+- Easier future extension for roles, profile types, or multi-step auth.
