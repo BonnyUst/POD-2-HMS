@@ -7,8 +7,9 @@ const authRoutes=require('./src/routes/auth.route')
 
 const app=new express();
 
-const seedData=require('./src/utils/seedData')
-seedData();
+
+
+
 
 
 app.use(cors());
