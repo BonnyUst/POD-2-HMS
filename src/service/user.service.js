@@ -141,6 +141,7 @@ exports.loginEmployee=async({email,password})=>
         roleId:user.roleId
     },'1d');
 
+    //this login token contains the user id and role id as the payload for the jwt token
     user.lastLoginAt=new Date();
 
     await user.save();
@@ -161,3 +162,18 @@ exports.loginEmployee=async({email,password})=>
 
     
 };
+
+
+exports.currentProfile=async(userId)=>
+{
+        const profile=await User.findById(userId)
+        .select("-passwordHash");
+
+        if(!profile)
+        {
+            throw new ApiError(401,"User is not found");
+        }
+
+        return profile;
+   
+}

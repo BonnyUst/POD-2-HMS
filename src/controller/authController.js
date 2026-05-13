@@ -68,5 +68,28 @@ const login=async(req,res)=>{
     };
 }
 
+const getCurrentProfile=async (req,res)=>
+{
+    try{
 
-module.exports={createEmployee,verifyEmail,login};
+        const userId=req.user.userId;
+        const profile=await authService.currentProfile(userId);
+        
+        return res.status(200)
+        .json({
+            success:true,
+            statusCode:200,
+            message:"Profile Fetched Successfully",
+            data:profile
+        })
+    }
+    catch(error){
+
+        return res.ApiResponse(500,"Internal Server Error in Profile Fetching");
+
+
+    }
+}
+
+
+module.exports={createEmployee,verifyEmail,login,getCurrentProfile};

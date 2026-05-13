@@ -41,6 +41,10 @@ const roles = [
         roleCode: "PHA",
         name: "Pharmacist",
     },
+    {
+   roleCode: "ADMIN",
+   name: "Admin"
+}
 ];
  
 const seedRoles = async () => {
