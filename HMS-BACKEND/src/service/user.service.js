@@ -117,7 +117,7 @@ exports.verifyEmployeeEmail=async(token)=>
 
 exports.loginEmployee=async({email,password})=>
 {
-    const user=await User.findOne({email});
+    const user=await User.findOne({email}).populate("roleId");
 
     if(!user)
     {
@@ -138,7 +138,9 @@ exports.loginEmployee=async({email,password})=>
 
     const loginToken=generateToken({
         userId:user._id,
-        roleId:user.roleId
+        role:user.roleId.name,
+        rolecode:user.roleId.roleCode
+
     },'1d');
 
     //this login token contains the user id and role id as the payload for the jwt token
