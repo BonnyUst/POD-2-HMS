@@ -1,31 +1,24 @@
-const ApiError = require('../utils/ApiError');
-const { verifyToken, tokenType } = require('../utils/jwt');
+const ApiError = require("../utils/ApiError");
+const jwt = require("../utils/jwt");
 
 const jwtAuth = (req, res, next) => {
-    const authHeader = req.headers.authorization;
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith("Bearer ")) {
+    return next(new ApiError(401, "token missing"));
+  }
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verifyToken({
+      token,
+      type: jwt.tokenType.ACCESS,
+    });
+    req.user = decoded;
+    console.log("decoded", decoded);
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return next(new ApiError(401, 'Token missing or invalid'));
-    }
-
-    const token = authHeader.split(' ')[1];
-
-    try {
-        const decoded = verifyToken({
-            token,
-            type: tokenType.ACCESS,
-        });
-
-        req.user = {
-            userId: decoded.userId,
-            email: decoded.email,
-            role: decoded.role,
-        };
-
-        next();
-    } catch (err) {
-        next(new ApiError(401, 'Invalid or expired token'));
-    }
+    next();
+  } catch (err) {
+    next(err);
+  }
 };
 
 module.exports = jwtAuth;

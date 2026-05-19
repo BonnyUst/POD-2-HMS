@@ -7,6 +7,6 @@ node_modules/
 # VS Code
 .vscode/
 
-# SonarQube
+# SonarQub
 sonar-project.properties
 .scannerwork

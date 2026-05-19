@@ -1,41 +1,56 @@
 require("dotenv").config();
+
 const express = require("express");
-const cors = require("cors");
-const helmet = require("helmet");
 const morgan = require("morgan");
-const mongoose = require("mongoose");
-const seedRoles = require("./utils/seedData");
+const cors = require("cors");
+
+const connectDB = require("../src/config/dbConfig");
+
+const seedData = require("./utils/seedData");
+const seedAdmin = require("./utils/seedAdmin");
+
+const userRoute = require("./routes/user.route");
+const authRoute = require("./routes/auth.route");
+const doctorUser = require("./routes/doctor.route");
+const patientRouter = require("./routes/patient.route");
+
+const errorHandler = require("./middlewares/errorHandler.middleware");
+const jwtAuth = require("./middlewares/jwtAuth.middleware");
+
+connectDB();
+
+seedData();
+seedAdmin();
+
 const app = express();
 
-app.use(helmet());
 app.use(
-    cors({
-        origin: process.env.FRONTEND_URL,
-        credentials: true,
-    }),
+  cors({
+    origin: "http://localhost:4200",
+    credentials: true,
+  }),
 );
-
-app.use(morgan("dev"));
 
 app.use(express.json());
 
-const authRoutes = require("./routes/auth.routes");
-app.use("/api/auth", authRoutes);
+app.use(morgan("dev"));
 
-app.get("/", (req, res) => res.json({ message: "API running" }));
+app.use("/api/auth", authRoute);
 
-const userRoutes = require("./routes/user.routes");
+app.use(jwtAuth);
 
-app.use("/api/users", userRoutes);
+app.use("/api/users", userRoute);
 
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(async () => {
-      console.log("MongoDB connected");
+app.use("/api/doctors", doctorUser);
 
-      await seedRoles();
-})
-  .catch((err) =>
-      console.error("MongoDB connection error:", err.message)
-);
+app.use("/api/patients", patientRouter);
+
+app.get("/", (req, res) => {
+  res.json({
+    message: "Backend Working",
+  });
+});
+
+app.use(errorHandler);
+
 module.exports = app;

@@ -1,30 +1,25 @@
-const asyncHandler = require('express-async-handler');
-const userService = require('../services/user.service');
-const ApiResponse = require('../utils/ApiResponse');
-
-// LOGIN
+const asyncHandler = require("express-async-handler");
+const authService = require("../services/auth.service");
+const ApiResponse = require("../utils/ApiResponse");
+const verifyEmail = asyncHandler(async (req, res) => {
+  const token = req.query.token;
+  const response = await authService.verifyUserByEmail(token);
+  res.status(200).json(new ApiResponse(200, response));
+});
 const login = asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
-
-    const responseData = await userService.loginUser(email, password);
-
-    res.status(200).json(
-        new ApiResponse(200, responseData, "Login successful")
-    );
+  const { password, email } = req.body;
+  const responseData = await authService.loginUser(password, email);
+  res.status(200).json(new ApiResponse(200, responseData));
 });
-
-// GET MY PROFILE
 const getMyInfo = asyncHandler(async (req, res) => {
-    const { userId, role } = req.user;
+  console.log("in c ");
 
-    const data = await userService.getUserInfo(userId, role);
-
-    res.status(200).json(
-        new ApiResponse(200, data)
-    );
+  const { userId, role } = req.user;
+  const data = await authService.getUserInfo(userId, role);
+  res.status(200).json(new ApiResponse(200, data));
 });
-
 module.exports = {
-    login,
-    getMyInfo,
+  verifyEmail,
+  login,
+  getMyInfo,
 };

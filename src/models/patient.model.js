@@ -1,79 +1,56 @@
 const mongoose = require("mongoose");
 
-const patientSchema = new mongoose.Schema(
-    {
-        userId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-            required: true,
-        },
-        UHID: {
-            type: String,
-            unique: true,
-            required: true,
-        },
-        gender: {
-            type: String,
-            uppercase: true,
-            enum: ["MALE","FEMALE","OTHER"],
-            required: true,
-        },
-        dob: {
-            type: Date,
-            required: true,
-        },
-        bloodGroup: {
-            type: String,
-            enum: [
-                "A+",
-                "A-",
-                "B+",
-                "B-",
-                "AB+",
-                "AB-",
-                "O+",
-                "O-",
-            ],
-            uppercase: true,
-            required: true,
-            trim: true
-        },
-        address: {
-            city: {
-                type: String,
-                required: true,
-                trim: true,
-            },
-            state: {
-                type: String,
-                required: true,
-                trim:true,
-            },
-            pincode: {
-                type: String,
-                required: true,
-                trim: true,
-                match: [/^[0-9]{6}$/, "Invalid pincode format"],
-            }
-        },
-        emergencyContactName: {
-            type: String,
-            required: true,
-            trim: true,
-        },
-        emergencyContactNumber: {
-            type: String,
-            required: true,
-            trim: true,
-            match: [/^\d{10}$/, "Invalid phone number"] // 10-digit (India)
-        },        
+const patient = mongoose.Schema(
+  {
+    UHID: {
+      type: String,
+      unique: true,
+      required: true,
     },
-    {
-        timestamps: {
-            createdAt: "created_at",
-            updatedAt: "updated_at",
-        },
+    fullName: {
+      type: String,
+      required: [true, "patient name is required"],
     },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    phone: {
+      type: String,
+      required: [true, "phone is required"],
+    },
+    gender: {
+      type: String,
+      enum: ["MALE", "FEMALE", "OTHER"],
+      required: true,
+      uppercase: true,
+    },
+    dob: {
+      type: Date,
+      required: true,
+    },
+    bloodGroup: {
+      type: String,
+      enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
+    },
+    address: {
+      type: String,
+      trim: true,
+    },
+    emergencyContactName: {
+      type: String,
+      trim: true,
+    },
+
+    emergencyContactPhone: {
+      type: String,
+      trim: true,
+    },
+  },
+  {
+    timestamps: true,
+  },
 );
 
-module.exports = mongoose.model('Patient',patientSchema);
+module.exports = mongoose.model("Patient", patient);
