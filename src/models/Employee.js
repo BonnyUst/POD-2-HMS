@@ -15,14 +15,14 @@ const employeeSchema = new mongoose.Schema(
             trim : true,
             uppercase : true,
         },
-        departmentId : {
-            type : mongoose.Schema.Types.ObjectId,
-            ref : 'Departments',
-            required : true,
-            unique : true,
-            trim : true,
-            uppercase : true,
-        },
+        departmentIds: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Department',
+                required : true,
+                unique:false,
+            }
+        ],
         designation : {
             type : String,
             required : true,
@@ -39,8 +39,8 @@ const employeeSchema = new mongoose.Schema(
 );
 module.exports = mongoose.model("Employee", employeeSchema)
 
-employeeSchema.pre('save', async function () {
-  if (this.isNew) {
-    this.employeeCode = await generateId('Employee', 'EMP');
-  }
-});
+// employeeSchema.pre('save', async function () {
+//   if (this.isNew) {
+//     this.employeeCode = await generateId('Employee', 'EMP');
+//   }
+// });

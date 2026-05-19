@@ -11,11 +11,12 @@ dns.setDefaultResultOrder('ipv4first');
 const userRoutes = require('./routes/user.routes');
 const authRoutes = require('./routes/auth.routes');
 const errorHandler = require('./middleware/errorHandler.middleware');
-const seedRoles = require('./constants/role.constant');
-
+const seedRoles = require('./utils/seedRoles');
+const seedDepartments = require('./utils/seedDepartments');
 const connectDB = require('./config/db')
 connectDB();
 seedRoles();
+seedDepartments();
 const app = express();
 
 app.use(helmet());

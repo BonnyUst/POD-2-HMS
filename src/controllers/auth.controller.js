@@ -7,6 +7,7 @@ const authService = require('../services/auth.services')
 const ApiResponse = require('../utils/ApiResponse')
 
 exports.signup = asyncHandler(async(req,res)=>{
+    console.log("Hey i am signup controller")
     const user = await userService.createUser(req.body);
     return res.status(201).send(new ApiResponse(201,user));
 });

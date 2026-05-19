@@ -5,6 +5,7 @@ const router = createRouter();
 
 const {getMyInfo } =  require('../controllers/user.controller')
 
+router.get('/home',auth,)
 router.get('/my-info',auth, getMyInfo);
 
 module.exports = router;

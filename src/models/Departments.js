@@ -16,6 +16,12 @@ const departmentSchema = new mongoose.Schema(
             trim : true,
             uppercase : true,
         },
+        adminIds: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User'
+            }
+        ],
     },
     {
         timestamps : true,
