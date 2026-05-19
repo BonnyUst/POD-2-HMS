@@ -1,11 +1,16 @@
-# Dependencies
-node_modules/
+# Backend
+HMS-BACKEND/node_modules/
+HMS-BACKEND/.env
+HMS-BACKEND/.scannerwork/
 
-# Environment variables
-.env
+# Frontend
+HMS-FRONTEND/node_modules/
+HMS-FRONTEND/.angular/
+HMS-FRONTEND/dist/
 
 # VS Code
 .vscode/
 
-# SonarQube
-sonar-project.properties
+# OS files
+.DS_Store
+Thumbs.dbgit rm -r --cached HMS-BACKEND/node_modules
