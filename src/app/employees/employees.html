@@ -1,0 +1,373 @@
+<div class="employees-page">
+
+  <div class="topbar">
+
+    <div class="topbar-left">
+
+      <button
+        class="back-btn"
+        routerLink="/dashboard"
+      >
+        ← Dashboard
+      </button>
+
+      <h1>
+        Employee Management
+      </h1>
+
+    </div>
+
+
+    @if (isAdmin) {
+
+      <button
+        class="create-btn"
+        (click)="toggleCreateModal()"
+      >
+        + Create Employee
+      </button>
+
+    }
+
+  </div>
+
+
+
+  <div class="filters">
+
+    <input
+      type="text"
+      placeholder="Search by name or ID"
+      [(ngModel)]="searchTerm"
+      (input)="filterEmployees()"
+    />
+
+
+    <select
+      [(ngModel)]="selectedDepartment"
+      (change)="filterEmployees()"
+    >
+
+      <option value="">
+        All Departments
+      </option>
+
+      <option value="ADMIN">
+        ADMIN
+      </option>
+
+      <option value="OPD">
+        OPD
+      </option>
+
+      <option value="IPD">
+        IPD
+      </option>
+
+      <option value="LAB">
+        LAB
+      </option>
+
+      <option value="PHARMACY">
+        PHARMACY
+      </option>
+
+    </select>
+
+
+
+    <select
+      [(ngModel)]="selectedRole"
+      (change)="filterEmployees()"
+    >
+
+      <option value="">
+        All Roles
+      </option>
+
+      <option value="ADM">
+        Admin
+      </option>
+
+      <option value="DOC">
+        Doctor
+      </option>
+
+      <option value="REC">
+        Receptionist
+      </option>
+
+    </select>
+
+  </div>
+
+
+
+
+  <table>
+
+    <thead>
+
+      <tr>
+
+        <th>
+          EMP ID
+        </th>
+
+        <th>
+          Name
+        </th>
+
+        <th>
+          Email
+        </th>
+
+        <th>
+          Role
+        </th>
+
+        <th>
+          Department
+        </th>
+
+        <th>
+          Designation
+        </th>
+
+
+        @if (isAdmin) {
+
+          <th>
+            Actions
+          </th>
+
+        }
+
+      </tr>
+
+    </thead>
+
+
+
+    <tbody>
+
+      @for (
+        employee of filteredEmployees;
+        track employee._id
+      ) {
+
+        <tr>
+
+          <td>
+            {{ employee.EMPID }}
+          </td>
+
+          <td>
+            {{ employee.firstName }}
+            {{ employee.lastName }}
+          </td>
+
+          <td>
+            {{ employee.email }}
+          </td>
+
+          <td>
+            {{ employee.role }}
+          </td>
+
+          <td>
+            {{ employee.department }}
+          </td>
+
+          <td>
+            {{ employee.designation }}
+          </td>
+
+
+          @if (isAdmin) {
+
+            <td>
+
+              <button
+                class="edit-btn"
+                (click)="openEditModal(employee)"
+              >
+                Edit
+              </button>
+
+              <button
+                class="delete-btn"
+                (click)="deleteEmployee(employee._id)"
+              >
+                Delete
+              </button>
+
+            </td>
+
+          }
+
+        </tr>
+
+      }
+
+    </tbody>
+
+  </table>
+
+
+
+
+  @if (isCreateModalOpen) {
+
+    <div class="modal-overlay">
+
+      <div class="modal">
+
+        <h2>
+
+          @if (isEditMode) {
+
+            Edit Employee
+
+          } @else {
+
+            Create Employee
+          }
+
+        </h2>
+
+
+
+        <form
+          [formGroup]="employeeForm"
+          (ngSubmit)="submitEmployeeForm()"
+        >
+
+          <input
+            type="text"
+            placeholder="First Name"
+            formControlName="firstName"
+          />
+
+
+          <input
+            type="text"
+            placeholder="Last Name"
+            formControlName="lastName"
+          />
+
+
+          <input
+            type="email"
+            placeholder="Email"
+            formControlName="email"
+          />
+
+
+          @if (!isEditMode) {
+
+            <input
+              type="password"
+              placeholder="Password"
+              formControlName="password"
+            />
+
+          }
+
+
+          <input
+            type="text"
+            placeholder="Phone"
+            formControlName="phone"
+          />
+
+
+          <select
+            formControlName="roleName"
+            (change)="onRoleChange()"
+          >
+
+            <option value="ADMINISTRATOR">
+              Administrator
+            </option>
+
+            <option value="DOCTOR">
+              Doctor
+            </option>
+
+            <option value="RECEPTIONIST">
+              Receptionist
+            </option>
+
+          </select>
+
+
+
+          <select formControlName="department">
+
+            <option value="">
+              Select Department
+            </option>
+
+
+            @for (
+              dept of availableDepartments;
+              track dept
+            ) {
+
+              <option [value]="dept">
+                {{ dept }}
+              </option>
+
+            }
+
+          </select>
+
+
+
+          <input
+            type="text"
+            placeholder="Designation"
+            formControlName="designation"
+          />
+
+
+
+          <div class="modal-actions">
+
+            <button
+              type="button"
+              class="cancel-btn"
+              (click)="toggleCreateModal()"
+            >
+              Cancel
+            </button>
+
+
+            <button
+              type="submit"
+              class="create-submit-btn"
+            >
+
+              @if (isEditMode) {
+
+                Update Employee
+
+              } @else {
+
+                Create Employee
+              }
+
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  }
+
+</div>

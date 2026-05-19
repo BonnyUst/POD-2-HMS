@@ -2,7 +2,8 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "npm"
+    "packageManager": "npm",
+    "analytics": "23c4d1e3-db28-4494-baf2-3e0b075107a4"
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -12,32 +13,39 @@
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
+
       "architect": {
+
         "build": {
+
           "builder": "@angular/build:application",
+
           "options": {
+
             "browser": "src/main.ts",
+
             "tsConfig": "tsconfig.app.json",
+
             "assets": [
               {
                 "glob": "**/*",
                 "input": "public"
               }
             ],
+
             "styles": [
               "src/styles.css"
             ],
-            "server": "src/main.server.ts",
-            "outputMode": "server",
+
             "security": {
               "allowedHosts": []
-            },
-            "ssr": {
-              "entry": "src/server.ts"
             }
           },
+
           "configurations": {
+
             "production": {
+
               "budgets": [
                 {
                   "type": "initial",
@@ -50,28 +58,41 @@
                   "maximumError": "8kB"
                 }
               ],
+
               "outputHashing": "all"
             },
+
             "development": {
+
               "optimization": false,
+
               "extractLicenses": false,
+
               "sourceMap": true
             }
           },
+
           "defaultConfiguration": "production"
         },
+
         "serve": {
+
           "builder": "@angular/build:dev-server",
+
           "configurations": {
+
             "production": {
               "buildTarget": "HMS-Frontend:build:production"
             },
+
             "development": {
               "buildTarget": "HMS-Frontend:build:development"
             }
           },
+
           "defaultConfiguration": "development"
         },
+
         "test": {
           "builder": "@angular/build:unit-test"
         }

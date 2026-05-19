@@ -1,0 +1,165 @@
+<div class="dashboard-layout">
+
+  @if (showSidebar) {
+
+    <aside class="sidebar">
+
+      <div class="logo-section">
+
+        <h2>
+          HMS
+        </h2>
+
+      </div>
+
+
+      <nav>
+
+        <a routerLink="/dashboard">
+          Dashboard
+        </a>
+
+
+        @if (isAdmin) {
+
+          <a routerLink="/employees">
+            Employees
+          </a>
+
+        }
+
+
+        <a routerLink="/patients">
+          Patients
+        </a>
+
+      </nav>
+
+    </aside>
+
+  }
+
+
+
+  <main class="main-content">
+
+    <div class="topbar">
+
+      <div
+        class="menu-icon"
+        (click)="toggleSidebar()"
+      >
+        ☰
+      </div>
+
+
+      <h1>
+
+        @if (isAdmin) {
+
+          Admin Dashboard
+
+        }
+        @else {
+
+          Employee Dashboard
+
+        }
+
+      </h1>
+
+
+      <div class="profile-wrapper">
+
+        <div
+          class="profile-icon"
+          (click)="toggleProfileMenu()"
+        >
+
+          <img
+            [src]="profileImage"
+            alt="profile"
+          />
+
+        </div>
+
+
+        @if (showProfileMenu) {
+
+          <div class="profile-dropdown">
+
+            <button routerLink="/profile">
+              View Profile
+            </button>
+
+            <button (click)="logout()">
+              Logout
+            </button>
+
+          </div>
+
+        }
+
+      </div>
+
+    </div>
+
+
+
+    <div class="card-grids">
+
+
+      @if (isAdmin) {
+
+        <div class="dashboard-card">
+
+          <h3>
+            Employees
+          </h3>
+
+          <p>
+            Manage Hospital Employees
+          </p>
+
+          <a routerLink="/employees">
+            Open
+          </a>
+
+        </div>
+
+      }
+
+
+
+      <div class="dashboard-card">
+
+        <h3>
+          Patients
+        </h3>
+
+        <p>
+
+          @if (isAdmin) {
+
+            Manage Hospital Patients
+
+          }
+          @else {
+
+            View And Search Patient Records
+
+          }
+
+        </p>
+
+        <a routerLink="/patients">
+          Open
+        </a>
+
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
