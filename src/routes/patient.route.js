@@ -3,6 +3,8 @@ const router = express.Router();
 const { createPatient } = require('../controllers/patient.controller');
 const jwtAuth = require('../middlewares/jwtAuth.middleware');
 const authorize = require('../middlewares/authorize.middleware');
-router.post('/', jwtAuth, authorize('CREATE_PATIENT'), createPatient);
+const { patientSignUpValidator } = require('../middlewares/validator.middleware');
+const { validate } = require('../middlewares/validate.middleware');
+router.post('/', jwtAuth, patientSignUpValidator, validate, authorize('CREATE_PATIENT'), createPatient);
 
 module.exports = router;

@@ -7,8 +7,10 @@ const userRoute = require('./routes/user.route');
 const authRoute = require('./routes/auth.route');
 const doctorUser = require('./routes/doctor.route');
 const patientRouter = require('./routes/patient.route');
+const metaRoute = require('./routes/metadata.routes');
 const errorHandler = require('./middlewares/errorHandler.middleware');
 const jwtAuth = require('./middlewares/jwtAuth.middleware');
+const cors = require('cors')
 connectDB();
 seedData();
 seedAdmin();
@@ -16,8 +18,10 @@ const app = express();
 //middlewares
 app.use(express.json());
 app.use(morgan("dev"));
+app.use(cors());
 
 app.use('/api/auth', authRoute);
+app.use('/api/meta', metaRoute)
 app.use(jwtAuth);
 app.use('/api/users', userRoute);
 app.use('/api/doctors', doctorUser);

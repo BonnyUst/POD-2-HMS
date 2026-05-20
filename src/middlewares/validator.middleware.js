@@ -12,29 +12,41 @@ const userSignUpValidator = [
         .withMessage("Phone number is required")
         .matches(/^\d{10}$/)
         .withMessage("Phone number must be 10 digits")
-]
+];
+
 const patientSignUpValidator = [
-    body("gender").isIn(["MALE", "FEMALE", "OTHER"]).withMessage("gender must be either male or female"),
-    body("dob").isDate().withMessage("date of birth must be a valid date"),
+    body("fullName")
+        .notEmpty().withMessage("Full name is required"),
+
+    body("email")
+        .notEmpty().withMessage("Email is required")
+        .isEmail().withMessage("Valid email required"),
+
+    body("phone")
+        .notEmpty().withMessage("Phone number is required")
+        .matches(/^\d{10}$/)
+        .withMessage("Phone number must be 10 digits"),
+
+    body("gender")
+        .notEmpty().withMessage("Gender is required") // ✅ IMPORTANT
+        .isIn(["MALE", "FEMALE", "OTHER"])
+        .withMessage("Gender must be MALE, FEMALE or OTHER"),
+
+    body("dob")
+        .notEmpty().withMessage("DOB is required") // ✅ IMPORTANT
+        .isISO8601().withMessage("Date of birth must be valid")
+        .toDate(),
+
     body("bloodGroup")
         .optional()
-        .isIn([
-            "A+",
-            "A-",
-            "B+",
-            "B-",
-            "AB+",
-            "AB-",
-            "O+",
-            "O-",
-        ]).withMessage("valid blood group is required"),
+        .isIn(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"])
+        .withMessage("Valid blood group is required"),
+
     body("emergencyContactPhone")
         .optional()
         .matches(/^\d{10}$/)
-        .withMessage("Phone number must be 10 digits")
-
-]
-
+        .withMessage("Emergency contact phone must be 10 digits"),
+];
 module.exports = {
     userSignUpValidator,
     patientSignUpValidator

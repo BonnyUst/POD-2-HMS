@@ -32,7 +32,10 @@ const generateToken = ({ payload, type }) => {
         }
     );
 };
-
+const getJwtExpiry = (type) => {
+    const config = tokenConfig[type];
+    return config.expiresIn;
+}
 const verifyToken = ({ token, type }) => {
     const config = tokenConfig[type];
     if (!config) {
@@ -51,4 +54,5 @@ module.exports = {
     generateToken,
     tokenType,
     verifyToken,
+    getJwtExpiry
 };

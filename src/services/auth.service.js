@@ -3,7 +3,7 @@ const ApiError = require('../utils/ApiError');
 const jwt = require('../utils/jwt');
 const User = require('../models/user.model');
 const Role = require('../models/role.model');
-const profileModelMap = require('../config/profileModelMap');
+const Employee = require('../models/employee.model');
 const verifyUserByEmail = async (token) => {
     if (!token) {
         throw new ApiError(400, "Token is required");
@@ -40,15 +40,16 @@ const loginUser = async (password, email) => {
             type: jwt.tokenType.ACCESS,
         }
     );
-    return token;
+    const expiresIn = jwt.getJwtExpiry(jwt.tokenType.ACCESS);
+    return { token, role: role.roleCode, expiresIn };
 }
 const getUserInfo = async (userId, role) => {
     const user = await User.findById(userId);
     if (!user) {
         throw new ApiError(404, 'User not found');
     }
-    const model = profileModelMap[role];
-    const profile = await model.findOne({ userId });
+    // const model = profileModelMap[role];
+    const profile = await Employee.findOne({ userId });
     console.log('after finding profile');
     if (!profile) {
         throw new ApiError(404, 'profile not found');

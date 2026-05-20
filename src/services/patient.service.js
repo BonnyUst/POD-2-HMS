@@ -1,4 +1,5 @@
 const Patient = require('../models/patient.model');
+const ApiError = require('../utils/ApiError');
 const generateId = require('../utils/idGenerator');
 const createPatient = async (patientData) => {
     const {
@@ -11,8 +12,12 @@ const createPatient = async (patientData) => {
         address,
         emergencyContactName,
         emergencyContactPhone
-    } = patientData
-    const UHID = `URN-${generateId()}`;
+    } = patientData;
+    const UHID = await generateId('PAT');
+    const existingPatient = await Patient.findOne({ email });
+    if (existingPatient) {
+        throw new ApiError(409, 'patient already exists with this email');
+    }
     const patient = await Patient.create({
         UHID,
         fullName,
