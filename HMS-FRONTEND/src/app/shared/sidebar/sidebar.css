@@ -7,7 +7,6 @@ background-color:#0F172A;
 .menu{
         display: flex;
     flex-direction: column;
-    padding: 20px;
 }
 
 .menu a{
@@ -17,7 +16,7 @@ background-color:#0F172A;
     display: flex;
     gap:10px;
     align-items: center;
-    padding:17px;
+    padding:25px;
     border-radius: 10px;
     transition: 0.2s;   
 }
@@ -25,4 +24,14 @@ background-color:#0F172A;
 .menu a:hover{
     background-color:#1E293B;
     color: white;
+}
+
+.menu a.active {
+  background-color:#070707;
+  color: #16B1C5;
+  border-radius: 8px;
+}
+
+.menu a.active i {
+  color: #16B1C5;
 }

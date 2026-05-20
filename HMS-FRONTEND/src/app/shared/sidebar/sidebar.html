@@ -1,28 +1,22 @@
 
 <div class="sidebar">
     <div class="menu">
-        
-        <a routerLink="/admin/dashboard">
-             <i class="bi bi-grid"></i>
-            Dashboard
-        </a>
+        <!-- ng:for(nodes) -->
+         @for(node of nodes;track node._id){
 
-        <a href="">
-            <i class="bi bi-person-hearts"></i>
-            Patients
-        </a>
-        <a href="">
-            <i class="bi bi-person-badge"></i>
-            Employees
-        </a>
-        <a href="">
-             <i class="bi bi-calendar-event"></i>
-            Appointments
-        </a>
-        <a href="">
-             <i class="bi bi-check2-square"></i>
-             Approvals
-        </a>
-        
+            <a [routerLink]="node.path"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{exact:true}">
+                <i [class]="node.icon"></i>
+                {{node.name}}
+            </a>
+
+         }
+    
+
     </div>
 </div>
+ <!-- ng:for(nodes: node)
+        <a routerLink="node.url">
+             <i class="bi bi-grid"></i>
+            {node.name} -->
