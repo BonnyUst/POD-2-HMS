@@ -22,10 +22,10 @@ const userSchema = new mongoose.Schema(
         },
         phone : {
             type : String,
-            required : true,
             unique : true,
+            sparse : true,
+            trim : true,
             match : [/^\d{10}$/, "Invalid phone number"],
-        
         },
         passwordHash : {
             type: String,
@@ -35,7 +35,6 @@ const userSchema = new mongoose.Schema(
         roleId : {
             type : mongoose.Schema.Types.ObjectId,
             ref : 'Roles',
-            required : true,
         },
         status : {
             type : String,
@@ -46,11 +45,11 @@ const userSchema = new mongoose.Schema(
             type : Boolean,
             default : false,
         },
-        reset_token: { type: String, default: null },
-        reset_token_expiry: { type: Date, default: null },
-        is_verified: { type: Boolean, default: false },
-        verification_token: { type: String, default: null },
-        verification_token_expiry: { type: Date, default: null },
+        resetToken: { type: String, default: null },
+        resetTokenExpiry: { type: Date, default: null },
+        isVerified: { type: Boolean, default: false },
+        verificationToken: { type: String, default: null },
+        verificationTokenExpiry: { type: Date, default: null },
         lastLoginAt : {
             type : Date,
             default : null,

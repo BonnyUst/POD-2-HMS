@@ -10,13 +10,21 @@ dns.setDefaultResultOrder('ipv4first');
 
 const userRoutes = require('./routes/user.routes');
 const authRoutes = require('./routes/auth.routes');
+const employeeRoutes = require('./routes/employee.routes')
+const ownerRoutes = require('./routes/owner.routes');
 const errorHandler = require('./middleware/errorHandler.middleware');
 const seedRoles = require('./utils/seedRoles');
 const seedDepartments = require('./utils/seedDepartments');
+const seedOwner = require('./utils/seedOwner')
+const seedRoleMenus = require('./utils/roleMenu.seed');
+const seedMenus = require('./utils/menu.seed');
 const connectDB = require('./config/db')
 connectDB();
 seedRoles();
 seedDepartments();
+seedOwner();
+seedMenus();
+seedRoleMenus();
 const app = express();
 
 app.use(helmet());
@@ -34,6 +42,8 @@ app.use(express.json());
 
 app.use('/api/auth',authRoutes);
 app.use('/api/user',userRoutes);
+app.use('/employee',employeeRoutes);
+app.use('/owner',ownerRoutes);
 
 app.get('/',(req,res)=>{
     res.json({message:"Home Page Running"})

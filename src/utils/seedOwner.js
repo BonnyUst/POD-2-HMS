@@ -1,44 +1,44 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/User')
 const Roles = require('../models/Roles');
-
-const seedAdmin = async () => {
+const ROLES = require('../constants/role.constant');
+const ApiError = require('./ApiError');
+const { STATUS } = require('../constants/basic.constant');
+const seedOwner = async () => {
     try {
-        const ownerRole = await Role.findOne({ roleCode: "ADM" });
-        console.log("admin: ", admin);
-        const existingUser = await User.findOne({ email: 'admin@gmail.com' });
+        const ownerRole = await Roles.findOne({roleId : ROLES.OWNER.roleId});
+        console.log("Owner: ", ownerRole);
+        if(!ownerRole){
+            throw new ApiError(404,"Owner role not found");
+        }
+        const existingUser = await User.findOne({ email: 'owner@gmail.com' });
         if (existingUser) {
-            console.log('⚡ Admin already seeded');
+            console.log("Previous Owner details : ",existingUser)
+            console.log('Owner already seeded');
             return;
         }
-        const passwordHash = await bcrypt.hash('Admin@123', 12);
+        const passwordHash = await bcrypt.hash('Owner@123', 12);
         const user = await User.create({
             firstName: 'Super',
-            lastName: 'Admin',
-            email: 'admin@gmail.com',
+            lastName: 'Owner',
+            email: 'owner@gmail.com',
             phone: '9999999999',
             passwordHash,
-            roleId: admin._id,
-            isVerified: true
+            status:STATUS.ACTIVE,
+            roleId: ownerRole._id,
+            isVerified: true,
         });
-        await Employee.create({
-            userId: user._id,
-            employeeCode: 'ADM001',
-            department: 'ADMIN',
-            designation: 'Administrator',
-            status: true,
-            joiningDate: new Date()
-        });
+        
         console.log(
-            '✅ Admin seeded successfully'
+            '✅ Owner seeded successfully'
         );
     }
     catch (error) {
         if (error.code === 11000) {
-            console.log("⚡ Roles already seeded");
+            console.log("⚡ Owner already seeded");
         } else {
-            console.error("❌ Error seeding roles:", error.message);
+            console.error("❌ Owner seeding roles:", error.message);
         }
     }
 }
-module.exports = seedAdmin;
+module.exports = seedOwner;

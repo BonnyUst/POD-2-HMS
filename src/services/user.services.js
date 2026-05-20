@@ -7,8 +7,9 @@ const sendEmail = require('../utils/sendEmail');
 const bcrypt = require('bcrypt')
 const jwt = require('../utils/jwt');
 const crypto = require("crypto");
-
-const createUser = async (data) => {
+const { STATUS } = require('../constants/basic.constant');
+const ROLES = require('../constants/role.constant');
+const createAuthUser = async (data) => {
     const {
         firstName,
         lastName,
@@ -17,48 +18,68 @@ const createUser = async (data) => {
         password
     } = data;
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-        throw new ApiError(409, 'User already exists with this email');
+    // 1. Create basic user
+    const user = await createBasicUser({ firstName, lastName, email, password });
+
+    try {
+        // 2. Get role
+        const role = await Roles.findOne({ roleId: ROLES.PATIENT.roleId });
+        if (!role) {
+            throw new ApiError(404, 'Role not found');
+        }
+
+        // 3. Generate verification token
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+
+        const hashedToken = crypto
+            .createHash('sha256')
+            .update(verificationToken)
+            .digest('hex');
+
+        const verificationTokenExpiry = new Date(Date.now() + 60 * 60 * 1000);
+
+        // 4. UPDATE existing user (IMPORTANT FIX)
+        user.phone = phone;
+        user.roleId = role._id;
+        user.verificationToken = hashedToken;
+        user.verificationTokenExpiry = verificationTokenExpiry;
+
+        await user.save();
+
+        // 5. Verify URL
+        const verifyUrl = `${process.env.FRONTEND_URL}/api/auth/verify-email?token=${verificationToken}`;
+        console.log(`Click this link to verify ${verifyUrl}`);
+
+        return user;
+
+    } catch (err) {
+        // 🔥 rollback
+        await User.findByIdAndDelete(user._id);
+        throw err;
     }
+};
 
-    const passwordHash = await bcrypt.hash(password, 12);
-
-    const role = await Roles.findOne({ roleName: 'PATIENT' });
-    if (!role) {
-        throw new ApiError(404, 'Role not found');
+const createBasicUser = async(userDetails)=>{
+    const {
+        firstName,
+        lastName,
+        email,
+        password,
+    } = userDetails;
+    const existingUser = await User.findOne({email});
+    if(existingUser){
+        throw new ApiError(409,"User already exists with this email");
     }
-
-    const roleId = role._id;
-
-    const verification_token = crypto.randomBytes(32).toString('hex');
-    const verification_token_expiry = new Date(
-        Date.now() + 60 * 60 * 1000,
-    );
-    const hashedToken = crypto
-    .createHash('sha256')
-    .update(verification_token)
-    .digest('hex');
-
+    const passwordHash = await bcrypt.hash(password,12);
     const newUser = new User({
         firstName,
         lastName,
         email,
-        phone,
         passwordHash,
-        roleId,
-        status: "INACTIVE",
-        verification_token:hashedToken,
-        verification_token_expiry,
+        status : STATUS.INACTIVE
     });
-    //need to change hashed token in url 
-    const verifyUrl = `${process.env.FRONTEND_URL}/api/auth/verify-email?token=${verification_token}`;
-    console.log(`Click this link to veify ${verifyUrl}`);
-
     return await newUser.save();
-
 }
-
 const getMyInfo = async(userId,role)=>{
 
     const user = await User.findById(userId);
@@ -72,4 +93,4 @@ const getMyInfo = async(userId,role)=>{
     return {user,profile};
 }
 
-module.exports = { createUser, getMyInfo };
+module.exports = { createAuthUser,createBasicUser, getMyInfo };

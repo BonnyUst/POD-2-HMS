@@ -7,8 +7,7 @@ const authService = require('../services/auth.services')
 const ApiResponse = require('../utils/ApiResponse')
 
 exports.signup = asyncHandler(async(req,res)=>{
-    console.log("Hey i am signup controller")
-    const user = await userService.createUser(req.body);
+    const user = await userService.createAuthUser(req.body);
     return res.status(201).send(new ApiResponse(201,user));
 });
 
@@ -44,3 +43,9 @@ exports.verifyEmail = asyncHandler(async (req, res) => {
         })
     );
 });
+
+exports.getMenu = asyncHandler(async(req,res)=>{
+    const roleName = req.user.roleName;
+    const data = await authService.getMenyByRole(roleName);
+    return res.status(200).send(new ApiResponse(200,data))
+})

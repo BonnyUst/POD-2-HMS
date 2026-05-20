@@ -27,7 +27,7 @@ const doctorSchema = new mongoose.Schema(
         consultationFee : {
             type : Number,
             required : true,
-            min : 0,
+            min : 300,
         },
         avlblStartTime : {
             type : String,
@@ -49,9 +49,3 @@ const doctorSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model('Doctor', doctorSchema);
-
-doctorSchema.pre('save', async function () {
-  if (this.isNew) {
-    this.employeeCode = await generateId('Doctor', 'DOC');
-  }
-});

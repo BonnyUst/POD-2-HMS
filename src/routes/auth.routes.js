@@ -6,10 +6,12 @@ const router = createRouter();
 const {
     signup,
     login,
-    verifyEmail
+    verifyEmail,
+    getMenu
 } = require('../controllers/auth.controller');
 
 router.post('/signup',userSignupValidator,errorValidate,signup);
 router.post('/login',userLoginValidator,errorValidate,login);
-router.post('/verify-email',verifyEmail);
+router.get('/verify-email',(req,res,next)=>{console.log("summa"); next();},verifyEmail);
+router.get('/menu',auth,getMenu);
 module.exports = router;

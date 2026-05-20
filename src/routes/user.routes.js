@@ -3,9 +3,18 @@ const {createRouter,auth,errorValidate} = require('./routesServices/routes.heade
 
 const router = createRouter();
 
-const {getMyInfo } =  require('../controllers/user.controller')
+const {getMyInfo } =  require('../controllers/user.controller');
+// const authorize = require('../middleware/authorize.middleware');
+// const PERMISSIONS = require('../constants/permissions');
 
-router.get('/home',auth,)
+// router.get(
+//   '/patients',
+//   authorize(PERMISSIONS.READ_PATIENT),
+//   (req, res) => {
+//     res.send("Patient list");
+//   }
+// );
+// router.get('/home',auth,authorize(""),getMyHome)
 router.get('/my-info',auth, getMyInfo);
 
 module.exports = router;

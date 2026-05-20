@@ -3,6 +3,9 @@ const generateId = require('../utils/idGenerator');
 const User = require('../models/User');
 const Patient = require('../models/Patient')
 const Roles = require('../models/Roles')
+const Menu = require('../models/Menu');
+const RoleMenu = require('../models/RoleMenu');
+
 const sendEmail = require('../utils/sendEmail');
 const bcrypt = require('bcrypt')
 const jwt = require('../utils/jwt');
@@ -22,8 +25,8 @@ const verifyUserByToken = async (token) => {
         .digest('hex');
 
     const user = await User.findOne({
-        verification_token: hashedToken,
-        verification_token_expiry: { $gt: new Date() },
+        verificationToken: hashedToken,
+        verificationTokenExpiry: { $gt: new Date() },
     });
 
     if (!user) {
@@ -37,9 +40,9 @@ const verifyUserByToken = async (token) => {
         };
     }
 
-    user.is_verified = true;
-    user.verification_token = null;
-    user.verification_token_expiry = null;
+    user.isVerified = true;
+    user.verificationToken = null;
+    user.verificationTokenExpiry = null;
     user.status = STATUS.ACTIVE;
 
     const savedUser = await user.save();
@@ -72,7 +75,7 @@ const loginUser = async({email,password})=>{
     const token = jwt.generateToken({
         payload : {
             userId : user._id,
-            role : role.roleName,
+            roleName : role.roleName,
         },
         type : jwt.tokenType.ACCESS,
     });
@@ -80,4 +83,34 @@ const loginUser = async({email,password})=>{
     return token;
 }
 
-module.exports = {verifyUserByToken, loginUser,}
+const getMenyByRole = async(roleName)=>{
+     // 🔥 Get allowed menuIds
+  const roleMenus = await RoleMenu.find({ roleName });
+
+  const menuIds = roleMenus.map(r => r.menuId);
+
+  // 🔥 Get menus
+  const menus = await Menu.find({
+    _id: { $in: menuIds },
+    isActive: true
+  }).lean();
+
+  // 🔥 Build tree (parent → children)
+  const menuMap = {};
+  const tree = [];
+
+  menus.forEach(menu => {
+    menuMap[menu._id] = { ...menu, children: [] };
+  });
+
+  menus.forEach(menu => {
+    if (menu.parentId) {
+      menuMap[menu.parentId]?.children.push(menuMap[menu._id]);
+    } else {
+      tree.push(menuMap[menu._id]);
+    }
+  });
+
+  return tree;
+}
+module.exports = {verifyUserByToken, loginUser,getMenyByRole};

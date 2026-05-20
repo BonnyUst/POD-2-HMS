@@ -15,14 +15,11 @@ const employeeSchema = new mongoose.Schema(
             trim : true,
             uppercase : true,
         },
-        departmentIds: [
-            {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Department',
-                required : true,
-                unique:false,
-            }
-        ],
+        departmentIds: {
+            type: [mongoose.Schema.Types.ObjectId],
+            ref: 'Department',
+            required: true,
+        },
         designation : {
             type : String,
             required : true,
