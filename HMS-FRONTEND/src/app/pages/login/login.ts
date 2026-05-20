@@ -38,7 +38,7 @@ export class Login {
 
         console.log(loginData)
          if (res.data.user.roleId.name === 'Admin') {
-          this.router.navigate(['/admin-dashboard']);
+          this.router.navigate(['/admin/dashboard']);
         }
       },
 

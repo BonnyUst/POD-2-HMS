@@ -1,0 +1,28 @@
+.sidebar{
+width: 18vw;
+ height:calc(100vh - 10vh);
+background-color:#0F172A;
+}
+
+.menu{
+        display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.menu a{
+    color:#94A3B8;
+    text-decoration: none;  
+    /* for removing the underline from the texts */
+    display: flex;
+    gap:10px;
+    align-items: center;
+    padding:17px;
+    border-radius: 10px;
+    transition: 0.2s;   
+}
+
+.menu a:hover{
+    background-color:#1E293B;
+    color: white;
+}

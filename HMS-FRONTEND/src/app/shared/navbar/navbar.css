@@ -1,0 +1,21 @@
+.navbar{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    /* justify content to push the left and right section */
+    align-items: center;
+    padding:0px 20px;
+    min-height: 10vh;
+    background-color: white
+}
+
+.navbar-left-section{
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.navbar-right-section{
+    display: flex;
+    gap: 20px;
+    background-color: yellowgreen;
+}
