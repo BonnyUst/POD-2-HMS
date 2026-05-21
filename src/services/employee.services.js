@@ -16,6 +16,7 @@ const addEmployee = async (data) => {
             firstName,
             lastName,
             email,
+            phone,
             password,
             roleName,
             deptName,
@@ -42,6 +43,7 @@ const addEmployee = async (data) => {
             firstName,
             lastName,
             email,
+            phone,
             password
         });
 

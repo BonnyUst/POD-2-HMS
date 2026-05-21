@@ -1,4 +1,5 @@
 require('dotenv').config();
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -19,12 +20,21 @@ const seedOwner = require('./utils/seedOwner')
 const seedRoleMenus = require('./utils/roleMenu.seed');
 const seedMenus = require('./utils/menu.seed');
 const connectDB = require('./config/db')
-connectDB();
-seedRoles();
-seedDepartments();
-seedOwner();
-seedMenus();
-seedRoleMenus();
+const startServer = async () => {
+  await connectDB();
+
+  await seedRoles();
+  await seedDepartments();
+  await seedOwner();
+  await seedMenus();
+  await seedRoleMenus();
+
+  app.listen(process.env.PORT, () => {
+    console.log("Server running");
+  });
+};
+
+startServer();
 const app = express();
 console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
 app.use(helmet());

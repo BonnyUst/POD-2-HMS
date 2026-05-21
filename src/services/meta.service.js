@@ -8,6 +8,10 @@ const getMenuByRole = async (roleName) => {
   const roleMenus = await RoleMenu.find({ roleName })
     .populate('menuId');
 
+console.log("ROLE:", roleName);
+console.log("ROLE MENUS:", await RoleMenu.countDocuments());
+console.log(await RoleMenu.find({ roleName }));
+
   const menus = roleMenus
     .map(rm => rm.menuId)
     .filter(m => m && m.isVisible);

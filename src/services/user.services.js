@@ -3,12 +3,13 @@ const generateId = require('../utils/idGenerator');
 const User = require('../models/User');
 const Patient = require('../models/Patient')
 const Roles = require('../models/Roles')
-const sendEmail = require('../utils/sendEmail');
 const bcrypt = require('bcrypt')
 const jwt = require('../utils/jwt');
 const crypto = require("crypto");
 const { STATUS } = require('../constants/basic.constant');
 const ROLES = require('../constants/role.constant');
+const sendEmail = require('../utils/sendEmail')
+
 const createAuthUser = async (data) => {
     const {
         firstName,
@@ -19,7 +20,7 @@ const createAuthUser = async (data) => {
     } = data;
 
     // 1. Create basic user
-    const user = await createBasicUser({ firstName, lastName, email, password });
+    const user = await createBasicUser({ firstName, lastName, email,phone, password });
 
     try {
         // 2. Get role
@@ -50,6 +51,19 @@ const createAuthUser = async (data) => {
         const verifyUrl = `${process.env.FRONTEND_URL}/api/auth/verify-email?token=${verificationToken}`;
         console.log(`Click this link to verify ${verifyUrl}`);
 
+        await sendEmail({
+            to: email,
+            subject: "HMS - Verify your email",
+            html: `
+                <h2>Welcome to HMS</h2>
+
+                <p>Your account has been created and but not verified.</p>
+
+                <p>Click this link to verify :${verifyUrl} </p>
+            `,
+        });
+
+
         return user;
 
     } catch (err) {
@@ -64,6 +78,7 @@ const createBasicUser = async(userDetails)=>{
         firstName,
         lastName,
         email,
+        phone,
         password,
     } = userDetails;
     const existingUser = await User.findOne({email});
@@ -75,6 +90,7 @@ const createBasicUser = async(userDetails)=>{
         firstName,
         lastName,
         email,
+        phone,
         passwordHash,
         status : STATUS.INACTIVE
     });

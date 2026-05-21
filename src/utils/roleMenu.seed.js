@@ -4,15 +4,19 @@ const ROLES = require('../constants/role.constant');
 
 const seedRoleMenus = async () => {
   try {
-    await RoleMenu.deleteMany(); // reset
+    await RoleMenu.deleteMany();
 
     const menus = await Menu.find();
+
+    if (!menus.length) {
+      throw new Error("No menus found. Seed menus first.");
+    }
 
     // 🔍 helper
     const getMenu = (name) => menus.find(m => m.name === name);
 
     // =========================
-    // 🔥 OWNER → ALL MENUS
+    // OWNER → ALL MENUS
     // =========================
     const ownerMenus = menus.map(menu => ({
       roleName: ROLES.OWNER.roleName,
@@ -20,27 +24,28 @@ const seedRoleMenus = async () => {
     }));
 
     // =========================
-    // 🔥 ADMIN → LIMITED MENUS
+    // ADMIN → LIMITED MENUS
     // =========================
-    const adminMenus = [
-      getMenu("Employee"),
-      getMenu("Patient"),
-      getMenu("Departments")
-    ].map(menu => ({
-      roleName: ROLES.ADMIN.roleName,
-      menuId: menu._id
-    }));
+    const adminMenuNames = ["Employee", "Patient", "Departments"];
+
+    const adminMenus = adminMenuNames
+      .map(name => getMenu(name))
+      .filter(menu => menu) 
+      .map(menu => ({
+        roleName: ROLES.ADMIN.roleName,
+        menuId: menu._id
+      }));
 
     // =========================
-    // 🔥 EMPLOYEE (GENERIC ROLE)
-    // Example: Doctor/Nurse etc
+    // EMPLOYEE (Doctor example)
     // =========================
-    const employeeMenus = [
-      getMenu("Patient")
-    ].map(menu => ({
-      roleName: ROLES.DOCTOR.roleName, // you can repeat for NURSE etc
-      menuId: menu._id
-    }));
+    const employeeMenus = ["Patient"]
+      .map(name => getMenu(name))
+      .filter(menu => menu) // 🔥 IMPORTANT FIX
+      .map(menu => ({
+        roleName: ROLES.DOCTOR.roleName,
+        menuId: menu._id
+      }));
 
     await RoleMenu.insertMany([
       ...ownerMenus,

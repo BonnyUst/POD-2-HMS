@@ -13,6 +13,7 @@ exports.addAdmin = asyncHandler(async(req,res)=>{
         firstName,
         lastName,
         email,
+        phone,
         password,
         deptName,
         designation,
@@ -20,7 +21,7 @@ exports.addAdmin = asyncHandler(async(req,res)=>{
     } = req.body;
 
     const roleName = req.user.role;
-    const responseData = await ownerService.addAdmin({firstName,lastName,email,password,roleName,deptName,designation,joiningDate});
+    const responseData = await ownerService.addAdmin({firstName,lastName,email,phone,password,roleName,deptName,designation,joiningDate});
     return res.status(201).send(new ApiResponse(201,responseData));
 })
 

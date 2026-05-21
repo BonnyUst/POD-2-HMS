@@ -5,6 +5,8 @@ const asyncHandler = require('express-async-handler');
 // ✅ GET MENUS (ROLE BASED)
 exports.getMyMenus = asyncHandler(async (req, res) => {
 
+ console.log("USER:", req.user);
+  console.log("ROLE:", req.user.roleName);
   const roleName = req.user.roleName;
 
   const menus = await metaService.getMenuByRole(roleName);
@@ -21,7 +23,7 @@ exports.createMenu = asyncHandler(async (req, res) => {
   const menu = await metaService.createMenu(req.body);
 
   return res.status(201).send(
-    new ApiResponse(201, menu, "Menu created successfully")
+    new ApiResponse(201, menu)
   );
 });
 
@@ -73,3 +75,4 @@ exports.assignMenusToRole = asyncHandler(async (req, res) => {
     new ApiResponse(200, null, "Menus assigned successfully")
   );
 });
+

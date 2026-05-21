@@ -1,6 +1,8 @@
 const ApiError = require('../utils/ApiError');
 const employeeService = require('../services/employee.services');
 const Departments = require('../models/Departments');
+const User = require('../models/User')
+const Roles = require('../models/Roles')
 const ROLES = require('../constants/role.constant');
 const ApiResponse = require('../utils/ApiResponse');
 
@@ -11,29 +13,49 @@ const addAdmin = async (adminDetails) => {
       firstName,
       lastName,
       email,
+      phone,
       password,
       deptName,
       designation,
       joiningDate
     } = adminDetails;
 
-    // 🔥 Ensure roleName is ADMIN
+    // role
     adminDetails.roleName = ROLES.ADMIN.roleName;
 
-    // ✅ Create Employee (reusing your logic)
+    // create employee
     const newEmployee = await employeeService.addEmployee(adminDetails);
 
-    // ✅ Get Department
+    // department check
     const departmentInfo = await Departments.findOne({ deptName });
 
     if (!departmentInfo) {
       throw new ApiError(404, "Department not found");
     }
 
-    // 🔥 IMPORTANT FIX → store USER ID
-    const userId = newEmployee.userId;
+    console.log("Dept exists");
 
-    // avoid duplicate push
+    // FIXED ROLE QUERY
+    const adminRole = await Roles.findOne({
+      roleName: ROLES.ADMIN.roleName
+    });
+
+    if (!adminRole) {
+      throw new ApiError(404, "ADMIN role not found in Roles collection");
+    }
+
+    // assign role
+    const userId = newEmployee.userId;
+    const newUser = await User.findById(userId);
+
+    if (!newUser) {
+      throw new ApiError(404, "User not found");
+    }
+
+    newUser.roleId = adminRole._id;
+    await newUser.save();   // ✅ FIX
+
+    // department mapping
     if (!departmentInfo.adminIds.includes(userId)) {
       departmentInfo.adminIds.push(userId);
       await departmentInfo.save();
