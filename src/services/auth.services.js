@@ -3,16 +3,15 @@ const generateId = require('../utils/idGenerator');
 const User = require('../models/User');
 const Patient = require('../models/Patient')
 const Roles = require('../models/Roles')
-const Menu = require('../models/Menu');
-const RoleMenu = require('../models/RoleMenu');
-
+const ROLE_PERMISSIONS = require('../constants/rolePermissions')
 const sendEmail = require('../utils/sendEmail');
 const bcrypt = require('bcrypt')
 const jwt = require('../utils/jwt');
 const crypto = require("crypto");
 const ApiResponse = require('../utils/ApiResponse');
 const {STATUS} = require('../constants/basic.constant')
-const patientService = require('./patient.services')
+const patientService = require('./patient.services');
+const ROLES = require('../constants/role.constant');
 const verifyUserByToken = async (token) => {
 
     if (!token) {
@@ -71,46 +70,18 @@ const loginUser = async({email,password})=>{
     user.lastLoginAt = new Date();
     
     const role = await Roles.findById(user.roleId);
+    const permissions = role.roleName === ROLES.OWNER.roleName?["*"]:ROLE_PERMISSIONS[role.roleName];
 
     const token = jwt.generateToken({
         payload : {
             userId : user._id,
             roleName : role.roleName,
+            permissions
         },
         type : jwt.tokenType.ACCESS,
     });
     await user.save();
-    return token;
+    return {token : token,roleName: role.roleName, permissions : permissions};
 }
 
-const getMenyByRole = async(roleName)=>{
-     // 🔥 Get allowed menuIds
-  const roleMenus = await RoleMenu.find({ roleName });
-
-  const menuIds = roleMenus.map(r => r.menuId);
-
-  // 🔥 Get menus
-  const menus = await Menu.find({
-    _id: { $in: menuIds },
-    isActive: true
-  }).lean();
-
-  // 🔥 Build tree (parent → children)
-  const menuMap = {};
-  const tree = [];
-
-  menus.forEach(menu => {
-    menuMap[menu._id] = { ...menu, children: [] };
-  });
-
-  menus.forEach(menu => {
-    if (menu.parentId) {
-      menuMap[menu.parentId]?.children.push(menuMap[menu._id]);
-    } else {
-      tree.push(menuMap[menu._id]);
-    }
-  });
-
-  return tree;
-}
-module.exports = {verifyUserByToken, loginUser,getMenyByRole};
+module.exports = {verifyUserByToken, loginUser};

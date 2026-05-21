@@ -44,8 +44,3 @@ exports.verifyEmail = asyncHandler(async (req, res) => {
     );
 });
 
-exports.getMenu = asyncHandler(async(req,res)=>{
-    const roleName = req.user.roleName;
-    const data = await authService.getMenyByRole(roleName);
-    return res.status(200).send(new ApiResponse(200,data))
-})

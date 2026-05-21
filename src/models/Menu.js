@@ -1,30 +1,34 @@
 const mongoose = require('mongoose');
 
 const menuSchema = new mongoose.Schema({
+
   name: {
     type: String,
     required: true,
     trim: true
   },
+
   path: {
     type: String,
-    required: true,
+    required: true
   },
+
   parentId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Menu',
-    default: null // 🔥 null = main menu
+    default: null
   },
+
   order: {
     type: Number,
     default: 0
   },
-  isActive: {
+
+  isVisible: {
     type: Boolean,
     default: true
   }
-}, {
-  timestamps: true
-});
+
+}, { timestamps: true });
 
 module.exports = mongoose.model('Menu', menuSchema);
