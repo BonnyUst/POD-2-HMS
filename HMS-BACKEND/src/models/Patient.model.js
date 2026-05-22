@@ -23,7 +23,7 @@ const patientSchema = new mongoose.Schema({
     },
     phone:{
         type:String,
-        required:trim,
+        required:true,
         trim:true
     },
 
