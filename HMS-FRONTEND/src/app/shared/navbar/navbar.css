@@ -6,7 +6,8 @@
     align-items: center;
     padding:0px 20px;
     min-height: 10vh;
-    background-color: white
+    /* background-color: white */
+    background-color: #F5F5F5;
 }
 
 .navbar-left-section{

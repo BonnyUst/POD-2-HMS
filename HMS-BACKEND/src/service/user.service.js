@@ -16,11 +16,8 @@ exports.createEmployeeUser = async (userData) => {
         department,
         designation,
         joiningDate,
-        medicalRegistrationNo,
-        specialization,
-        qualification,
-        consultationFee,
-        availabilitySlots,
+     
+      
     } = userData;
 
     const existingUser = await User.findOne({
@@ -66,11 +63,6 @@ exports.createEmployeeUser = async (userData) => {
         department,
         designation,
         joiningDate,
-        medicalRegistrationNo,
-        specialization,
-        qualification,
-        consultationFee,
-        availabilitySlots
 
     });
 
@@ -84,11 +76,6 @@ exports.createEmployeeUser = async (userData) => {
         department: employee.department,
         designation: employee.designation,
         joiningDate: employee.joiningDate,
-        medicalRegistrationNo: employee.medicalRegistrationNo,
-        specialization: employee.specialization,
-        qualification: employee.qualification,
-        consultationFee: employee.consultationFee,
-        availabilitySlots: employee.availabilitySlots,
         isVerified: user.isVerified,
         status:user.status
 

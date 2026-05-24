@@ -13,22 +13,12 @@ const employeeSchema = new mongoose.Schema(
             required: true,
             unique: true
         },
-        // name:{
-        //     type:String,
-        //     required:true,
-        //     trim:true
-        // },
+    
         phone: {
             type: String,
             required: true
         },
-        // email:{
-        //     type:String,
-        //     required:true,
-        //     unique:true,
-        //     trim:true,
-        //     lowercase:true
-        // },
+      
         department: {
             type: String,
             enum: ['OPD', 'IPD', 'Lab', 'Pharmacy', 'Admin']
@@ -46,36 +36,9 @@ const employeeSchema = new mongoose.Schema(
             type: Date,
             required: true
         },
-        medicalRegistrationNo: {
-            type: String,
-            unique: true,
-            sparse: true
-        },
-        specialization: {
-            type: String,
-            trim: true
-        },
-        qualification: [
-            { type: String }
-        ],
-        consultationFee: {
-            type: Number
-        },
-        availabilitySlots: [{
-
-            date: {
-                type: Date
-            },
-            startTime: {
-                type: String
-            },
-            endTime: { type: String },
-            isBooked: {
-                type: Boolean,
-                default: false
-            }
-
-        }]
+      
+    },{
+        timestamps:true
     }
 );
 
