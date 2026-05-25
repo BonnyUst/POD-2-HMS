@@ -22,6 +22,15 @@ router.get("/profile",
     authMiddleware, 
 userController.getCurrentProfile);
 
+
+//to get the view of the employees 
+router.get(
+    '/list',
+    authMiddleware,
+    authRoles(permissions.VIEW_EMPLOYEE),
+    userController.getAllEmployees
+)
+
 module.exports = router;
 
 

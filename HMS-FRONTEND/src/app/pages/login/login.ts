@@ -9,22 +9,25 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './login.css',
 })
 export class Login {
-  email='';
-  password='';
+  email = '';
+  password = '';
 
-  constructor(private auth:Auth,
-    private router:Router
+  constructor(private auth: Auth,
+    private router: Router
 
-  ){}
+  ) { }
 
-  onLogin(){
-    const loginData={
-      email:this.email,
-      password:this.password
+  onLogin() {
+    const loginData = {
+      email: this.email,
+      password: this.password
     };
     this.auth.login(loginData).subscribe({
-      next:(res)=>{
-        console.log(res);
+      next: (res) => {
+
+        console.log("LOGIN RESPONSE:", res);
+        console.log("ROLE NAME:", res.data.user.roleId.name);
+        console.log("ROLE CODE:", res.data.user.roleId.roleCode);
 
         localStorage.setItem(
           'token',
@@ -37,12 +40,12 @@ export class Login {
         );
 
         console.log(loginData)
-         if (res.data.user.roleId.name === 'Admin') {
+        if (res.data.user.roleId.name === 'Admin') {
           this.router.navigate(['/admin/dashboard']);
         }
       },
 
-      error:(err)=>{
+      error: (err) => {
         console.log(err);
       }
     });

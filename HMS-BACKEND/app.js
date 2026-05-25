@@ -7,6 +7,7 @@ const authRoutes=require('./src/routes/auth.route')
 const nodeRoutes=require('./src/routes/node.route')
 const dashboardRoutes=require('./src/routes/dashboard.route')
 const doctorRoutes=require('./src/routes/doctor.route')
+const patientRoutes=require('./src/routes/patient.route')
 
 const app=new express();
 
@@ -26,6 +27,8 @@ app.use('/api/users',userRoutes);
 app.use('/api/doctors',doctorRoutes);
 app.use('/api',dashboardRoutes)
 app.use('/api/node',nodeRoutes);
+
+app.use('/api/patients',patientRoutes);
 
 
 module.exports=app;

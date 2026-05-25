@@ -1,44 +1,77 @@
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcrypt');
 
-const User = require("../models/User.model");
-const Role = require("../models/Role.model");
+const User = require('../models/User.model');
+const Role = require('../models/Role.model');
+const Employee = require('../models/Employee.model');
 
 const seedAdmin = async () => {
     try {
-        const adminRole = await Role.findOne({
-            roleCode: "ADMIN"
-        });
+        const adminRole = await Role.findOne({ name: 'Admin' });
+        console.log(adminRole)
 
         if (!adminRole) {
-            throw new Error("ADMIN role not found. Seed roles first.");
+            throw new Error('Admin role not found. Seed roles first.');
         }
 
         const existingAdmin = await User.findOne({
-            email: "admin@hospital.com"
+            email: 'admin@gmail.com'
         });
 
         if (existingAdmin) {
-            console.log("⚡ Admin already seeded");
+            const existingAdminEmployee = await Employee.findOne({
+                userId: existingAdmin._id
+            });
+
+            if (!existingAdminEmployee) {
+                await Employee.create({
+                    userId: existingAdmin._id,
+                    employeeCode: 'ADM001',
+                    phone: '9999999999',
+                    department: 'Admin',
+                    designation: 'Administrator',
+                    status: 'ACTIVE',
+                    joiningDate: new Date()
+                });
+
+                console.log('✅ Admin employee record created');
+            } else {
+                console.log('⚡ Admin already seeded');
+            }
+
             return;
         }
 
-        const passwordHash = await bcrypt.hash("Admin@123", 12);
+        const passwordHash = await bcrypt.hash('Admin@123', 12);
 
-        await User.create({
-            firstName: "System",
-            lastName: "Admin",
-            email: "admin@hospital.com",
-            phone: "9999999999",
+        const user = await User.create({
+            firstName: 'Super',
+            lastName: 'Admin',
+            email: 'admin@gmail.com',
             passwordHash,
             roleId: adminRole._id,
-            status: "ACTIVE",
-            isVerified: true
+            isVerified: true,
+            status: 'ACTIVE',
+            mustChangePassword: false
         });
 
-        console.log("✅ Admin seeded successfully");
+        await Employee.create({
+            userId: user._id,
+            employeeCode: 'ADM001',
+            phone: '9999999999',
+            department: 'Admin',
+            designation: 'Administrator',
+            status: 'ACTIVE',
+            joiningDate: new Date()
+        });
+
+        console.log('✅ Admin seeded successfully');
 
     } catch (error) {
-        console.error("❌ Error seeding admin:", error.message);
+        if (error.code === 11000) {
+            console.log('⚡ Admin already seeded');
+        } else {
+            console.error('❌ Error seeding admin:', error.message);
+        }
     }
 };
 

@@ -3,6 +3,7 @@ const {verifyToken} =require('../utils/jwt')
 const authMiddleware=(req,res,next)=>
 {
     try{
+      
         //read authorization header 
 
         const authHeader=req.headers.authorization;

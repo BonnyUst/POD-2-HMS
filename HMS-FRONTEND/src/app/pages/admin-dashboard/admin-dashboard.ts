@@ -8,27 +8,72 @@ import { ChangeDetectorRef } from '@angular/core';
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.css',
 })
-export class AdminDashboard implements OnInit{
+export class AdminDashboard implements OnInit {
 
-  stats={
-    totalPatients:0,
-    totalEmployees:0,
-    pendingApprovals:0
+
+  stats = {
+    totalPatients: 0,
+    totalEmployees: 0,
+    pendingApprovals: 0
   };
 
-  constructor(private http:HttpClient,
-    private cd:ChangeDetectorRef
-  ){}
+  employees: any[] = [];
+  patients: any[] = [];
+  pendingRequests: any[] = [];
+
+  selectedSection = 'employees';
+
+  constructor(private http: HttpClient,
+    private cd: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
-   
-    this.http.get('http://localhost:5000/api/dashboard')
-    .subscribe((res:any)=>{
-      this.stats=res.data;
-       this.cd.detectChanges();
-      console.log('dashboard stats',this.stats);
-    })
+
+    this.getDashboardStats();
+    this.showEmployees();
+
   }
-  
+
+  getDashboardStats() {
+
+    this.http.get('http://localhost:5000/api/dashboard')
+      .subscribe((res: any) => {
+        this.stats = res.data;
+        this.cd.detectChanges();
+        console.log('dashboard stats', this.stats);
+      })
+  }
+
+  showEmployees() {
+    this.selectedSection='employees';
+    this.http.get('http://localhost:5000/api/users/list')
+      .subscribe((res: any) => {
+        this.employees = res.data;
+        this.cd.detectChanges();
+        console.log('dashboard stats', this.employees);
+      })
+  }
+
+  showPatients() {
+    console.log('patients', this.patients);
+  this.selectedSection = 'patients';
+
+  this.http.get('http://localhost:5000/api/patients/list')
+    .subscribe((res: any) => {
+      this.patients = res.data;
+      this.cd.detectChanges();
+    });
+}
+
+showPendingRequests() {
+  this.selectedSection = 'pending';
+
+  this.http.get('http://localhost:5000/api/pending-requests')
+    .subscribe((res: any) => {
+      this.pendingRequests = res.data;
+      this.cd.detectChanges();
+    });
+}
+
 
 }

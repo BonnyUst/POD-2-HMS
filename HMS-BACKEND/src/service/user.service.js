@@ -11,6 +11,7 @@ exports.createEmployeeUser = async (userData) => {
         email,
         password,
         phone,
+        role,
         department,
         designation,
         joiningDate,
@@ -26,7 +27,7 @@ exports.createEmployeeUser = async (userData) => {
        throw new ApiError(409, 'User already exists with this email');
     }
 
-    const employeeRole = await RoleModel.findOne({ name: 'Employee' });
+    const employeeRole = await RoleModel.findOne({ name: role });
     
     if (!employeeRole) {
         throw new ApiError(404, 'Employee role Not Found');
@@ -86,3 +87,38 @@ exports.currentProfile=async(userId)=>
         return profile;
    
 }
+
+
+//to get all the employees
+
+exports.getAllEmployees=async()=>{
+    const employees=await Employee.find()
+    .populate({
+        path:"userId",
+        select:"firstName lastName email roleId isVerified status",
+        populate:{
+            path:"roleId",
+            select:"name roleCode"
+        }
+    })
+    .sort({createdAt:-1});
+
+    return employees.map((employee)=>({
+         employeeId: employee._id,
+        employeeCode: employee.employeeCode,
+
+        firstName: employee.userId.firstName,
+        lastName: employee.userId.lastName,
+        email: employee.userId.email,
+
+        role: employee.userId.roleId.name,
+        roleCode: employee.userId.roleId.roleCode,
+        isVerified: employee.userId.isVerified,
+
+        phone: employee.phone,
+        department: employee.department,
+        designation: employee.designation,
+        joiningDate: employee.joiningDate,
+        status: employee.status
+    }));
+};

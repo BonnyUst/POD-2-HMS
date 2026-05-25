@@ -1,21 +1,90 @@
 <div class="card-section">
 
-    <div class="card">
+    <div class="card"
+    [class.active]="selectedSection==='patients'"
+    (click)="showPatients()">
         <h3>Total Patients</h3>
         <p>{{stats.totalPatients}}</p>
     </div>
-    <div class="card">
+    <div class="card"
+    [class.active]="selectedSection==='employees'"
+    (click)="showEmployees()">
         <h3>Total Employees</h3>
         <p>{{stats.totalEmployees}}</p>
     </div>
-    <div class="card">
+    <div class="card"
+    [class.active]="selectedSection==='pending'"
+    (click)="showPendingRequests()">
         <h3>Total Pending Requests</h3>
         <p>{{stats.pendingApprovals}}</p>
     </div>
     
 </div>
+@if (selectedSection === 'employees') {
+  <div class="table-section">
+    <!-- <h2>Employees</h2> -->
 
-<div class="recent-staff">
-    <p>recent-staff list will be shwoing here </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Phone</th>
+          <th>Department</th>
+          <th>Designation</th>
+          <th>Status</th>
+        </tr>
+      </thead>
 
-</div>
+      <tbody>
+        @for (emp of employees; track emp.employeeId) {
+          <tr>
+            <td>{{ emp.employeeCode }}</td>
+            <td>{{ emp.firstName }} {{ emp.lastName }}</td>
+            <td>{{ emp.email }}</td>
+            <td>{{ emp.role }}</td>
+            <td>{{ emp.phone }}</td>
+            <td>{{ emp.department }}</td>
+            <td>{{ emp.designation }}</td>
+            <td>{{ emp.status }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
+@if (selectedSection === 'patients') {
+  <div class="table-section">
+    <table>
+      <thead>
+        <tr>
+          <th>UHID</th>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Gender</th>
+          <th>DOB</th>
+          <th>Blood Group</th>
+          <th>City</th>
+          <th>Created By</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (patient of patients; track patient.patientId) {
+          <tr>
+            <td>{{ patient.UHID }}</td>
+            <td>{{ patient.firstName }} {{ patient.lastName }}</td>
+            <td>{{ patient.phone }}</td>
+            <td>{{ patient.gender }}</td>
+            <td>{{ patient.dob }}</td>
+            <td>{{ patient.bloodGroup }}</td>
+            <td>{{ patient.city }}</td>
+            <td>{{ patient.createdByName }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

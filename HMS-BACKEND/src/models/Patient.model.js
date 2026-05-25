@@ -1,6 +1,6 @@
 const mongoose= require('mongoose')
 const Counter=require('./Counter.model')
-const User=require('./User.model')
+
 
 const patientSchema = new mongoose.Schema({
 

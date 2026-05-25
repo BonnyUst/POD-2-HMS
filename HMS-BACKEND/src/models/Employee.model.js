@@ -21,11 +21,11 @@ const employeeSchema = new mongoose.Schema(
       
         department: {
             type: String,
-            enum: ['OPD', 'IPD', 'Lab', 'Pharmacy', 'Admin']
+            enum: ['OPD', 'IPD', 'Lab', 'Pharmacy', 'Admin','Front Office']
         },
         designation: {
             type: String,
-            enum: ['Jr Doctor', 'Nurse', 'Receptionist']
+            enum: ['Jr Doctor', 'Nurse', 'Receptionist','Administrator',]
         },
         status: {
             type: String,
@@ -43,7 +43,7 @@ const employeeSchema = new mongoose.Schema(
 );
 
 employeeSchema.pre('save', async function () {
-    if (this.isNew) {
+    if (this.isNew && !this.employeeCode) {
         try {
             const counter = await Counter.findOneAndUpdate(
                 { name: 'employee' },

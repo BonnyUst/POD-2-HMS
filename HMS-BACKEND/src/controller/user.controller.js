@@ -25,6 +25,27 @@ const createEmployeeByAdmin=async(req,res,next)=>{
     }
 };
 
+const getAllEmployees = async (req, res) => {
+    try {
+        const employees = await userService.getAllEmployees();
+
+        return res
+            .status(200)
+            .json(new ApiResponse(
+                200,
+                "Employees Fetched Successfully",
+                employees
+            ));
+    } catch (error) {
+        return res
+            .status(error.statusCode || 500)
+            .json({
+                success: false,
+                message: error.message || "Something went wrong"
+            });
+    }
+};
+
 const getCurrentProfile=async (req,res)=>
 {
     try{
@@ -48,4 +69,4 @@ const getCurrentProfile=async (req,res)=>
     }
 }
 
-module.exports={createEmployeeByAdmin,getCurrentProfile};
+module.exports={createEmployeeByAdmin,getCurrentProfile,getAllEmployees};
