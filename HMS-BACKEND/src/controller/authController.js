@@ -1,27 +1,6 @@
 const ApiResponse = require('../utils/ApiResponse')
-const authService=require('../service/user.service')
+const authService=require('../service/auth.service')
 
-const createEmployee=async(req,res,next)=>{
-    try{
-        const employee=await authService.createEmployeeUser(req.body);
-
-        return res    
-            .status(201)
-        .json(new ApiResponse(201,"Employee Registered Successfully",employee));
-    }
-
-    
-    catch(error)
-    {
-
-        return res
-        .status(error.statusCode||500)
-        .json({
-            success:false,
-            message:error.message||"something went wrong"
-        });
-    }
-};
 const verifyEmail=async(req,res)=>{
     try{
         const{token}=req.params;
@@ -68,28 +47,4 @@ const login=async(req,res)=>{
     };
 }
 
-const getCurrentProfile=async (req,res)=>
-{
-    try{
-
-        const userId=req.user.userId;
-        const profile=await authService.currentProfile(userId);
-        
-        return res.status(200)
-        .json({
-            success:true,
-            statusCode:200,
-            message:"Profile Fetched Successfully",
-            data:profile
-        })
-    }
-    catch(error){
-
-        return res.ApiResponse(500,"Internal Server Error in Profile Fetching");
-
-
-    }
-}
-
-
-module.exports={createEmployee,verifyEmail,login,getCurrentProfile};
+module.exports={verifyEmail,login};

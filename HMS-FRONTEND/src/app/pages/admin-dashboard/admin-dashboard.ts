@@ -22,7 +22,7 @@ export class AdminDashboard implements OnInit{
 
   ngOnInit(): void {
    
-    this.http.get('http://localhost:5000/api/admin/dashboard')
+    this.http.get('http://localhost:5000/api/dashboard')
     .subscribe((res:any)=>{
       this.stats=res.data;
        this.cd.detectChanges();

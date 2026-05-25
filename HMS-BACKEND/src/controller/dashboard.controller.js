@@ -1,11 +1,11 @@
-const adminService=require('../service/admin.service')
+const dashboardService=require('../service/dashboard.service')
 const ApiResponse=require('../utils/ApiResponse')
 
 const getDashboardStats=async(req,res)=>
 {
 
     try{
-    const stats=await adminService.getDashboardStats();
+    const stats=await dashboardService.getDashboardStats();
 
     return res
         .status(200)

@@ -1,6 +1,6 @@
 const permissions = {
 
-    ADMIN_DASHBOARD: ["Admin"],
+    DASHBOARD: ["Admin"],
 
     ADD_PATIENT:["Admin", "Receptionist"],
     VIEW_PATIENT: ["Admin", "Receptionist", "Doctor"],
