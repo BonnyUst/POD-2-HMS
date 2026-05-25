@@ -75,7 +75,8 @@ exports.createEmployeeUser = async (userData) => {
 exports.currentProfile=async(userId)=>
 {
         const profile=await User.findById(userId)
-        .select("-passwordHash");
+        .select("-passwordHash")
+        .populate("roleId");
 
         if(!profile)
         {

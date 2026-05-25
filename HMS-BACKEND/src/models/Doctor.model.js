@@ -9,9 +9,11 @@ const doctorSchema = mongoose.Schema({
     },
     specialization: {
         type: String,
+        trim:true
     },
     qualification: {
         type: String,
+        trim:true
     },
     consultationFee: {
         type: Number,
@@ -21,6 +23,7 @@ const doctorSchema = mongoose.Schema({
         type: String,
         unique: true,
         required: true,
+        trim:true
     },
     availabilityStartTime: {
         type: String,
