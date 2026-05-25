@@ -65,7 +65,13 @@ exports.getAllPatients = async () => {
     emergencyContactName: patient.emergencyContactName,
     emergencyContactPhone: patient.emergencyContactPhone,
 
-    createdByName: `${patient.createdBy?.firstName || ""} ${patient.createdBy?.lastName || ""}`,
+  createdByName:
+  (
+    `${patient.createdBy?.firstName || ""} ${patient.createdBy?.lastName || ""}`.trim()
+    || patient.createdBy?.email
+    || "Unknown User"
+  ),
+
     createdByEmail: patient.createdBy?.email,
     createdByRole: patient.createdBy?.roleId?.name,
     createdByRoleCode: patient.createdBy?.roleId?.roleCode,
