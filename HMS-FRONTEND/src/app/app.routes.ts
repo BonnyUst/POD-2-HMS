@@ -7,6 +7,7 @@ import { authGuard } from './guards/auth-guard';
 import { DashboardLayout } from './layout/dashboard-layout/dashboard-layout';
 import { Patients } from './pages/patients/patients';
 import { Employees} from './pages/employees/employees';
+import { Appointments } from './pages/appointments/appointments';
 
 export const routes: Routes = [
     {path:'',redirectTo:'login',pathMatch:'full'},
@@ -22,7 +23,11 @@ export const routes: Routes = [
             },
             {
                 path:'employees',component:Employees
+            },
+            {
+                path:'appointments',component:Appointments
             }
+            
         ]
     }
 

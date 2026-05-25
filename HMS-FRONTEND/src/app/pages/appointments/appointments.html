@@ -1,0 +1,193 @@
+<div class="appointment-page">
+
+    <div class="page-header">
+        <h2>Appointments</h2>
+
+        <div class="header-actions">
+            <button class="add-btn" (click)="openAddAppointmentModal()">
+                <i class="bi bi-plus-lg"></i>
+                Add Appointment
+            </button>
+        </div>
+    </div>
+
+    <div class="table-toolbar">
+        <div class="search-box">
+            <input type="text" placeholder="Search appointments..." [(ngModel)]="searchText"
+                (input)="filterAppointments()" />
+        </div>
+    </div>
+
+    <div class="appointment-table-section">
+        <table>
+            <thead>
+                <tr>
+                    <th>Appointment Code</th>
+                    <th>Patient</th>
+                    <th>UHID</th>
+                    <th>Doctor</th>
+                    <th>Department</th>
+                    <th>Date</th>
+                    <th>Time Slot</th>
+                    <th>Status</th>
+                    <th>Reason</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @for (appointment of filteredAppointments; track appointment._id) {
+                <tr>
+                    <td>{{ appointment.appointmentCode }}</td>
+
+                    <td>
+                        {{ appointment.patientId?.firstName }}
+                        {{ appointment.patientId?.lastName }}
+                    </td>
+
+                    <td>{{ appointment.patientId?.UHID }}</td>
+
+                    <td>
+                        {{ appointment.doctorId?.userId?.firstName }}
+                        {{ appointment.doctorId?.userId?.lastName }}
+                    </td>
+
+                    <td>{{ appointment.doctorId?.department }}</td>
+
+                    <td>{{ appointment.appointmentDate | date:'dd-MM-yyyy' }}</td>
+
+                    <td>{{ appointment.timeSlot }}</td>
+
+                    <td>
+                        <span class="status-badge">
+                            {{ appointment.status }}
+                        </span>
+                    </td>
+
+                    <td>{{ appointment.reason }}</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+
+        @if (filteredAppointments.length === 0) {
+        <div class="empty-state">
+            <p>No appointment data available</p>
+
+            <div class="empty-illustration">
+                <i class="bi bi-calendar-x"></i>
+            </div>
+
+            <h3>
+                <i class="bi bi-arrow-left"></i>
+                Add new appointment or search with different criteria.
+            </h3>
+        </div>
+        }
+    </div>
+
+    <div class="table-footer">
+        <p>Records: {{ filteredAppointments.length }} of {{ appointments.length }}</p>
+
+        <div class="pagination">
+            <i class="bi bi-chevron-left"></i>
+            <i class="bi bi-chevron-right"></i>
+        </div>
+    </div>
+
+</div>
+
+
+@if (showAddAppointmentModal) {
+<div class="modal-overlay">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+            <h2>Add Appointment</h2>
+
+            <button class="close-btn" (click)="closeAddAppointmentModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div class="modal-body">
+
+            <div class="form-grid">
+
+                <div class="form-section-title">
+                    Appointment Details
+                </div>
+
+                <div class="form-group">
+                    <label>Patient <span>*</span></label>
+                    <select [(ngModel)]="appointmentForm.patientId">
+                        <option value="">Select Patient</option>
+
+                        @for (patient of patients; track patient.patientId) {
+                        <option [value]="patient.patientId">
+                            {{ patient.firstName }} {{ patient.lastName }} - {{ patient.UHID }}
+                        </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Doctor <span>*</span></label>
+                    <select [(ngModel)]="appointmentForm.doctorId">
+                        <option value="">Select Doctor</option>
+
+                        @for (doctor of doctors; track doctor.employeeId) {
+                        <option [value]="doctor.employeeId">
+                            Dr. {{ doctor.firstName }} {{ doctor.lastName }} - {{ doctor.department }}
+                        </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Appointment Date <span>*</span></label>
+                    <input type="date" [(ngModel)]="appointmentForm.appointmentDate" />
+                </div>
+
+                <div class="form-group">
+                    <label>Time Slot <span>*</span></label>
+                    <select [(ngModel)]="appointmentForm.timeSlot">
+                        <option value="">Select Time Slot</option>
+                        <option value="09:00 AM">09:00 AM</option>
+                        <option value="09:30 AM">09:30 AM</option>
+                        <option value="10:00 AM">10:00 AM</option>
+                        <option value="10:30 AM">10:30 AM</option>
+                        <option value="11:00 AM">11:00 AM</option>
+                        <option value="11:30 AM">11:30 AM</option>
+                        <option value="02:00 PM">02:00 PM</option>
+                        <option value="02:30 PM">02:30 PM</option>
+                        <option value="03:00 PM">03:00 PM</option>
+                        <option value="03:30 PM">03:30 PM</option>
+                        <option value="04:00 PM">04:00 PM</option>
+                    </select>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Reason <span>*</span></label>
+                    <textarea rows="3" placeholder="Enter reason for appointment" [(ngModel)]="appointmentForm.reason">
+                    </textarea>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+            <button class="cancel-btn" (click)="closeAddAppointmentModal()">
+                Cancel
+            </button>
+
+            <button class="save-btn" (click)="saveAppointment()">
+                Save
+            </button>
+        </div>
+
+    </div>
+
+</div>
+}

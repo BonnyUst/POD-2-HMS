@@ -15,7 +15,10 @@ const permissions = {
     ADD_DOCTOR: ["Admin"],
     VIEW_DOCTOR: ["Admin"],
     UPDATE_DOCTOR: ["Admin"],
-    DELETE_DOCTOR: ["Admin"]
+    DELETE_DOCTOR: ["Admin"],
+
+    ADD_APPOINTMENT:["Admin","Receptionist"],
+    VIEW_APPOINTMENT:["Admin"]
 }
 
 module.exports = permissions;
