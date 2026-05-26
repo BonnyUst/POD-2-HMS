@@ -9,11 +9,13 @@ import { Patients } from './pages/patients/patients';
 import { Employees} from './pages/employees/employees';
 import { Appointments } from './pages/appointments/appointments';
 import { Approvals } from './pages/approvals/approvals';
+import { ChangePassword } from './pages/change-password/change-password';
 
 export const routes: Routes = [
     {path:'',redirectTo:'login',pathMatch:'full'},
     {path:'signup',component:Signup},
     {path:'login',component:Login},
+    {path:'change-password',component:ChangePassword},
     {path:'admin',component:DashboardLayout,canActivate:[authGuard],
         children:[
             {

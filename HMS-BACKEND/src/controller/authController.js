@@ -47,4 +47,22 @@ const login=async(req,res)=>{
     };
 }
 
-module.exports={verifyEmail,login};
+
+const changePassword = async (req, res, next) => {
+    try {
+        const userId = req.user.userId;
+
+        const result = await authService.changePassword(userId, req.body);
+
+        return res.status(200).json({
+            success: true,
+            message: "Password changed successfully",
+            data: result
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports={verifyEmail,login,changePassword};

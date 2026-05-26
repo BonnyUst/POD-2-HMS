@@ -32,7 +32,8 @@ export class Employees implements OnInit {
   constructor(
     private http: HttpClient,
     private cd: ChangeDetectorRef
-  ) {}
+  ) { }
+
 
   ngOnInit(): void {
     this.getEmployees();
@@ -62,26 +63,37 @@ export class Employees implements OnInit {
   }
 
   saveEmployee() {
-  console.log('Employee form data:', this.employeeForm);
+    console.log('Employee form data:', this.employeeForm);
 
-  this.http.post('http://localhost:5000/api/users/create', this.employeeForm)
-    .subscribe({
-      next: (res: any) => {
-        console.log('Employee created successfully:', res);
+    this.http.post('http://localhost:5000/api/users/create', this.employeeForm)
+      .subscribe({
+        next: (res: any) => {
+          console.log('Employee created successfully:', res);
 
-        this.showAddEmployeeModal = false;
-        
-        this.getEmployees();
+          this.showAddEmployeeModal = false;
 
-        this.cd.detectChanges();
-      },
-      error: (err) => {
-        console.log('Error while creating employee:', err);
-      }
-    });
+          this.getEmployees();
+
+          this.cd.detectChanges();
+        },
+        error: (err) => {
+
+         console.log("Full backend error:", err.error);
+
+  if (err.error?.errors?.length > 0) {
+    console.log("Validation object:", err.error.errors[0]);
+    console.log("Field:", err.error.errors[0].path || err.error.errors[0].param);
+    console.log("Message:", err.error.errors[0].msg);
+    console.log("Value:", err.error.errors[0].value);
+  } else {
+    console.log("Backend message:", err.error?.message || err.message);
+  }
+          
+        }
+      });
 
     this.closeAddEmployeeModal();
-}
+  }
   filterEmployees() {
     const search = this.searchText.toLowerCase();
 

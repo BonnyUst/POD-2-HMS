@@ -48,7 +48,8 @@ exports.loginEmployee=async({email,password})=>
             lastName:user.lastName,
             email:user.email,
             roleId:user.roleId,
-            status:user.status
+            status:user.status,
+             mustChangePassword: user.mustChangePassword
 
         }
     };
@@ -75,5 +76,31 @@ exports.verifyEmployeeEmail=async(token)=>
         email:user.email,
         isVerified:user.isVerified,
         message:"Employee Email Verified successfully"
+    };
+};
+
+exports.changePassword = async (userId, { oldPassword, newPassword }) => {
+    const user = await User.findById(userId);
+
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    const isOldPasswordMatch = await bcrypt.compare(oldPassword, user.passwordHash);
+
+    if (!isOldPasswordMatch) {
+        throw new ApiError(401, "Old password is incorrect");
+    }
+
+    const newPasswordHash = await bcrypt.hash(newPassword, 10);
+
+    user.passwordHash = newPasswordHash;
+    user.mustChangePassword = false;
+
+    await user.save();
+
+    return {
+        email: user.email,
+        mustChangePassword: user.mustChangePassword
     };
 };

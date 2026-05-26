@@ -28,6 +28,7 @@ export class Login {
         console.log("LOGIN RESPONSE:", res);
         console.log("ROLE NAME:", res.data.user.roleId.name);
         console.log("ROLE CODE:", res.data.user.roleId.roleCode);
+          console.log("MUST CHANGE PASSWORD:", res.data.user.mustChangePassword);
 
         localStorage.setItem(
           'token',
@@ -38,6 +39,12 @@ export class Login {
           'role',
           res.data.user.roleId.name
         );
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+
+        if (res.data.user.mustChangePassword===true) {
+          this.router.navigate(['/change-password']);
+          return;
+        } 
 
         console.log(loginData)
         if (res.data.user.roleId.name === 'Admin') {

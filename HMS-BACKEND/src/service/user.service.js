@@ -3,6 +3,7 @@ const RoleModel = require('../models/Role.model');
 const Employee=require('../models/Employee.model')
 const bcrypt = require('bcrypt');
 const ApiError=require('../utils/ApiError');
+const sendEmail=require('./mail.service')
 
 exports.createEmployeeUser = async (userData) => {
     const {
@@ -43,7 +44,8 @@ exports.createEmployeeUser = async (userData) => {
         passwordHash,
         roleId: employeeRole._id,
         isVerified:true,
-        status:'ACTIVE'
+        status:'ACTIVE',
+        mustChangePassword: true
     });
 
    
@@ -55,7 +57,28 @@ exports.createEmployeeUser = async (userData) => {
         joiningDate,
 
     });
+let emailSent = true;
+await sendEmail(
+    email,
+    "HMS Employee Login Credentials",
+    `
+    <h2>Welcome to HMS</h2>
 
+    <p>Hello ${firstName} ${lastName},</p>
+
+    <p>Your employee account has been created successfully.</p>
+
+    <p><strong>Login Email:</strong> ${email}</p>
+    <p><strong>Temporary Password:</strong> ${password}</p>
+
+    <p>Please login using the above credentials.</p>
+    <p>For security reasons, you must change your password after first login.</p>
+
+    <br/>
+    <p>Regards,</p>
+    <p>HMS Admin Team</p>
+    `
+);
     return {
        employeeCode: employee.employeeCode,
         firstName: user.firstName,
@@ -67,7 +90,9 @@ exports.createEmployeeUser = async (userData) => {
         designation: employee.designation,
         joiningDate: employee.joiningDate,
         isVerified: user.isVerified,
-        status:user.status
+        status:user.status,
+        mustChangePassword: user.mustChangePassword,
+        emailSent
 
     };
 }
