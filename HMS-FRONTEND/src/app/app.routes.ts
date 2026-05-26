@@ -11,8 +11,13 @@ import { Appointments } from './pages/appointments/appointments';
 import { Approvals } from './pages/approvals/approvals';
 import { ChangePassword } from './pages/change-password/change-password';
 import { Profile } from './pages/profile/profile';
+import { JoinUs } from './pages/join-us/join-us';
 
 export const routes: Routes = [
+      {
+    path: 'join-us',
+    component: JoinUs
+  },
     {path:'',redirectTo:'login',pathMatch:'full'},
     {path:'signup',component:Signup},
     {path:'login',component:Login},

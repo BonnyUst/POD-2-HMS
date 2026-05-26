@@ -11,10 +11,10 @@ const crypto = require('crypto');
 const JoinUs = require('../models/JoinUs.model');
 const User = require('../models/User.model');
 const ApiError = require('../utils/ApiError');
-const bcrypt=require('bcrypt')
-const Role=require('../models/Role.model')
-const Employee=require('../models/Employee.model')
-const Doctor=require('../models/Doctor.model')
+const bcrypt = require('bcrypt')
+const Role = require('../models/Role.model')
+const Employee = require('../models/Employee.model')
+const Doctor = require('../models/Doctor.model')
 
 exports.createJoinUsRequest = async (joinUsData) => {
     const {
@@ -44,7 +44,7 @@ exports.createJoinUsRequest = async (joinUsData) => {
     }
 
     const existingRequest = await JoinUs.findOne({ email });
-   
+
 
     if (existingRequest) {
         if (!existingRequest.isVerified) {
@@ -55,8 +55,10 @@ exports.createJoinUsRequest = async (joinUsData) => {
 
             await existingRequest.save();
 
-            // TODO: send verification email here
-            console.log('Verification token resent:', newToken);
+            const verificationLink =
+                `http://localhost:5000/api/join-us/verify/${newToken}`;
+
+            console.log('Verification Link Resent:', verificationLink);
 
             return {
                 message: 'Verification email resent. Please verify your email.',
@@ -66,7 +68,7 @@ exports.createJoinUsRequest = async (joinUsData) => {
 
         throw new ApiError(409, 'Join request already exists with this email');
     }
-  const passwordHash = await bcrypt.hash(password,10);
+    const passwordHash = await bcrypt.hash(password, 10);
     const verificationToken = crypto.randomBytes(32).toString('hex');
 
     const joinUsRequest = await JoinUs.create({
@@ -93,9 +95,10 @@ exports.createJoinUsRequest = async (joinUsData) => {
         verificationToken,
         verificationTokenExpiry: new Date(Date.now() + 15 * 60 * 1000)
     });
+const verificationLink =
+    `http://localhost:5000/api/join-us/verify/${verificationToken}`;
 
-    // TODO: send verification email here
-    console.log('Verification token:', verificationToken);
+console.log('Verification Link:', verificationLink);
 
     return {
         message: 'Join request submitted. Please verify your email.',
@@ -210,7 +213,7 @@ exports.approveJoinUsRequest = async (requestId, approvedBy) => {
 
     const newEmployee = await Employee.create({
         userId: newUser._id,
-         phone: joinUsRequest.phone,
+        phone: joinUsRequest.phone,
         department: joinUsRequest.department,
         designation: joinUsRequest.designation,
         joiningDate: joinUsRequest.joiningDate

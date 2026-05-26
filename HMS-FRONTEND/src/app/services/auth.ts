@@ -13,6 +13,16 @@ export class Auth {
   return this.http.get<any>('http://localhost:5000/api/users/profile');
 }
 
+private baseUrl = 'http://localhost:5000/api';
+
+checkJoinUsEmail(data: any) {
+  return this.http.post(`${this.baseUrl}/join-us/check-email`, data);
+}
+
+joinUs(data: any) {
+  return this.http.post('http://localhost:5000/api/join-us/create', data);
+}
+
   login(loginData:any)
   {
     return this.http.post<any>(
