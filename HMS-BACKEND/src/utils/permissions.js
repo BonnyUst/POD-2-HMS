@@ -18,7 +18,10 @@ const permissions = {
     DELETE_DOCTOR: ["Admin"],
 
     ADD_APPOINTMENT:["Admin","Receptionist"],
-    VIEW_APPOINTMENT:["Admin"]
+    VIEW_APPOINTMENT:["Admin"],
+
+    APPROVE_EMPLOYEE:["Admin"],
+    PENDING_APPROVE_EMPLOYEE:["Admin"]
 }
 
 module.exports = permissions;

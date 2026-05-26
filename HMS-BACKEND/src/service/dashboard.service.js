@@ -1,5 +1,6 @@
 const Patient = require('../models/Patient.model')
 const Employee = require('../models/Employee.model')
+const JoinUs=require('../models/joinUs.model')
 
 const User = require('../models/User.model')
 const ApiError = require('../utils/ApiError')
@@ -14,7 +15,9 @@ exports.getDashboardStats = async () => {
         ] = await Promise.all([
             Patient.countDocuments(),
             Employee.countDocuments(),
-            User.countDocuments({ isVerified: false})
+            JoinUs.countDocuments({ isVerified: true,
+                approvalStatus:"PENDING"
+            })
         ]);
 
         return {

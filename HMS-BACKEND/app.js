@@ -9,6 +9,7 @@ const dashboardRoutes=require('./src/routes/dashboard.route')
 const doctorRoutes=require('./src/routes/doctor.route')
 const patientRoutes=require('./src/routes/patient.route')
 const appointmentRoutes=require('./src/routes/appointment.route')
+const joinUsRoutes=require('./src/routes/joinUs.route')
 
 const app=new express();
 
@@ -29,6 +30,8 @@ app.use('/api/users',userRoutes);
 app.use('/api/doctors',doctorRoutes);
 app.use('/api',dashboardRoutes)
 app.use('/api/node',nodeRoutes);
+
+app.use('/api/join-us',joinUsRoutes);
 
 app.use('/api/patients',patientRoutes);
 app.use('/api/appointments',appointmentRoutes);

@@ -4,19 +4,23 @@
     justify-content: space-between;
     /* justify content to push the left and right section */
     align-items: center;
-    padding:0px 20px;
+    padding: 0px 20px;
     min-height: 10vh;
-    /* background-color: white */
-    background-color: #F5F5F5;
+    background-color: #0F172A;
+    border-bottom: 1px solid #1E293B;
+    color: white;
 }
 
 .navbar-left-section{
     font-size: 24px;
     font-weight: bold;
+    color: #16B1C5;
 }
 
 .navbar-right-section{
     display: flex;
     gap: 20px;
-    background-color: yellowgreen;
+    align-items: center;
+    background-color: transparent;
+    color: #94A3B8;
 }

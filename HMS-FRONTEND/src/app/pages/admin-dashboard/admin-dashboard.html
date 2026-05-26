@@ -88,3 +88,36 @@
     </table>
   </div>
 }
+
+@if (selectedSection === 'pending') {
+  <div class="table-section">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Role</th>
+          <th>Department</th>
+          <th>Designation</th>
+          <th>Status</th>
+         
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (request of pendingRequests; track request._id) {
+          <tr>
+            <td>{{ request.firstName }} {{ request.lastName }}</td>
+            <td>{{ request.email }}</td>
+            <td>{{ request.phone }}</td>
+            <td>{{ request.role }}</td>
+            <td>{{ request.department }}</td>
+            <td>{{ request.designation }}</td>
+            <td>{{ request.approvalStatus }}</td>
+          
+        }
+      </tbody>
+    </table>
+  </div>
+}

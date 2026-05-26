@@ -68,10 +68,17 @@ export class AdminDashboard implements OnInit {
 showPendingRequests() {
   this.selectedSection = 'pending';
 
-  this.http.get('http://localhost:5000/api/pending-requests')
-    .subscribe((res: any) => {
-      this.pendingRequests = res.data;
-      this.cd.detectChanges();
+  this.http.get('http://localhost:5000/api/join-us/pending')
+    .subscribe({
+      next: (res: any) => {
+        console.log('Pending API response:', res);
+        this.pendingRequests = res.data;
+        console.log('Pending requests array:', this.pendingRequests);
+        this.cd.detectChanges();
+      },
+      error: (err) => {
+        console.log('Pending API error:', err);
+      }
     });
 }
 
