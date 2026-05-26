@@ -1,0 +1,171 @@
+.approval-section {
+  /* padding: 20px; */
+  width: 100%;
+}
+
+.section-header {
+  margin-bottom: 20px;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #0f172a;
+}
+
+.section-header p {
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.table-section {
+  width: 100%;
+  overflow-x: auto;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+thead {
+  background-color: #0f172a;
+  color: white;
+}
+
+th {
+  padding: 14px 12px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+td {
+  padding: 13px 12px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 14px;
+  color: #334155;
+}
+
+tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.status-badge {
+  background-color: #fef3c7;
+  color: #92400e;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.approve-btn,
+.reject-btn,
+.details-btn {
+  border: none;
+  padding: 7px 12px;
+  border-radius: 6px;
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.details-btn {
+  background-color: #2563eb;
+}
+
+.details-btn:hover {
+  background-color: #1d4ed8;
+}
+
+.approve-btn {
+  background-color: #16a34a;
+}
+
+.approve-btn:hover {
+  background-color: #15803d;
+}
+
+.reject-btn {
+  background-color: #dc2626;
+}
+
+.reject-btn:hover {
+  background-color: #b91c1c;
+}
+
+.expanded-row td {
+  background-color: #f8fafc;
+  padding: 0;
+}
+
+.details-box {
+  padding: 18px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.details-grid div {
+  background-color: white;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.details-grid label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 5px;
+}
+
+.details-grid p {
+  margin: 0;
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.doctor-section {
+  margin-top: 20px;
+}
+
+.doctor-section h4 {
+  margin-bottom: 12px;
+  color: #0f172a;
+}
+
+.empty-state {
+  background-color: white;
+  padding: 40px;
+  text-align: center;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.empty-state h3 {
+  margin: 0;
+  color: #0f172a;
+}
+
+.empty-state p {
+  margin-top: 8px;
+  color: #64748b;
+}

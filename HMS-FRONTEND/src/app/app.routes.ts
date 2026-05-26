@@ -8,6 +8,7 @@ import { DashboardLayout } from './layout/dashboard-layout/dashboard-layout';
 import { Patients } from './pages/patients/patients';
 import { Employees} from './pages/employees/employees';
 import { Appointments } from './pages/appointments/appointments';
+import { Approvals } from './pages/approvals/approvals';
 
 export const routes: Routes = [
     {path:'',redirectTo:'login',pathMatch:'full'},
@@ -26,7 +27,10 @@ export const routes: Routes = [
             },
             {
                 path:'appointments',component:Appointments
+            },{
+                path:'approvals',component:Approvals
             }
+            
             
         ]
     }
