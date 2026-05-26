@@ -9,6 +9,10 @@ export class Auth {
   
   constructor(private http:HttpClient){}
 
+  getProfile() {
+  return this.http.get<any>('http://localhost:5000/api/users/profile');
+}
+
   login(loginData:any)
   {
     return this.http.post<any>(

@@ -98,21 +98,43 @@ await sendEmail(
 }
 
 
-exports.currentProfile=async(userId)=>
-{
-        const profile=await User.findById(userId)
-        .select("-passwordHash")
-        .populate("roleId");
+exports.currentProfile = async (userId) => {
+    const employeeProfile = await Employee.findOne({ userId })
+        .populate({
+            path: "userId",
+            select: "-passwordHash",
+            populate: {
+                path: "roleId",
+                select: "name roleCode"
+            }
+        });
 
-        if(!profile)
-        {
-            throw new ApiError(401,"User is not found");
-        }
+    if (!employeeProfile) {
+        throw new ApiError(404, "Employee profile not found");
+    }
 
-        return profile;
-   
-}
+    return {
+        userId: employeeProfile.userId._id,
 
+        firstName: employeeProfile.userId.firstName,
+        lastName: employeeProfile.userId.lastName,
+        email: employeeProfile.userId.email,
+
+        role: employeeProfile.userId.roleId.name,
+        roleCode: employeeProfile.userId.roleId.roleCode,
+
+        isVerified: employeeProfile.userId.isVerified,
+        status: employeeProfile.userId.status,
+        mustChangePassword: employeeProfile.userId.mustChangePassword,
+
+        employeeId: employeeProfile._id,
+        employeeCode: employeeProfile.employeeCode,
+        phone: employeeProfile.phone,
+        department: employeeProfile.department,
+        designation: employeeProfile.designation,
+        joiningDate: employeeProfile.joiningDate
+    };
+};
 
 //to get all the employees
 

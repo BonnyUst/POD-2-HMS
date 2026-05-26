@@ -10,12 +10,18 @@ import { Employees} from './pages/employees/employees';
 import { Appointments } from './pages/appointments/appointments';
 import { Approvals } from './pages/approvals/approvals';
 import { ChangePassword } from './pages/change-password/change-password';
+import { Profile } from './pages/profile/profile';
 
 export const routes: Routes = [
     {path:'',redirectTo:'login',pathMatch:'full'},
     {path:'signup',component:Signup},
     {path:'login',component:Login},
     {path:'change-password',component:ChangePassword},
+    {
+  path: 'profile',
+  component: Profile,
+  
+},
     {path:'admin',component:DashboardLayout,canActivate:[authGuard],
         children:[
             {
@@ -31,7 +37,8 @@ export const routes: Routes = [
                 path:'appointments',component:Appointments
             },{
                 path:'approvals',component:Approvals
-            }
+            },
+             
             
             
         ]
