@@ -1,0 +1,298 @@
+.employees-container {
+    padding: 25px;
+    background-color: #f8fafc;
+    min-height: 100vh;
+    box-sizing: border-box; /* ADDED: prevents padding from causing overflow */
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.page-header h2 {
+    margin: 0;
+    font-size: 28px;
+    color: #0f172a;
+}
+
+.page-header p {
+    margin-top: 6px;
+    color: #64748b;
+    font-size: 15px;
+}
+
+.add-btn {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 11px 18px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    white-space: nowrap; /* ADDED: prevents button text from wrapping */
+}
+
+.add-btn:hover {
+    background-color: #1d4ed8;
+}
+
+.search-box {
+    margin-bottom: 20px;
+}
+
+.search-box input {
+    width: 100%;
+    max-width: 420px;
+    padding: 12px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    outline: none;
+    font-size: 14px;
+    box-sizing: border-box; /* ADDED: prevents input from overflowing */
+}
+
+.search-box input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.table-container {
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    overflow: hidden; /* CHANGED: from overflow-x:auto to hidden so table stays inside */
+    width: 100%; /* ADDED: ensures container never exceeds screen */
+}
+
+/* ===== KEY FIXES FOR THE TABLE ===== */
+table {
+    width: 100%;          /* CHANGED: from 'auto' to '100%' */
+    table-layout: fixed;  /* ADDED: forces columns to stay within screen width */
+    border-collapse: collapse;
+    min-width: unset;     /* REMOVED the old min-width that was causing overflow */
+}
+
+thead {
+    background-color: #0f172a;
+    color: white;
+}
+
+th,
+td {
+    padding: 10px 8px;        /* CHANGED: reduced padding to save horizontal space */
+    text-align: left;
+    font-size: 13px;           /* CHANGED: reduced from 14px to 13px to fit more columns */
+    border-bottom: 1px solid #e2e8f0;
+    white-space: normal;       /* CHANGED: from 'nowrap' to 'normal' so text wraps */
+    word-wrap: break-word;     /* ADDED: breaks long words */
+    overflow-wrap: break-word; /* ADDED: modern version of word-wrap */
+    word-break: break-word;    /* ADDED: handles long URLs and IDs */
+    vertical-align: top;       /* ADDED: aligns text to top when wrapping */
+}
+
+/* ADDED: Give specific columns smaller fixed widths so they don't eat too much space */
+th:first-child,
+td:first-child {
+    width: 50px; /* ID or Number column - keep it small */
+}
+
+th:last-child,
+td:last-child {
+    width: 120px; /* Action buttons column */
+}
+/* ===================================== */
+
+tbody tr:hover {
+    background-color: #f1f5f9;
+}
+
+.empty-text {
+    text-align: center;
+    color: #64748b;
+    padding: 25px;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.55);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    z-index: 1000;
+    overflow-y: auto;
+    box-sizing: border-box; /* ADDED */
+}
+
+.modal-box {
+    width: 100%;
+    max-width: 950px;
+    background-color: white;
+    border-radius: 18px;
+    padding: 30px;
+    box-shadow: 0 15px 35px rgba(15, 23, 42, 0.25);
+    box-sizing: border-box; /* ADDED: prevents modal from overflowing on small screens */
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 24px;
+    color: #0f172a;
+}
+
+.close-btn {
+    border: none;
+    background-color: #f1f5f9;
+    color: #0f172a;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-size: 22px;
+    cursor: pointer;
+    flex-shrink: 0; /* ADDED: prevents close button from shrinking */
+}
+
+.close-btn:hover {
+    background-color: #e2e8f0;
+}
+
+.section-title {
+    margin: 26px 0 16px;
+    font-size: 17px;
+    font-weight: 700;
+    color: #0f172a;
+    border-left: 4px solid #2563eb;
+    padding-left: 10px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    color: #334155;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 7px;
+}
+
+.form-group input,
+.form-group select {
+    padding: 12px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    outline: none;
+    font-size: 14px;
+    box-sizing: border-box; /* ADDED: prevents inputs from overflowing grid */
+    width: 100%;            /* ADDED: ensures inputs fill their column */
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    margin-top: 30px;
+}
+
+.cancel-btn {
+    padding: 12px 18px;
+    border: none;
+    border-radius: 10px;
+    background-color: #e2e8f0;
+    color: #0f172a;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.cancel-btn:hover {
+    background-color: #cbd5e1;
+}
+
+.save-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    background-color: #2563eb;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.save-btn:hover {
+    background-color: #1d4ed8;
+}
+
+.save-btn:disabled {
+    background-color: #94a3b8;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .employees-container {
+        padding: 18px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-box {
+        padding: 22px;
+    }
+
+    .modal-actions {
+        flex-direction: column;
+    }
+
+    .cancel-btn,
+    .save-btn {
+        width: 100%;
+    }
+
+    /* ADDED: On mobile, let the table scroll horizontally since screen is too small */
+    .table-container {
+        overflow-x: auto;
+    }
+
+    table {
+        table-layout: auto; /* ADDED: revert to auto on mobile for better readability */
+        min-width: 600px;   /* ADDED: ensures table is readable on mobile with scroll */
+    }
+
+    th, td {
+        white-space: nowrap; /* ADDED: keep cells clean on mobile scroll */
+        font-size: 12px;
+    }
+}

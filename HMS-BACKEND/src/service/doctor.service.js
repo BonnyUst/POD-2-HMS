@@ -92,3 +92,17 @@ exports.createDoctorByAdmin = async (doctorData) => {
     };
 
 };
+
+exports.getAllDoctors = async () => {
+    const doctors = await Doctor.find()
+        .populate({
+            path: 'employeeId',
+            populate: {
+                path: 'userId',
+                select: 'firstName lastName email phone status isVerified'
+            }
+        })
+        .sort({ createdAt: -1 });
+
+    return doctors;
+};

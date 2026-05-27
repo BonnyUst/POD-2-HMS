@@ -24,4 +24,19 @@ const createDoctorByAdmin = async (req, res) => {
     }
 }
 
-module.exports = { createDoctorByAdmin }
+const getAllDoctors = async (req, res, next) => {
+    try {
+        const doctors = await doctorService.getAllDoctors();
+
+        res.status(200).json({
+            success: true,
+            statusCode: 200,
+            message: 'Doctors fetched successfully',
+            data: doctors
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = { createDoctorByAdmin,getAllDoctors }

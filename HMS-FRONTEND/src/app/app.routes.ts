@@ -12,6 +12,7 @@ import { Approvals } from './pages/approvals/approvals';
 import { ChangePassword } from './pages/change-password/change-password';
 import { Profile } from './pages/profile/profile';
 import { JoinUs } from './pages/join-us/join-us';
+import { Doctors } from './pages/doctors/doctors';
 
 export const routes: Routes = [
       {
@@ -43,6 +44,9 @@ export const routes: Routes = [
             },{
                 path:'approvals',component:Approvals
             },
+            {
+                path:'doctors',component:Doctors
+            }
              
             
             

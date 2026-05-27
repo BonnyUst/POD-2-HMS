@@ -6,25 +6,24 @@ import { HttpClient } from '@angular/common/http';
 })
 export class Auth {
   private apiUrl = 'http://localhost:5000/api/auth';
-  
-  constructor(private http:HttpClient){}
+
+  constructor(private http: HttpClient) { }
 
   getProfile() {
-  return this.http.get<any>('http://localhost:5000/api/users/profile');
-}
+    return this.http.get<any>('http://localhost:5000/api/users/profile');
+  }
 
-private baseUrl = 'http://localhost:5000/api';
+  private baseUrl = 'http://localhost:5000/api';
 
-checkJoinUsEmail(data: any) {
-  return this.http.post(`${this.baseUrl}/join-us/check-email`, data);
-}
+  checkJoinUsEmail(data: any) {
+    return this.http.post(`${this.baseUrl}/join-us/check-email`, data);
+  }
 
-joinUs(data: any) {
-  return this.http.post('http://localhost:5000/api/join-us/create', data);
-}
+  joinUs(data: any) {
+    return this.http.post('http://localhost:5000/api/join-us/create', data);
+  }
 
-  login(loginData:any)
-  {
+  login(loginData: any) {
     return this.http.post<any>(
       `${this.apiUrl}/login`,
       loginData

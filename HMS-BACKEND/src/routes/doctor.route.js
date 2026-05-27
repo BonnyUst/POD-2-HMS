@@ -20,4 +20,12 @@ router.post(
     doctorController.createDoctorByAdmin
 );
 
+router.get(
+    '/list',
+    authMiddleware,
+    authRoles(permissions.VIEW_DOCTOR),
+    doctorController.getAllDoctors
+);
+
+
 module.exports=router;
