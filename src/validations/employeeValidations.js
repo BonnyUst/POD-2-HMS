@@ -25,10 +25,10 @@ const addEmployeeValidator = [
         .notEmpty()
         .withMessage("Role name is required"),
 
-    body('deptName')
-        .trim()
-        .notEmpty()
-        .withMessage("Department name is required"),
+    // body('deptName')
+    //     .trim()
+    //     .notEmpty()
+    //     .withMessage("Department name is required"),
 
     body('designation')
         .trim()

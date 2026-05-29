@@ -7,7 +7,7 @@ const tokenType = {
 const tokenConfig = {
     ACCESS : {
         secret : process.env.JWT_ACCESS_SECRET,
-        expiresIn : "15m",
+        expiresIn : "30m",
     },
     VERIFY_EMAIL : {
         secret : process.env.JWT_VERIFY_SECRET,

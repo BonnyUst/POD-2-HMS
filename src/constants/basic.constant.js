@@ -8,5 +8,18 @@ const STATUS = Object.freeze({
   ACTIVE : "ACTIVE",
   INACTIVE : "INACTIVE"
 });
-module.exports = {GENDER,STATUS};
+
+const APMNT_STATUS = Object.freeze({
+  BOOKED : "BOOKED",
+  CANCELLED : "CANCELLED",
+  COMPLETED : "COMPLETED"
+})
+
+const APPROVAL_STATUS = Object.freeze({
+  PENDING : "PENDING",
+  APPROVED : "APPROVED",
+  REJECTED : "REJECTED"
+});
+
+module.exports = {GENDER,STATUS,APMNT_STATUS,APPROVAL_STATUS};
 

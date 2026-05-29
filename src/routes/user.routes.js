@@ -3,7 +3,7 @@ const {createRouter,auth,errorValidate} = require('./routesServices/routes.heade
 
 const router = createRouter();
 
-const {getMyInfo } =  require('../controllers/user.controller');
+const {getMyInfo,getMyProfile } =  require('../controllers/user.controller');
 // const authorize = require('../middleware/authorize.middleware');
 // const PERMISSIONS = require('../constants/permissions');
 
@@ -15,6 +15,6 @@ const {getMyInfo } =  require('../controllers/user.controller');
 //   }
 // );
 // router.get('/home',auth,authorize(""),getMyHome)
-router.get('/my-info',auth, getMyInfo);
+router.get('/profile',auth,getMyProfile);
 
 module.exports = router;

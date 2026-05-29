@@ -1,6 +1,13 @@
 const Menu = require('../models/Menu');
 const RoleMenu = require('../models/RoleMenu');
 const ApiError = require('../utils/ApiError');
+const Approval = require('../models/Approvals');
+const User = require('../models/User');
+const Departments = require('../models/Departments');
+const { GENDER } = require('../constants/basic.constant');
+const { BLOOD_GROUP } = require('../constants/hms.constant');
+const ROLE_DEPT_MAP = require('../utils/roleDeptMap');
+const ROLES = require('../constants/role.constant');
 
 // ✅ GET MENU BY ROLE
 const getMenuByRole = async (roleName) => {
@@ -120,6 +127,53 @@ const assignMenusToRole = async (roleName, menuIds) => {
   await RoleMenu.insertMany(roleMenus);
 };
 
+const checkJoinUs = async (email) => {
+
+  const user = await User.findOne({ email });
+  if (user) {
+    return { status: "EXISTS" , message : "User already exists." };
+  }
+
+  const approval = await Approval.findOne({ email });
+
+  if (!approval) {
+    return { status: "NEW", message : "" };
+  }
+
+  if (!approval.isEmailVerified) {
+    return { status: "NOT_VERIFIED", message : "Kindly verify your account to proceed next!" };
+  }
+
+  if (approval.status === "PENDING") {
+    return { status: "PENDING", userEmail : approval.email ,message : "Your account is waiting for admins approval!" };
+  }
+
+  if (approval.status === "APPROVED") {
+    return { status: "APPROVED", message : "Already approved. Please login." };
+  }
+
+  if (approval.status === "REJECTED") {
+    return { status: "REJECTED" , message : approval.message };
+  }
+};
+
+const getMetaData = async()=>{
+  const departments = await Departments.find().select('deptName deptId');
+  return { 
+    genders : Object.values(GENDER),
+    bloodGroups : Object.values(BLOOD_GROUP),
+    roleDeptMap : ROLE_DEPT_MAP,
+    roleNames : ROLES,
+    departments
+  }
+}
+
+const getPatientMetaData = async()=>{
+  return {
+    genders : Object.values(GENDER),
+    bloodGroups : Object.values(BLOOD_GROUP)
+  }
+}
 
 module.exports = {
   getMenuByRole,
@@ -127,5 +181,9 @@ module.exports = {
   updateMenu,
   deleteMenu,
   toggleMenu,
-  assignMenusToRole
+  assignMenusToRole,
+  checkJoinUs,
+  getMetaData,
+  getPatientMetaData
 };
+

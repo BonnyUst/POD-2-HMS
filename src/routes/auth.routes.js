@@ -11,6 +11,6 @@ const {
 
 router.post('/signup',userSignupValidator,errorValidate,signup);
 router.post('/login',userLoginValidator,errorValidate,login);
-router.get('/verify-email',(req,res,next)=>{console.log("summa"); next();},verifyEmail);
+router.get('/verify-email',verifyEmail);
 
 module.exports = router;

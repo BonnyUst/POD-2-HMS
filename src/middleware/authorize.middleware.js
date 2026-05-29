@@ -1,5 +1,6 @@
 const ROLE_PERMISSIONS = require('../constants/rolePermissions');
 const ROLES = require('../constants/role.constant');
+const ApiError = require('../utils/ApiError');
 
 const authorize = (requiredPermission) => {
   return (req, res, next) => {
@@ -7,10 +8,14 @@ const authorize = (requiredPermission) => {
       const user = req.user;
 
       if (!user || !user.roleName) {
-        return res.status(401).json({ message: "Unauthorized" });
+        throw new ApiError(401,"Unauthorized");
       }
 
       const roleCode = user.roleName; // "OWN", "DOC", etc.
+
+      console.log("USER ROLE:", user.roleName);
+      console.log("REQUIRED:", requiredPermission);
+      console.log("HAS:", ROLE_PERMISSIONS[user.roleName]);
 
       // 🔥 ✅ OWNER BYPASS
       if (roleCode === ROLES.OWNER.roleName) {

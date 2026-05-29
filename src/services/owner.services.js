@@ -10,53 +10,32 @@ const addAdmin = async (adminDetails) => {
   try {
 
     const {
-      firstName,
-      lastName,
-      email,
-      phone,
-      password,
-      deptName,
-      designation,
-      joiningDate
+      deptName
     } = adminDetails;
 
-    // role
+    // force ADMIN role
     adminDetails.roleName = ROLES.ADMIN.roleName;
 
-    // create employee
+    // create employee (this already creates user + role)
     const newEmployee = await employeeService.addEmployee(adminDetails);
 
-    // department check
-    const departmentInfo = await Departments.findOne({ deptName });
+    // ✅ normalize dept
+    const departmentInfo = await Departments.findOne({
+      deptName: deptName.toUpperCase().trim()
+    });
 
     if (!departmentInfo) {
       throw new ApiError(404, "Department not found");
     }
 
-    console.log("Dept exists");
-
-    // FIXED ROLE QUERY
-    const adminRole = await Roles.findOne({
-      roleName: ROLES.ADMIN.roleName
-    });
-
-    if (!adminRole) {
-      throw new ApiError(404, "ADMIN role not found in Roles collection");
-    }
-
-    // assign role
     const userId = newEmployee.userId;
-    const newUser = await User.findById(userId);
 
-    if (!newUser) {
-      throw new ApiError(404, "User not found");
-    }
+    // ✅ FIX: ObjectId comparison
+    const alreadyExists = departmentInfo.adminIds.some(
+      id => id.toString() === userId.toString()
+    );
 
-    newUser.roleId = adminRole._id;
-    await newUser.save();   // ✅ FIX
-
-    // department mapping
-    if (!departmentInfo.adminIds.includes(userId)) {
+    if (!alreadyExists) {
       departmentInfo.adminIds.push(userId);
       await departmentInfo.save();
     }

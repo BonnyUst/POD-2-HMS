@@ -9,13 +9,22 @@ const {
   assignMenusToRole,
   updateMenu,
   toggleMenu,
-  deleteMenu
+  deleteMenu,
+  checkJoinUs,
+  getMetaData,
+  getPatientMetaData
 } = require('../controllers/meta.controller');
+
+// /api/
+router.get('/meta',getMetaData);
+router.get('/meta/patient',auth,getPatientMetaData);
+router.post('/join-us',checkJoinUs);
+router.get('/menu', auth, getMyMenus);
+
 router.post('/menu', auth, authorize("*"), createMenu);
 router.post('/menu/assign', auth, authorize("*"), assignMenusToRole);
 router.put('/menu/:id', auth, authorize("*"), updateMenu);
 router.patch('/menu/:id/toggle', auth, authorize("*"), toggleMenu);
 router.delete('/menu/:id', auth, authorize("*"), deleteMenu);
-router.get('/menu', auth, getMyMenus);
 
 module.exports = router;

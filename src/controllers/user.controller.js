@@ -10,3 +10,19 @@ exports.getMyInfo = asyncHandler(async(req,res)=>{
     const responseData = await userService.getMyInfo(userId,role);
     res.status(200).json(new ApiResponse(200,responseData));
 })
+
+exports.getMyProfile = asyncHandler(async (req, res) => {
+
+  console.log("USER FROM TOKEN:", req.user); // 🔥 DEBUG
+
+  if (!req.user || !req.user.userId) {
+    throw new Error("User not authenticated");
+  }
+
+  const profile = await userService.getMyProfile(req.user.userId);
+
+  return res.status(200).json({
+    success: true,
+    data: profile
+  });
+});

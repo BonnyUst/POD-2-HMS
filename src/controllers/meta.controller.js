@@ -76,3 +76,18 @@ exports.assignMenusToRole = asyncHandler(async (req, res) => {
   );
 });
 
+exports.checkJoinUs = asyncHandler(async(req,res)=>{
+  const {email} = req.body;
+  const result = await metaService.checkJoinUs(email);
+  return res.status(200).send(new ApiResponse(200,result));
+})
+
+exports.getMetaData = asyncHandler(async(req,res)=>{
+  const metaData = await metaService.getMetaData();
+  return res.status(200).send(new ApiResponse(200,metaData));
+})
+
+exports.getPatientMetaData = asyncHandler(async(req,res)=>{
+  const patientMetaData = await metaService.getPatientMetaData();
+  return res.status(200).send(new ApiResponse(200,patientMetaData));
+})

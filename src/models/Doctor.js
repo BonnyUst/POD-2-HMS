@@ -3,9 +3,9 @@ const mongoose = require('mongoose');
 const doctorSchema = new mongoose.Schema(
     {
         employeeId : {
-            type : String,
+            type : mongoose.Schema.Types.ObjectId,
+            ref : "Employee",
             required : true,
-            unique : true,
         },
         medRegNo : {
             type : String,

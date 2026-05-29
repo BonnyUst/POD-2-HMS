@@ -10,7 +10,8 @@ const departments = [
     { deptId: "RAD", deptName: "RADIOLOGY" },
     { deptId: "LAB", deptName: "LABORATORY" },
     { deptId: "PHA", deptName: "PHARMACY" },
-    { deptId: "FRD", deptName: "FRONT DESK" }
+    { deptId: "FRD", deptName: "FRONT DESK" },
+    { deptId: "GEN", deptName: "GENERAL"}
 ];
 
 module.exports = departments;

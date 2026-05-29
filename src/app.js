@@ -13,6 +13,14 @@ const userRoutes = require('./routes/user.routes');
 const authRoutes = require('./routes/auth.routes');
 const employeeRoutes = require('./routes/employee.routes')
 const ownerRoutes = require('./routes/owner.routes');
+const receptionRoutes = require('./routes/receptionist.routes');
+const approvalRoutes = require('./routes/approval.routes');
+const adminRoutes = require('./routes/admin.routes');
+const patientRoutes = require('./routes/patient.routes');
+const deptRoutes = require('./routes/dept.routes');
+const appointmentRoutes = require('./routes/appointment.routes')
+const doctorRoutes = require('./routes/doctor.routes')
+
 const errorHandler = require('./middleware/errorHandler.middleware');
 const seedRoles = require('./utils/seedRoles');
 const seedDepartments = require('./utils/seedDepartments');
@@ -50,10 +58,17 @@ app.use(morgan('dev'));
 app.use(express.json());
 
 app.use('/api/auth',authRoutes);
-app.use('/api',metaRoutes);
+app.use('/api/register-approval',approvalRoutes )
+app.use('/api/admin',adminRoutes);
+app.use('/api/employee',employeeRoutes);
+app.use('/api/department',deptRoutes);
+app.use('/api/patients',patientRoutes);
+app.use('/api/doctor',doctorRoutes)
+app.use('/api/appointments',appointmentRoutes)
 app.use('/api/user',userRoutes);
-app.use('/employee',employeeRoutes);
-app.use('/owner',ownerRoutes);
+app.use('/api',metaRoutes);
+app.use('/api/owner',ownerRoutes);
+app.use('/api/reception',receptionRoutes);
 
 app.get('/',(req,res)=>{
     res.json({message:"Home Page Running"})
