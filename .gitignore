@@ -2,15 +2,21 @@
 HMS-BACKEND/node_modules/
 HMS-BACKEND/.env
 HMS-BACKEND/.scannerwork/
+HMS-BACKEND/sonar-project.properties
+
+
 
 # Frontend
 HMS-FRONTEND/node_modules/
 HMS-FRONTEND/.angular/
 HMS-FRONTEND/dist/
+HMS-FRONTEND/.scannerwork
+HMS-FRONTEND/sonar-project.properties
 
 # VS Code
 .vscode/
 
+HMS-APP
 # OS files
 .DS_Store
 Thumbs.dbgit rm -r --cached HMS-BACKEND/node_modules

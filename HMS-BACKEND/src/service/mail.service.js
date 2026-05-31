@@ -10,7 +10,8 @@ const sendEmail = async (to, subject, html) => {
         console.log("Sending mail to:", to);
 
         const response = await axios.post(
-            "https://expert-tribble-6j95g54v9jvfxvg7-8080.app.github.dev/mail",
+            // "https://expert-tribble-6j95g54v9jvfxvg7-8080.app.github.dev/mail",
+            "https://laughing-fishstick-4q7j596xj49xh57rv-8080.app.github.dev/mail",
             {
                 to,
                 subject,

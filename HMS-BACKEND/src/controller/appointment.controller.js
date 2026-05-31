@@ -30,3 +30,29 @@ exports.getAppointments = async (req, res, next) => {
         next(error);
     }
 };
+
+exports.getAvailableSlots = async (req, res, next) => {
+    try {
+        const { doctorId, appointmentDate } = req.query;
+
+        if (!doctorId || !appointmentDate) {
+            return res.status(400).json({
+                success: false,
+                message: 'doctorId and appointmentDate are required'
+            });
+        }
+
+        const slotData = await appointmentService.getAvailableSlots(
+            doctorId,
+            appointmentDate
+        );
+
+        res.status(200).json({
+            success: true,
+            message: 'Available slots fetched',
+            data: slotData
+        });
+    } catch (error) {
+        next(error);
+    }
+};

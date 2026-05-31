@@ -1,308 +1,401 @@
-<div class="employees-container">
+<div class="employee-page">
 
-  <div class="page-header">
-    <div>
-      <h2>Doctors</h2>
-     
+    <!-- Header -->
+    <div class="page-header">
+        <h2>Doctors</h2>
+
+        <div class="header-actions">
+            <button class="add-btn" (click)="openAddDoctorModal()">
+                <i class="bi bi-plus-lg"></i>
+                Add Doctor
+            </button>
+        </div>
     </div>
 
-    <button class="add-btn" type="button" (click)="openAddDoctorModal()">
-      + Add Doctor
-    </button>
-  </div>
+    <!-- Search -->
+    <div class="table-toolbar">
+        <div class="search-box">
+            <input
+                type="text"
+                placeholder="Search doctors..."
+                [value]="searchText"
+                (input)="searchText = $any($event.target).value; filterDoctors()" />
+        </div>
+    </div>
 
-  <div class="search-box">
-    <input
-      type="text"
-      placeholder="Search doctors..."
-      [(ngModel)]="searchText"
-      (input)="filterDoctors()">
-  </div>
+    <!-- Doctor Table -->
+    <div class="employee-table-section">
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee Code</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Specialization</th>
+                    <th>Qualification</th>
+                    <th>Fee</th>
+                    <th>Reg No</th>
+                    <th>Experience</th>
+                    <th>Availability</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
 
-  <div class="table-container">
+            <tbody>
+                @for (doctor of filteredDoctors; track doctor.doctorId) {
+                <tr>
+                    <td>{{ doctor.employeeCode }}</td>
+                    <td>{{ doctor.firstName }} {{ doctor.lastName }}</td>
+                    <td>{{ doctor.email }}</td>
+                    <td>{{ doctor.phone }}</td>
+                    <td>{{ doctor.specialization }}</td>
+                    <td>{{ doctor.qualification }}</td>
+                    <td>₹{{ doctor.consultationFee }}</td>
+                    <td>{{ doctor.medicalRegistrationNo }}</td>
+                    <td>{{ doctor.experienceYears }} Years</td>
+                    <td>{{ doctor.availabilityStartTime }} - {{ doctor.availabilityEndTime }}</td>
+                    <td>
+                        <span
+                            class="status-badge"
+                            [ngClass]="{
+                                'status-active': doctor.status === 'ACTIVE',
+                                'status-inactive': doctor.status === 'INACTIVE'
+                            }">
+                            {{ doctor.status }}
+                        </span>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Employee Code</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Phone</th>
-          <th>Department</th>
-          <th>Designation</th>
-          <th>Specialization</th>
-          <th>Qualification</th>
-          <th>Fee</th>
-          <th>Reg No</th>
-          <th>Experience</th>
-          <th>Availability</th>
-          <th>Joining Date</th>
-        </tr>
-      </thead>
+        @if (filteredDoctors.length === 0) {
+        <div class="empty-state">
+            <p>No data available in table</p>
 
-      <tbody>
-        @for (doctor of filteredDoctors; track doctor._id) {
-          <tr>
-            <td>{{ doctor.employeeId?.employeeCode }}</td>
+            <div class="empty-illustration">
+                <i class="bi bi-folder2-open"></i>
+            </div>
 
-            <td>
-              {{ doctor.employeeId?.userId?.firstName }}
-              {{ doctor.employeeId?.userId?.lastName }}
-            </td>
-
-            <td>{{ doctor.employeeId?.userId?.email }}</td>
-
-            <td>{{ doctor.employeeId?.phone }}</td>
-
-            <td>{{ doctor.employeeId?.department }}</td>
-
-            <td>{{ doctor.employeeId?.designation }}</td>
-
-            <td>{{ doctor.specialization }}</td>
-
-            <td>{{ doctor.qualification }}</td>
-
-            <td>₹{{ doctor.consultationFee }}</td>
-
-            <td>{{ doctor.medicalRegistrationNo }}</td>
-
-            <td>{{ doctor.experienceYears }} Years</td>
-
-            <td>
-              {{ doctor.availabilityStartTime }} - {{ doctor.availabilityEndTime }}
-            </td>
-
-            <td>{{ doctor.employeeId?.joiningDate | date:'mediumDate' }}</td>
-          </tr>
-        } @empty {
-          <tr>
-            <td colspan="13" class="empty-text">
-              No doctors found
-            </td>
-          </tr>
+            <h3>
+                <i class="bi bi-arrow-left"></i>
+                Add new record or search with different criteria.
+            </h3>
+        </div>
         }
-      </tbody>
-    </table>
+    </div>
 
-  </div>
+    <!-- Footer -->
+    <div class="table-footer">
+        <p>Records: {{ filteredDoctors.length }} of {{ doctors.length }}</p>
+
+        <div class="pagination">
+            <i class="bi bi-chevron-left"></i>
+            <i class="bi bi-chevron-right"></i>
+        </div>
+    </div>
 
 </div>
 
-
+<!-- Add Doctor Modal -->
 @if (showAddDoctorModal) {
-  <div class="modal-overlay">
+<div class="modal-overlay">
 
     <div class="modal-box">
 
-      <div class="modal-header">
-        <h3>Add Doctor</h3>
+        <div class="modal-header">
+            <h2>Add Doctor</h2>
 
-        <button
-          class="close-btn"
-          type="button"
-          (click)="closeAddDoctorModal()">
-          ×
-        </button>
-      </div>
+            <button class="close-btn" (click)="closeAddDoctorModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
 
-      <form (ngSubmit)="saveDoctor()" #doctorNgForm="ngForm">
+        <div class="modal-body">
 
-        <div class="section-title">User Details</div>
+            <form [formGroup]="doctorForm">
 
-        <div class="form-grid">
+                <div class="form-grid">
 
-          <div class="form-group">
-            <label>First Name</label>
-            <input
-              type="text"
-              name="firstName"
-              [(ngModel)]="doctorForm.firstName"
-              placeholder="Enter first name"
-              required>
-          </div>
+                    <!-- User Details -->
+                    <div class="form-section-title">
+                        User Details
+                    </div>
 
-          <div class="form-group">
-            <label>Last Name</label>
-            <input
-              type="text"
-              name="lastName"
-              [(ngModel)]="doctorForm.lastName"
-              placeholder="Enter last name"
-              required>
-          </div>
+                    <div class="form-group">
+                        <label>First Name <span>*</span></label>
+                        <input
+                            type="text"
+                            placeholder="Enter first name"
+                            formControlName="firstName" />
 
-          <div class="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              name="email"
-              [(ngModel)]="doctorForm.email"
-              placeholder="Enter email"
-              required>
-          </div>
+                        @if (doctorForm.get('firstName')?.hasError('required') &&
+                             doctorForm.get('firstName')?.touched) {
+                        <small class="error-msg">First name is required</small>
+                        }
+                        @if (doctorForm.get('firstName')?.hasError('minlength') &&
+                             doctorForm.get('firstName')?.touched) {
+                        <small class="error-msg">Minimum 2 characters required</small>
+                        }
+                    </div>
 
-          <div class="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              [(ngModel)]="doctorForm.password"
-              placeholder="Enter password"
-              required>
-          </div>
+                    <div class="form-group">
+                        <label>Last Name <span>*</span></label>
+                        <input
+                            type="text"
+                            placeholder="Enter last name"
+                            formControlName="lastName" />
 
-          <div class="form-group">
-            <label>Phone</label>
-            <input
-              type="text"
-              name="phone"
-              [(ngModel)]="doctorForm.phone"
-              placeholder="Enter phone number"
-              required>
-          </div>
+                        @if (doctorForm.get('lastName')?.hasError('required') &&
+                             doctorForm.get('lastName')?.touched) {
+                        <small class="error-msg">Last name is required</small>
+                        }
+                        @if (doctorForm.get('lastName')?.hasError('minlength') &&
+                             doctorForm.get('lastName')?.touched) {
+                        <small class="error-msg">Minimum 2 characters required</small>
+                        }
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email <span>*</span></label>
+                        <input
+                            type="email"
+                            placeholder="Enter email"
+                            formControlName="email" />
+
+                        @if (doctorForm.get('email')?.hasError('required') &&
+                             doctorForm.get('email')?.touched) {
+                        <small class="error-msg">Email is required</small>
+                        }
+                        @if (doctorForm.get('email')?.hasError('email') &&
+                             doctorForm.get('email')?.touched) {
+                        <small class="error-msg">Enter a valid email</small>
+                        }
+                    </div>
+
+                    <div class="form-group">
+                        <label>Password <span>*</span></label>
+                        <input
+                            type="password"
+                            placeholder="Enter password"
+                            formControlName="password" />
+
+                        @if (doctorForm.get('password')?.hasError('required') &&
+                             doctorForm.get('password')?.touched) {
+                        <small class="error-msg">Password is required</small>
+                        }
+                        @if (doctorForm.get('password')?.hasError('minlength') &&
+                             doctorForm.get('password')?.touched) {
+                        <small class="error-msg">Minimum 6 characters required</small>
+                        }
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phone <span>*</span></label>
+                        <input
+                            type="text"
+                            placeholder="Enter phone number"
+                            formControlName="phone" 
+                            maxlength="10"/>
+
+                        @if (doctorForm.get('phone')?.hasError('required') &&
+                             doctorForm.get('phone')?.touched) {
+                        <small class="error-msg">Phone is required</small>
+                        }
+                        @if (doctorForm.get('phone')?.hasError('pattern') &&
+                             doctorForm.get('phone')?.touched) {
+                        <small class="error-msg">Enter valid 10 digit phone number</small>
+                        }
+                    </div>
+
+                    <!-- Employee Details -->
+                    <div class="form-section-title">
+                        Employee Details
+                    </div>
+
+                    <div class="form-group">
+                        <label>Department <span>*</span></label>
+                        <select formControlName="department">
+                            <option value="">Select Department</option>
+                            @for (dept of departments; track dept) {
+                            <option [value]="dept">{{ dept }}</option>
+                            }
+                        </select>
+
+                        @if (doctorForm.get('department')?.invalid &&
+                             doctorForm.get('department')?.touched) {
+                        <small class="error-msg">Department is required</small>
+                        }
+                    </div>
+
+                    <div class="form-group">
+                        <label>Designation <span>*</span></label>
+                        <select formControlName="designation">
+                            <option value="">Select Designation</option>
+                            @for (desig of designations; track desig) {
+                            <option [value]="desig">{{ desig }}</option>
+                            }
+                        </select>
+
+                        @if (doctorForm.get('designation')?.invalid &&
+                             doctorForm.get('designation')?.touched) {
+                        <small class="error-msg">Designation is required</small>
+                        }
+                    </div>
+
+                    <div class="form-group">
+                        <label>Joining Date <span>*</span></label>
+                        <input
+                            type="date"
+                            formControlName="joiningDate" />
+
+                        @if (doctorForm.get('joiningDate')?.invalid &&
+                             doctorForm.get('joiningDate')?.touched) {
+                        <small class="error-msg">Joining date is required</small>
+                        }
+                    </div>
+
+                    <!-- Doctor Details -->
+                    <div class="form-section-title">
+                        Doctor Details
+                    </div>
+
+                    <div class="form-group">
+                        <label>Specialization <span>*</span></label>
+                        <input
+                            type="text"
+                            placeholder="Eg: Cardiology"
+                            formControlName="specialization" />
+
+                        @if (doctorForm.get('specialization')?.invalid &&
+                             doctorForm.get('specialization')?.touched) {
+                        <small class="error-msg">Specialization is required</small>
+                        }
+                    </div>
+
+                    <div class="form-group">
+                        <label>Qualification <span>*</span></label>
+                        <input
+                            type="text"
+                            placeholder="Eg: MBBS MD"
+                            formControlName="qualification" />
+
+                        @if (doctorForm.get('qualification')?.invalid &&
+                             doctorForm.get('qualification')?.touched) {
+                        <small class="error-msg">Qualification is required</small>
+                        }
+                    </div>
+
+                    <div class="form-group">
+                        <label>Consultation Fee <span>*</span></label>
+                        <input
+                            type="number"
+                            placeholder="Enter consultation fee"
+                            formControlName="consultationFee" />
+
+                        @if (doctorForm.get('consultationFee')?.hasError('required') &&
+                             doctorForm.get('consultationFee')?.touched) {
+                        <small class="error-msg">Consultation fee is required</small>
+                        }
+                        @if (doctorForm.get('consultationFee')?.hasError('min') &&
+                             doctorForm.get('consultationFee')?.touched) {
+                        <small class="error-msg">Fee must be greater than 0</small>
+                        }
+                    </div>
+
+                    <div class="form-group">
+                        <label>Medical Registration No <span>*</span></label>
+                        <input
+                            type="text"
+                            placeholder="Eg: KL-MED-12345"
+                            formControlName="medicalRegistrationNo" />
+
+                        @if (doctorForm.get('medicalRegistrationNo')?.invalid &&
+                             doctorForm.get('medicalRegistrationNo')?.touched) {
+                        <small class="error-msg">Registration number is required</small>
+                        }
+                    </div>
+
+                    <!-- Availability -->
+                    <div class="form-group">
+                        <label>Availability Start Time <span>*</span></label>
+                        <select formControlName="availabilityStartTime">
+                            <option value="">Select Start Time</option>
+                            @for (time of timeOptions; track $index) {
+                            <option [value]="time">{{ time }}</option>
+                            }
+                        </select>
+
+                        @if (doctorForm.get('availabilityStartTime')?.invalid &&
+                             doctorForm.get('availabilityStartTime')?.touched) {
+                        <small class="error-msg">Start time is required</small>
+                        }
+                    </div>
+
+                    <div class="form-group">
+                        <label>Availability End Time <span>*</span></label>
+                        <select formControlName="availabilityEndTime">
+                            <option value="">Select End Time</option>
+                            @for (time of timeOptions; track $index) {
+                            <option [value]="time">{{ time }}</option>
+                            }
+                        </select>
+
+                        @if (doctorForm.get('availabilityEndTime')?.invalid &&
+                             doctorForm.get('availabilityEndTime')?.touched) {
+                        <small class="error-msg">End time is required</small>
+                        }
+
+                        <!-- Group level validators -->
+                        @if (doctorForm.hasError('invalidAvailability') &&
+                             doctorForm.get('availabilityEndTime')?.touched) {
+                        <small class="error-msg">End time must be after start time</small>
+                        }
+                        @if (doctorForm.hasError('minAvailability') &&
+                             doctorForm.get('availabilityEndTime')?.touched) {
+                        <small class="error-msg">Availability must be at least 1 hour</small>
+                        }
+                    </div>
+
+                    <div class="form-group">
+                        <label>Experience Years <span>*</span></label>
+                        <input
+                            type="number"
+                            placeholder="Enter experience"
+                            formControlName="experienceYears" />
+
+                        @if (doctorForm.get('experienceYears')?.hasError('required') &&
+                             doctorForm.get('experienceYears')?.touched) {
+                        <small class="error-msg">Experience is required</small>
+                        }
+                        @if (doctorForm.get('experienceYears')?.hasError('min') &&
+                             doctorForm.get('experienceYears')?.touched) {
+                        <small class="error-msg">Experience cannot be negative</small>
+                        }
+                        @if (doctorForm.get('experienceYears')?.hasError('max') &&
+                             doctorForm.get('experienceYears')?.touched) {
+                        <small class="error-msg">Experience cannot exceed 60 years</small>
+                        }
+                    </div>
+
+                </div>
+
+            </form>
 
         </div>
 
-
-        <div class="section-title">Employee Details</div>
-
-        <div class="form-grid">
-
-          <div class="form-group">
-            <label>Department</label>
-            <select
-              name="department"
-              [(ngModel)]="doctorForm.department"
-              required>
-              <option value="">Select department</option>
-
-              @for (department of departments; track department) {
-                <option [value]="department">{{ department }}</option>
-              }
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Designation</label>
-            <select
-              name="designation"
-              [(ngModel)]="doctorForm.designation"
-              required>
-              <option value="">Select designation</option>
-
-              @for (designation of designations; track designation) {
-                <option [value]="designation">{{ designation }}</option>
-              }
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Joining Date</label>
-            <input
-              type="date"
-              name="joiningDate"
-              [(ngModel)]="doctorForm.joiningDate"
-              required>
-          </div>
-
+        <div class="modal-footer">
+            <button class="cancel-btn" (click)="closeAddDoctorModal()">Cancel</button>
+            <button
+                class="save-btn"
+                (click)="saveDoctor()"
+                [disabled]="doctorForm.invalid">
+                Save
+            </button>
         </div>
-
-
-        <div class="section-title">Doctor Details</div>
-
-        <div class="form-grid">
-
-          <div class="form-group">
-            <label>Specialization</label>
-            <input
-              type="text"
-              name="specialization"
-              [(ngModel)]="doctorForm.specialization"
-              placeholder="Eg: Cardiology"
-              required>
-          </div>
-
-          <div class="form-group">
-            <label>Qualification</label>
-            <input
-              type="text"
-              name="qualification"
-              [(ngModel)]="doctorForm.qualification"
-              placeholder="Eg: MBBS MD"
-              required>
-          </div>
-
-          <div class="form-group">
-            <label>Consultation Fee</label>
-            <input
-              type="number"
-              name="consultationFee"
-              [(ngModel)]="doctorForm.consultationFee"
-              placeholder="Enter consultation fee"
-              required>
-          </div>
-
-          <div class="form-group">
-            <label>Medical Registration No</label>
-            <input
-              type="text"
-              name="medicalRegistrationNo"
-              [(ngModel)]="doctorForm.medicalRegistrationNo"
-              placeholder="Eg: KL-MED-12345"
-              required>
-          </div>
-
-          <div class="form-group">
-            <label>Availability Start Time</label>
-            <input
-              type="text"
-              name="availabilityStartTime"
-              [(ngModel)]="doctorForm.availabilityStartTime"
-              placeholder="Eg: 09:00 AM"
-              required>
-          </div>
-
-          <div class="form-group">
-            <label>Availability End Time</label>
-            <input
-              type="text"
-              name="availabilityEndTime"
-              [(ngModel)]="doctorForm.availabilityEndTime"
-              placeholder="Eg: 04:00 PM"
-              required>
-          </div>
-
-          <div class="form-group">
-            <label>Experience Years</label>
-            <input
-              type="number"
-              name="experienceYears"
-              [(ngModel)]="doctorForm.experienceYears"
-              placeholder="Enter experience"
-              required>
-          </div>
-
-        </div>
-
-        <div class="modal-actions">
-          <button
-            type="button"
-            class="cancel-btn"
-            (click)="closeAddDoctorModal()">
-            Cancel
-          </button>
-
-          <button
-            type="submit"
-            class="save-btn"
-            [disabled]="doctorNgForm.invalid">
-            Save Doctor
-          </button>
-        </div>
-
-      </form>
 
     </div>
 
-  </div>
+</div>
 }

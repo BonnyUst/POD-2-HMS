@@ -2,22 +2,27 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { DatePipe, NgClass } from '@angular/common';
+import { environment } from '../../../environments/environment';
+import { Employee, CreateEmployeePayload } from '../../models/employee.model';
+import { ApiResponse } from '../../models/api-response.model';
 
 @Component({
   selector: 'app-employees',
+  standalone: true,
   imports: [FormsModule, DatePipe, NgClass],
   templateUrl: './employees.html',
   styleUrl: './employees.css'
 })
 export class Employees implements OnInit {
 
-  employees: any[] = [];
-  filteredEmployees: any[] = [];
-  searchText = '';
+  private baseUrl = environment.apiUrl;
 
+  employees: Employee[] = [];
+  filteredEmployees: Employee[] = [];
+  searchText = '';
   showAddEmployeeModal = false;
 
-  employeeForm = {
+  employeeForm: CreateEmployeePayload = {
     firstName: '',
     lastName: '',
     email: '',
@@ -32,70 +37,42 @@ export class Employees implements OnInit {
   constructor(
     private http: HttpClient,
     private cd: ChangeDetectorRef
-  ) { }
-
+  ) {}
 
   ngOnInit(): void {
     this.getEmployees();
   }
 
+  // ========================
+  // GET ALL EMPLOYEES
+  // ========================
+
   getEmployees() {
-    this.http.get('http://localhost:5000/api/users/list')
+    this.http.get<ApiResponse<Employee[]>>(`${this.baseUrl}/users/list`)
       .subscribe({
-        next: (res: any) => {
+        next: (res) => {
           this.employees = res.data;
           this.filteredEmployees = res.data;
-          console.log('employees', this.employees);
+          console.log('Employees:', this.employees);
           this.cd.detectChanges();
         },
         error: (err) => {
-          console.log('Error fetching employees', err);
+          console.error('Error fetching employees:', err);
         }
       });
   }
 
-  openAddEmployeeModal() {
-    this.showAddEmployeeModal = true;
-  }
+  // ========================
+  // FILTER / SEARCH
+  // ========================
 
-  closeAddEmployeeModal() {
-    this.showAddEmployeeModal = false;
-  }
-
-  saveEmployee() {
-    console.log('Employee form data:', this.employeeForm);
-
-    this.http.post('http://localhost:5000/api/users/create', this.employeeForm)
-      .subscribe({
-        next: (res: any) => {
-          console.log('Employee created successfully:', res);
-
-          this.showAddEmployeeModal = false;
-
-          this.getEmployees();
-
-          this.cd.detectChanges();
-        },
-        error: (err) => {
-
-         console.log("Full backend error:", err.error);
-
-  if (err.error?.errors?.length > 0) {
-    console.log("Validation object:", err.error.errors[0]);
-    console.log("Field:", err.error.errors[0].path || err.error.errors[0].param);
-    console.log("Message:", err.error.errors[0].msg);
-    console.log("Value:", err.error.errors[0].value);
-  } else {
-    console.log("Backend message:", err.error?.message || err.message);
-  }
-          
-        }
-      });
-
-    this.closeAddEmployeeModal();
-  }
   filterEmployees() {
-    const search = this.searchText.toLowerCase();
+    const search = this.searchText.toLowerCase().trim();
+
+    if (!search) {
+      this.filteredEmployees = [...this.employees];
+      return;
+    }
 
     this.filteredEmployees = this.employees.filter(employee =>
       employee.employeeCode?.toLowerCase().includes(search) ||
@@ -108,4 +85,78 @@ export class Employees implements OnInit {
       employee.designation?.toLowerCase().includes(search)
     );
   }
+
+  // ========================
+  // MODAL CONTROLS
+  // ========================
+
+  openAddEmployeeModal() {
+    this.resetForm();
+    this.showAddEmployeeModal = true;
+  }
+
+  closeAddEmployeeModal() {
+    this.showAddEmployeeModal = false;
+    this.resetForm();
+  }
+
+  // ========================
+  // RESET FORM
+  // ========================
+
+  resetForm() {
+    this.employeeForm = {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      phone: '',
+      role: '',
+      department: '',
+      designation: '',
+      joiningDate: ''
+    };
+  }
+
+  // ========================
+  // SAVE EMPLOYEE
+  // ========================
+
+  saveEmployee() {
+    if (
+      !this.employeeForm.firstName ||
+      !this.employeeForm.lastName ||
+      !this.employeeForm.email ||
+      !this.employeeForm.password ||
+      !this.employeeForm.phone ||
+      !this.employeeForm.role ||
+      !this.employeeForm.department ||
+      !this.employeeForm.designation ||
+      !this.employeeForm.joiningDate
+    ) {
+      alert('Please fill all required fields');
+      return;
+    }
+
+    console.log('Employee form data:', this.employeeForm);
+
+    this.http.post<ApiResponse<Employee>>(
+      `${this.baseUrl}/users/create`,
+      this.employeeForm
+    )
+      .subscribe({
+        next: (res) => {
+          console.log('Employee created successfully:', res);
+          alert('Employee created successfully!');
+          this.closeAddEmployeeModal();
+          this.getEmployees();
+          this.cd.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error creating employee:', err);
+          alert(err.error?.message || 'Something went wrong');
+        }
+      });
+  }
+
 }

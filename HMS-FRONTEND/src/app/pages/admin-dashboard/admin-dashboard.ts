@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef } from '@angular/core';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -10,6 +11,7 @@ import { ChangeDetectorRef } from '@angular/core';
 })
 export class AdminDashboard implements OnInit {
 
+  private baseUrl=environment.apiUrl;
 
   stats = {
     totalPatients: 0,
@@ -36,7 +38,7 @@ export class AdminDashboard implements OnInit {
 
   getDashboardStats() {
 
-    this.http.get('http://localhost:5000/api/dashboard')
+    this.http.get(`${this.baseUrl}/dashboard`)
       .subscribe((res: any) => {
         this.stats = res.data;
         this.cd.detectChanges();
@@ -46,7 +48,7 @@ export class AdminDashboard implements OnInit {
 
   showEmployees() {
     this.selectedSection='employees';
-    this.http.get('http://localhost:5000/api/users/list')
+    this.http.get(`${this.baseUrl}/users/list`)
       .subscribe((res: any) => {
         this.employees = res.data;
         this.cd.detectChanges();
@@ -58,7 +60,7 @@ export class AdminDashboard implements OnInit {
     console.log('patients', this.patients);
   this.selectedSection = 'patients';
 
-  this.http.get('http://localhost:5000/api/patients/list')
+  this.http.get(`${this.baseUrl}/patients/list`)
     .subscribe((res: any) => {
       this.patients = res.data;
       this.cd.detectChanges();
@@ -68,7 +70,7 @@ export class AdminDashboard implements OnInit {
 showPendingRequests() {
   this.selectedSection = 'pending';
 
-  this.http.get('http://localhost:5000/api/join-us/pending')
+  this.http.get(`${this.baseUrl}/join-us/pending`)
     .subscribe({
       next: (res: any) => {
         console.log('Pending API response:', res);

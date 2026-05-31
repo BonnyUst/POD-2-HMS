@@ -1,85 +1,90 @@
-const mongoose= require('mongoose')
-const Counter=require('./Counter.model')
+const mongoose = require('mongoose')
+const Counter = require('./Counter.model')
 
 
 const patientSchema = new mongoose.Schema({
 
-
-    UHID:{
-        type:String,
-        unique:true,
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        unique: true,
+        sparse: true
+    },
+    UHID: {
+        type: String,
+        unique: true,
     },
 
-    firstName:{
-        type:String,
-        required:true,
-        trim:true
+    firstName: {
+        type: String,
+        required: true,
+        trim: true
     },
 
-    lastName:{
-        type:String,
-        required:true,
-        trim:true
+    lastName: {
+        type: String,
+        required: true,
+        trim: true
     },
-    phone:{
-        type:String,
-        required:true,
-        trim:true
-    },
-
-    gender:{
-        type:String,
-        enum:['MALE','FEMALE','OTHER'],
-        required:true
+    phone: {
+        type: String,
+        required: true,
+        trim: true
     },
 
-    dob:{
-        type:Date,
-        required:true
+    gender: {
+        type: String,
+        enum: ['MALE', 'FEMALE', 'OTHER'],
+        required: true
     },
-    bloodGroup:{
-        type:String,
-        enum:[
-        'A+',
-        'A-',
-        'B+',
-        'B-',
-        'AB+',
-        'AB-',
-        'O+',
-        'O-'
+
+    dob: {
+        type: Date,
+        required: true
+    },
+    bloodGroup: {
+        type: String,
+        enum: [
+            'A+',
+            'A-',
+            'B+',
+            'B-',
+            'AB+',
+            'AB-',
+            'O+',
+            'O-'
         ],
-        required:true
-        
+        required: true
+
     },
 
-    address:{
-        city:{type:String},
-        state:{type:String},
-        pincode:{type:String}
-    },
-    
-    emergencyContactName:{
-        type:String,
-        required:true,
-        trim:true
+    address: {
+        city: { type: String },
+        state: { type: String },
+        pincode: { type: String }
     },
 
-    emergencyContactPhone:{
-        type:String,
-        required:true,
+    emergencyContactName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+
+    emergencyContactPhone: {
+        type: String,
+        required: true,
     },
 
     createdBy:
     {
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"User",
-        required:true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
     }
 },
-{
-    timestamps:true
-});
+    {
+        timestamps: true
+    });
 
 patientSchema.pre('save', async function () {
 
@@ -102,4 +107,4 @@ patientSchema.pre('save', async function () {
     }
 });
 
-module.exports=mongoose.model('Patient',patientSchema);
+module.exports = mongoose.model('Patient', patientSchema);

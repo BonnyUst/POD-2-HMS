@@ -12,10 +12,14 @@
         </div>
     </div>
 
-    <!-- Search and controls -->
+    <!-- Search -->
     <div class="table-toolbar">
         <div class="search-box">
-            <input type="text" placeholder="Search..." [(ngModel)]="searchText" (input)="filterEmployees()" />
+            <input
+                type="text"
+                placeholder="Search..."
+                [(ngModel)]="searchText"
+                (input)="filterEmployees()" />
         </div>
     </div>
 
@@ -48,7 +52,9 @@
                     <td>{{ employee.designation }}</td>
                     <td>{{ employee.joiningDate | date:'dd-MM-yyyy' }}</td>
                     <td>
-                        <span class="status-badge" [ngClass]="{
+                        <span
+                            class="status-badge"
+                            [ngClass]="{
                                 'status-active': employee.status === 'ACTIVE',
                                 'status-inactive': employee.status === 'INACTIVE'
                             }">
@@ -113,27 +119,42 @@
 
                 <div class="form-group">
                     <label>First Name <span>*</span></label>
-                    <input type="text" placeholder="Enter first name" [(ngModel)]="employeeForm.firstName" />
+                    <input
+                        type="text"
+                        placeholder="Enter first name"
+                        [(ngModel)]="employeeForm.firstName" />
                 </div>
 
                 <div class="form-group">
                     <label>Last Name <span>*</span></label>
-                    <input type="text" placeholder="Enter last name" [(ngModel)]="employeeForm.lastName" />
+                    <input
+                        type="text"
+                        placeholder="Enter last name"
+                        [(ngModel)]="employeeForm.lastName" />
                 </div>
 
                 <div class="form-group">
                     <label>Email <span>*</span></label>
-                    <input type="email" placeholder="Enter email" [(ngModel)]="employeeForm.email" />
+                    <input
+                        type="email"
+                        placeholder="Enter email"
+                        [(ngModel)]="employeeForm.email" />
                 </div>
 
                 <div class="form-group">
                     <label>Password <span>*</span></label>
-                    <input type="password" placeholder="Enter password" [(ngModel)]="employeeForm.password" />
+                    <input
+                        type="password"
+                        placeholder="Enter password"
+                        [(ngModel)]="employeeForm.password" />
                 </div>
 
                 <div class="form-group">
                     <label>Phone <span>*</span></label>
-                    <input type="text" placeholder="Enter phone number" [(ngModel)]="employeeForm.phone" />
+                    <input
+                        type="text"
+                        placeholder="Enter phone number"
+                        [(ngModel)]="employeeForm.phone" />
                 </div>
 
                 <!-- Work Details -->
@@ -146,7 +167,6 @@
                     <select [(ngModel)]="employeeForm.role">
                         <option value="">Select Role</option>
                         <option value="Admin">Admin</option>
-                       
                         <option value="Nurse">Nurse</option>
                         <option value="Receptionist">Receptionist</option>
                         <option value="Pharmacist">Pharmacist</option>
@@ -180,7 +200,9 @@
 
                 <div class="form-group">
                     <label>Joining Date <span>*</span></label>
-                    <input type="date" [(ngModel)]="employeeForm.joiningDate" />
+                    <input
+                        type="date"
+                        [(ngModel)]="employeeForm.joiningDate" />
                 </div>
 
             </div>

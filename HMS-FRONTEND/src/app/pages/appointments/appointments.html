@@ -1,5 +1,6 @@
 <div class="appointment-page">
 
+    <!-- Header -->
     <div class="page-header">
         <h2>Appointments</h2>
 
@@ -11,13 +12,18 @@
         </div>
     </div>
 
+    <!-- Search -->
     <div class="table-toolbar">
         <div class="search-box">
-            <input type="text" placeholder="Search appointments..." [(ngModel)]="searchText"
-                (input)="filterAppointments()" />
+            <input
+                type="text"
+                placeholder="Search appointments..."
+                [value]="searchText"
+                (input)="searchText = $any($event.target).value; filterAppointments()" />
         </div>
     </div>
 
+    <!-- Table -->
     <div class="appointment-table-section">
         <table>
             <thead>
@@ -58,7 +64,13 @@
                     <td>{{ appointment.timeSlot }}</td>
 
                     <td>
-                        <span class="status-badge">
+                        <span
+                            class="status-badge"
+                            [ngClass]="{
+                                'status-booked': appointment.status === 'BOOKED',
+                                'status-completed': appointment.status === 'COMPLETED',
+                                'status-cancelled': appointment.status === 'CANCELLED'
+                            }">
                             {{ appointment.status }}
                         </span>
                     </td>
@@ -85,6 +97,7 @@
         }
     </div>
 
+    <!-- Footer -->
     <div class="table-footer">
         <p>Records: {{ filteredAppointments.length }} of {{ appointments.length }}</p>
 
@@ -96,7 +109,7 @@
 
 </div>
 
-
+<!-- Add Appointment Modal -->
 @if (showAddAppointmentModal) {
 <div class="modal-overlay">
 
@@ -112,68 +125,165 @@
 
         <div class="modal-body">
 
-            <div class="form-grid">
+            <form [formGroup]="appointmentForm">
 
-                <div class="form-section-title">
-                    Appointment Details
-                </div>
+                <div class="form-grid">
 
-                <div class="form-group">
-                    <label>Patient <span>*</span></label>
-                    <select [(ngModel)]="appointmentForm.patientId">
-                        <option value="">Select Patient</option>
+                    <div class="form-section-title">
+                        Appointment Details
+                    </div>
 
-                        @for (patient of patients; track patient.patientId) {
-                        <option [value]="patient.patientId">
-                            {{ patient.firstName }} {{ patient.lastName }} - {{ patient.UHID }}
-                        </option>
+                    <!-- Patient -->
+                    <div class="form-group">
+                        <label>Patient <span>*</span></label>
+                        <select formControlName="patientId">
+                            <option value="">Select Patient</option>
+
+                            @for (patient of patients; track patient.patientId) {
+                            <option [value]="patient.patientId">
+                                {{ patient.firstName }} {{ patient.lastName }} - {{ patient.UHID }}
+                            </option>
+                            }
+                        </select>
+
+                        @if (appointmentForm.get('patientId')?.invalid &&
+                             appointmentForm.get('patientId')?.touched) {
+                        <small class="error-msg">Patient is required</small>
                         }
-                    </select>
-                </div>
+                    </div>
 
-                <div class="form-group">
-                    <label>Doctor <span>*</span></label>
-                    <select [(ngModel)]="appointmentForm.doctorId">
-                        <option value="">Select Doctor</option>
+                    <!-- Doctor -->
+                    <div class="form-group">
+                        <label>Doctor <span>*</span></label>
+                        <select formControlName="doctorId">
+                            <option value="">Select Doctor</option>
 
-                        @for (doctor of doctors; track doctor.employeeId) {
-                        <option [value]="doctor.employeeId">
-                            Dr. {{ doctor.firstName }} {{ doctor.lastName }} - {{ doctor.department }}
-                        </option>
+                            @for (doctor of doctors; track doctor.doctorId) {
+                            <option [value]="doctor.employeeId">
+                                Dr. {{ doctor.firstName }} {{ doctor.lastName }} - {{ doctor.specialization }}
+                            </option>
+                            }
+                        </select>
+
+                        @if (appointmentForm.get('doctorId')?.invalid &&
+                             appointmentForm.get('doctorId')?.touched) {
+                        <small class="error-msg">Doctor is required</small>
                         }
-                    </select>
+                    </div>
+
+                    <!-- Date -->
+                    <div class="form-group">
+                        <label>Appointment Date <span>*</span></label>
+                        <input
+                            type="date"
+                            formControlName="appointmentDate"
+                            [min]="todayDate" />
+
+                        @if (appointmentForm.get('appointmentDate')?.hasError('required') &&
+                             appointmentForm.get('appointmentDate')?.touched) {
+                        <small class="error-msg">Date is required</small>
+                        }
+
+                        @if (appointmentForm.get('appointmentDate')?.hasError('pastDate')) {
+                        <small class="error-msg">Date cannot be in the past</small>
+                        }
+                    </div>
+
+                    <!-- Doctor Availability Info -->
+                    @if (doctorAvailability) {
+                    <div class="form-group">
+                        <div class="availability-info">
+                            <i class="bi bi-clock"></i>
+                            Doctor available: {{ doctorAvailability }}
+                        </div>
+                    </div>
+                    }
+
+                    <!-- Time Slot -->
+                    <div class="form-group">
+                        <label>Time Slot <span>*</span></label>
+
+                        @if (!appointmentForm.get('doctorId')?.value ||
+                             !appointmentForm.get('appointmentDate')?.value) {
+                        <select disabled>
+                            <option>Select doctor and date first</option>
+                        </select>
+                        <small class="info-msg">Please select doctor and date to see available slots</small>
+                        }
+
+                        @if (loadingSlots) {
+                        <select disabled>
+                            <option>Loading slots...</option>
+                        </select>
+                        }
+
+                        @if (!loadingSlots &&
+                             appointmentForm.get('doctorId')?.value &&
+                             appointmentForm.get('appointmentDate')?.value) {
+
+                            @if (availableSlots.length > 0) {
+                            <select formControlName="timeSlot">
+                                <option value="">Select Time Slot</option>
+
+                                @for (slot of availableSlots; track slot) {
+                                <option [value]="slot">{{ slot }}</option>
+                                }
+                            </select>
+
+                                @if (bookedCount > 0) {
+                                <small class="booked-info">
+                                    <i class="bi bi-info-circle"></i>
+                                    {{ bookedCount }} slot(s) already booked
+                                </small>
+                                }
+                            }
+
+                            @if (availableSlots.length === 0) {
+                            <select disabled>
+                                <option>No slots available</option>
+                            </select>
+                            <small class="error-msg">
+                                All slots are booked for this doctor on selected date.
+                                Please choose another date.
+                            </small>
+                            }
+                        }
+
+                        @if (appointmentForm.get('timeSlot')?.invalid &&
+                             appointmentForm.get('timeSlot')?.touched &&
+                             availableSlots.length > 0) {
+                        <small class="error-msg">Time slot is required</small>
+                        }
+                    </div>
+
+                    <!-- Reason -->
+                    <div class="form-group full-width">
+                        <label>Reason <span>*</span></label>
+                        <textarea
+                            rows="3"
+                            placeholder="Enter reason for appointment"
+                            formControlName="reason">
+                        </textarea>
+
+                        @if (appointmentForm.get('reason')?.hasError('required') &&
+                             appointmentForm.get('reason')?.touched) {
+                        <small class="error-msg">Reason is required</small>
+                        }
+
+                        @if (appointmentForm.get('reason')?.hasError('minlength') &&
+                             appointmentForm.get('reason')?.touched) {
+                        <small class="error-msg">Reason must be at least 3 characters</small>
+                        }
+
+                        @if (appointmentForm.get('reason')?.hasError('maxlength') &&
+                             appointmentForm.get('reason')?.touched) {
+                        <small class="error-msg">Reason cannot exceed 500 characters</small>
+                        }
+                    </div>
+
                 </div>
 
-                <div class="form-group">
-                    <label>Appointment Date <span>*</span></label>
-                    <input type="date" [(ngModel)]="appointmentForm.appointmentDate" />
-                </div>
-
-                <div class="form-group">
-                    <label>Time Slot <span>*</span></label>
-                    <select [(ngModel)]="appointmentForm.timeSlot">
-                        <option value="">Select Time Slot</option>
-                        <option value="09:00 AM">09:00 AM</option>
-                        <option value="09:30 AM">09:30 AM</option>
-                        <option value="10:00 AM">10:00 AM</option>
-                        <option value="10:30 AM">10:30 AM</option>
-                        <option value="11:00 AM">11:00 AM</option>
-                        <option value="11:30 AM">11:30 AM</option>
-                        <option value="02:00 PM">02:00 PM</option>
-                        <option value="02:30 PM">02:30 PM</option>
-                        <option value="03:00 PM">03:00 PM</option>
-                        <option value="03:30 PM">03:30 PM</option>
-                        <option value="04:00 PM">04:00 PM</option>
-                    </select>
-                </div>
-
-                <div class="form-group full-width">
-                    <label>Reason <span>*</span></label>
-                    <textarea rows="3" placeholder="Enter reason for appointment" [(ngModel)]="appointmentForm.reason">
-                    </textarea>
-                </div>
-
-            </div>
+            </form>
 
         </div>
 
@@ -182,7 +292,10 @@
                 Cancel
             </button>
 
-            <button class="save-btn" (click)="saveAppointment()">
+            <button
+                class="save-btn"
+                (click)="saveAppointment()"
+                [disabled]="appointmentForm.invalid || availableSlots.length === 0">
                 Save
             </button>
         </div>

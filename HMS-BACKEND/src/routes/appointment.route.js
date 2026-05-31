@@ -29,4 +29,9 @@ router.get(
     appointmentController.getAppointments
 );
 
+router.get('/available-slots',
+    authMiddleware,
+    appointmentController.getAvailableSlots
+);
+
 module.exports = router;

@@ -13,9 +13,8 @@ export class Profile implements OnInit {
 
   profile: any = null;
   errorMessage = '';
-  
 
-  constructor(private auth: Auth,
+  constructor(private authService: Auth,
     private cd: ChangeDetectorRef
   ) { }
 
@@ -24,7 +23,7 @@ export class Profile implements OnInit {
   }
 
   getProfile() {
-    this.auth.getProfile().subscribe({
+    this.authService.getProfile().subscribe({
       next: (res) => {
         console.log('Profile response:', res);
         this.profile = res.data;

@@ -337,3 +337,36 @@ tbody tr:hover {
 .save-btn:hover {
     background-color: #1e293b;
 }
+.error-msg {
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: 500;
+    display: block;
+}
+
+.booked-info {
+    color: #d97706;
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: 500;
+    display: block;
+}
+
+.loading-text {
+    color: #64748b;
+    font-size: 13px;
+    margin: 0;
+    padding: 8px 0;
+}
+
+.form-group input.ng-invalid.ng-touched,
+.form-group select.ng-invalid.ng-touched,
+.form-group textarea.ng-invalid.ng-touched {
+    border-color: #dc2626;
+}
+
+.save-btn:disabled {
+    background-color: #94a3b8;
+    cursor: not-allowed;
+}

@@ -9,3 +9,5 @@ node_modules/
 
 # SonarQube
 sonar-project.properties
+
+HMS-APP/

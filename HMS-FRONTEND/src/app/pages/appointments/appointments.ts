@@ -1,35 +1,61 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
-import { DatePipe } from '@angular/common';
+import { FormGroup, FormControl, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
+import { DatePipe, NgClass } from '@angular/common';
+import { AppointmentService } from '../../services/appointments.service';
+import { Appointment } from '../../models/appointments.model';
+import { Patient } from '../../models/patients.model';
+import { Doctor } from '../../models/doctor.model';
 
 @Component({
   selector: 'app-appointments',
-  imports: [FormsModule, DatePipe],
+  standalone: true,
+  imports: [ReactiveFormsModule, DatePipe, NgClass],
   templateUrl: './appointments.html',
   styleUrl: './appointments.css'
 })
 export class Appointments implements OnInit {
 
-  appointments: any[] = [];
-  filteredAppointments: any[] = [];
+  appointments: Appointment[] = [];
+  filteredAppointments: Appointment[] = [];
 
-  patients: any[] = [];
-  doctors: any[] = [];
+  patients: Patient[] = [];
+  doctors: Doctor[] = [];
 
   searchText = '';
   showAddAppointmentModal = false;
 
-  appointmentForm = {
-    patientId: '',
-    doctorId: '',
-    appointmentDate: '',
-    timeSlot: '',
-    reason: ''
-  };
+  todayDate = new Date().toISOString().split('T')[0];
+
+  // Slot data from backend
+  availableSlots: string[] = [];
+  loadingSlots = false;
+  doctorAvailability = '';
+  bookedCount = 0;
+
+  // Reactive Form
+  appointmentForm = new FormGroup({
+    patientId: new FormControl('', [
+      Validators.required
+    ]),
+    doctorId: new FormControl('', [
+      Validators.required
+    ]),
+    appointmentDate: new FormControl('', [
+      Validators.required,
+      this.futureDateValidator
+    ]),
+    timeSlot: new FormControl('', [
+      Validators.required
+    ]),
+    reason: new FormControl('', [
+      Validators.required,
+      Validators.minLength(3),
+      Validators.maxLength(500)
+    ])
+  });
 
   constructor(
-    private http: HttpClient,
+    private appointmentService: AppointmentService,
     private cd: ChangeDetectorRef
   ) {}
 
@@ -37,99 +63,145 @@ export class Appointments implements OnInit {
     this.getAppointments();
     this.getPatients();
     this.getDoctors();
+    this.setupSlotWatcher();
   }
+
+  // ========================
+  // CUSTOM VALIDATOR
+  // ========================
+
+  futureDateValidator(control: AbstractControl): ValidationErrors | null {
+    const value = control.value;
+    if (!value) return null;
+
+    const selectedDate = new Date(value);
+    const today = new Date();
+    selectedDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    return selectedDate < today ? { pastDate: true } : null;
+  }
+
+  // ========================
+  // WATCH DOCTOR + DATE CHANGES
+  // ========================
+
+  setupSlotWatcher() {
+    this.appointmentForm.get('doctorId')?.valueChanges.subscribe(() => {
+      this.fetchAvailableSlots();
+    });
+
+    this.appointmentForm.get('appointmentDate')?.valueChanges.subscribe(() => {
+      this.fetchAvailableSlots();
+    });
+  }
+
+  // ========================
+  // FETCH AVAILABLE SLOTS FROM BACKEND
+  // ========================
+
+  fetchAvailableSlots() {
+    const doctorId = this.appointmentForm.get('doctorId')?.value;
+    const appointmentDate = this.appointmentForm.get('appointmentDate')?.value;
+
+    // Reset time slot
+    this.appointmentForm.get('timeSlot')?.setValue('');
+
+    if (doctorId && appointmentDate) {
+      this.loadingSlots = true;
+
+      this.appointmentService.getAvailableSlots(doctorId, appointmentDate)
+        .subscribe({
+          next: (res) => {
+            this.availableSlots = res.data.availableSlots;
+            this.bookedCount = res.data.bookedCount;
+            this.doctorAvailability =
+              `${res.data.availabilityStart} - ${res.data.availabilityEnd}`;
+            this.loadingSlots = false;
+            console.log('Available slots:', this.availableSlots);
+            this.cd.detectChanges();
+          },
+          error: (err) => {
+            console.error('Error fetching slots:', err);
+            this.availableSlots = [];
+            this.bookedCount = 0;
+            this.doctorAvailability = '';
+            this.loadingSlots = false;
+            this.cd.detectChanges();
+          }
+        });
+    } else {
+      this.availableSlots = [];
+      this.bookedCount = 0;
+      this.doctorAvailability = '';
+    }
+  }
+
+  // ========================
+  // GET ALL APPOINTMENTS
+  // ========================
 
   getAppointments() {
-    this.http.get('http://localhost:5000/api/appointments/list')
+    this.appointmentService.getAppointments()
       .subscribe({
-        next: (res: any) => {
+        next: (res) => {
           this.appointments = res.data;
           this.filteredAppointments = res.data;
-       
+          console.log('Appointments:', this.appointments);
           this.cd.detectChanges();
         },
         error: (err) => {
-          console.log('Error fetching appointments', err);
+          console.error('Error fetching appointments:', err);
         }
       });
   }
+
+  // ========================
+  // GET PATIENTS
+  // ========================
 
   getPatients() {
-    this.http.get('http://localhost:5000/api/patients/list')
+    this.appointmentService.getPatients()
       .subscribe({
-        next: (res: any) => {
+        next: (res) => {
           this.patients = res.data;
-         
-        },
-        error: (err) => {
-          console.log('Error fetching patients', err);
-        }
-      });
-  }
-
-  getDoctors() {
-    this.http.get('http://localhost:5000/api/users/list')
-      .subscribe({
-        next: (res: any) => {
-          this.doctors = res.data.filter((employee: any) =>
-            employee.userId?.roleId?.name === 'Doctor' ||
-            employee.role === 'Doctor' ||
-            employee.roleCode === 'DOC'
-          );
-
-     
-        },
-        error: (err) => {
-          console.log('Error fetching doctors', err);
-        }
-      });
-  }
-
-  openAddAppointmentModal() {
-    this.showAddAppointmentModal = true;
-  }
-
-  closeAddAppointmentModal() {
-    this.showAddAppointmentModal = false;
-  }
-
-  saveAppointment() {
-    if (
-      !this.appointmentForm.patientId ||
-      !this.appointmentForm.doctorId ||
-      !this.appointmentForm.appointmentDate ||
-      !this.appointmentForm.timeSlot ||
-      !this.appointmentForm.reason
-    ) {
-      alert('Please fill all required fields');
-      return;
-    }
-
-    console.log('Appointment form data:', this.appointmentForm);
-
-    this.http.post('http://localhost:5000/api/appointments/create', this.appointmentForm)
-      .subscribe({
-        next: (res: any) => {
-          console.log('Appointment created successfully:', res);
-
-          this.showAddAppointmentModal = false;
-         
-          this.getAppointments();
-
           this.cd.detectChanges();
         },
         error: (err) => {
-          console.log('Error while creating appointment:', err);
-          alert(err.error?.message || 'Appointment creation failed');
+          console.error('Error fetching patients:', err);
         }
       });
-      this.closeAddAppointmentModal();
   }
 
+  // ========================
+  // GET DOCTORS
+  // ========================
 
+  getDoctors() {
+    this.appointmentService.getDoctors()
+      .subscribe({
+        next: (res) => {
+          this.doctors = res.data;
+          console.log('Doctors:', this.doctors);
+          this.cd.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error fetching doctors:', err);
+        }
+      });
+  }
+
+  // ========================
+  // FILTER / SEARCH
+  // ========================
 
   filterAppointments() {
-    const search = this.searchText.toLowerCase();
+    const search = this.searchText.toLowerCase().trim();
+
+    if (!search) {
+      this.filteredAppointments = [...this.appointments];
+      return;
+    }
 
     this.filteredAppointments = this.appointments.filter(appointment =>
       appointment.appointmentCode?.toLowerCase().includes(search) ||
@@ -138,9 +210,61 @@ export class Appointments implements OnInit {
       appointment.patientId?.UHID?.toLowerCase().includes(search) ||
       appointment.doctorId?.userId?.firstName?.toLowerCase().includes(search) ||
       appointment.doctorId?.userId?.lastName?.toLowerCase().includes(search) ||
+      appointment.doctorId?.department?.toLowerCase().includes(search) ||
       appointment.timeSlot?.toLowerCase().includes(search) ||
       appointment.status?.toLowerCase().includes(search) ||
       appointment.reason?.toLowerCase().includes(search)
     );
   }
+
+  // ========================
+  // MODAL CONTROLS
+  // ========================
+
+  openAddAppointmentModal() {
+    this.appointmentForm.reset();
+    this.availableSlots = [];
+    this.bookedCount = 0;
+    this.doctorAvailability = '';
+    this.showAddAppointmentModal = true;
+  }
+
+  closeAddAppointmentModal() {
+    this.showAddAppointmentModal = false;
+    this.appointmentForm.reset();
+    this.availableSlots = [];
+    this.bookedCount = 0;
+    this.doctorAvailability = '';
+  }
+
+  // ========================
+  // SAVE APPOINTMENT
+  // ========================
+
+  saveAppointment() {
+    if (this.appointmentForm.invalid) {
+      this.appointmentForm.markAllAsTouched();
+      return;
+    }
+
+    const payload = this.appointmentForm.value;
+
+    console.log('Appointment form data:', payload);
+
+    this.appointmentService.createAppointment(payload as any)
+      .subscribe({
+        next: (res) => {
+          console.log('Appointment created successfully:', res);
+          alert('Appointment created successfully!');
+          this.closeAddAppointmentModal();
+          this.getAppointments();
+          this.cd.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error creating appointment:', err);
+          alert(err.error?.message || 'Appointment creation failed');
+        }
+      });
+  }
+
 }

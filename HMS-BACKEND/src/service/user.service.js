@@ -80,6 +80,7 @@ await sendEmail(
     `
 );
     return {
+        employeeId: employee._id,
        employeeCode: employee.employeeCode,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -114,6 +115,7 @@ exports.currentProfile = async (userId) => {
     }
 
     return {
+        
         userId: employeeProfile.userId._id,
 
         firstName: employeeProfile.userId.firstName,

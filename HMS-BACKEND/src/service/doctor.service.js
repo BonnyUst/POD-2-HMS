@@ -104,5 +104,26 @@ exports.getAllDoctors = async () => {
         })
         .sort({ createdAt: -1 });
 
-    return doctors;
+    return doctors.map((doctor) => ({
+        doctorId: doctor._id,
+
+        employeeId: doctor.employeeId?._id,
+        employeeCode: doctor.employeeId?.employeeCode,
+
+        firstName: doctor.employeeId?.userId?.firstName,
+        lastName: doctor.employeeId?.userId?.lastName,
+        email: doctor.employeeId?.userId?.email,
+       phone: doctor.employeeId?.phone,
+
+        specialization: doctor.specialization,
+        qualification: doctor.qualification,
+        consultationFee: doctor.consultationFee,
+        medicalRegistrationNo: doctor.medicalRegistrationNo,
+        availabilityStartTime: doctor.availabilityStartTime,
+        availabilityEndTime: doctor.availabilityEndTime,
+        experienceYears: doctor.experienceYears,
+
+        status: doctor.employeeId?.userId?.status,
+        isVerified: doctor.employeeId?.userId?.isVerified
+    }));
 };
