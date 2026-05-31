@@ -57,7 +57,8 @@ exports.createEmployeeUser = async (userData) => {
         joiningDate,
 
     });
-let emailSent = true;
+let emailSent = false;
+try{
 await sendEmail(
     email,
     "HMS Employee Login Credentials",
@@ -78,7 +79,14 @@ await sendEmail(
     <p>Regards,</p>
     <p>HMS Admin Team</p>
     `
+
 );
+emailSent=true;
+}
+catch (error) {
+    console.log("Email sending failed, but account creation will continue");
+    console.log(error.message);
+}
     return {
         employeeId: employee._id,
        employeeCode: employee.employeeCode,
