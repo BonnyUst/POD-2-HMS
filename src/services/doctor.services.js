@@ -14,7 +14,7 @@ const getDoctorsByDept = async (deptName) => {
     departmentId: department._id
   }).populate({
     path: 'userId',
-    select: 'firstName lastName'
+    select: 'firstName lastName email phone status'
   });
 
   // 🔥 STEP 2: GET EMPLOYEE IDs
@@ -42,6 +42,85 @@ const getDoctorsByDept = async (deptName) => {
   });
 };
 
+const updateDoctor = async (empObjectId, data) => {
+  console.log("Incoming id : ", empObjectId)
+  const emp = await Employee.findOne({employeeId : empObjectId});
+  if (!emp) throw new ApiError(404, "Employee not found");
+
+  const doctor = await Doctor.findOne({ employeeId: emp._id });
+  if (!doctor) throw new ApiError(404, "Doctor not found");
+
+  Object.assign(doctor, {
+    medRegNo: data.medRegNo,
+    specialization: data.specialization,
+    qualification: data.qualification,
+    consultationFee: data.consultationFee,
+    avlblStartTime: data.avlblStartTime,
+    avlblEndTime: data.avlblEndTime,
+    expYears: data.expYears
+  });
+
+  Object.assign(emp, {
+    designation: data.designation,
+    joiningDate: data.joiningDate
+  });
+
+  await doctor.save();
+  await emp.save();
+
+  return { message: "Doctor updated successfully" };
+};
+
+const getDoctorsInfoByDept = async (deptName) => {
+
+  const department = await Departments.findOne({ deptName });
+  if (!department) throw new ApiError(404, "Department not found");
+
+  const employees = await Employee.find({
+    departmentId: department._id
+  }).populate({
+    path: 'userId',
+    select: 'firstName lastName email phone status'
+  });
+
+  const empIds = employees.map(emp => emp._id);
+
+  const doctors = await Doctor.find({
+    employeeId: { $in: empIds }
+  });
+
+  const empMap = new Map();
+  employees.forEach(emp => {
+    empMap.set(emp._id.toString(), emp);
+  });
+
+  return doctors.map(doc => {
+    const emp = empMap.get(doc.employeeId.toString());
+
+    return {
+      empObjectId: emp._id, // 🔥 IMPORTANT FOR UPDATE
+      employeeId: emp.employeeId,
+
+      firstName: emp.userId.firstName,
+      lastName: emp.userId.lastName,
+      email: emp.userId.email,
+      phone: emp.userId.phone,
+      status: emp.userId.status,
+
+      designation: emp.designation,
+      joiningDate: emp.joiningDate,
+
+      medRegNo: doc.medRegNo,
+      specialization: doc.specialization,
+      qualification: doc.qualification,
+      consultationFee: doc.consultationFee,
+      avlblStartTime: doc.avlblStartTime,
+      avlblEndTime: doc.avlblEndTime,
+      expYears: doc.expYears
+    };
+  });
+};
+
 const checkDoctor = async (empId) => {
 
   const emp = await Employee.findOne({ employeeId: empId });
@@ -56,4 +135,4 @@ const checkDoctor = async (empId) => {
     message: "Doctor exists"
   };
 };
-module.exports = { getDoctorsByDept,checkDoctor };
+module.exports = { getDoctorsByDept,checkDoctor,getDoctorsInfoByDept, updateDoctor };

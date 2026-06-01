@@ -58,6 +58,8 @@ const rejectEmployee = async (approvalId, reason) => {
 
   await approval.save();
 
+
+
   return { message: "Rejected successfully" };
 };
 

@@ -9,6 +9,7 @@ const Departments = require('../models/Departments')
 
 const createAppointment = async (data, user) => {
 console.log("Create appointment service running");
+
   const {
     patientUHID,
     doctorEmployeeId,
@@ -20,6 +21,9 @@ console.log("Create appointment service running");
   // =========================
   // 🔥 GET EMPLOYEE FROM USERID
   // =========================
+
+  console.log("incoming patientUHID : ", patientUHID);
+
   const createdByEmp = await Employee.findOne({ userId: user.userId });
   console.log("USER : ",user);
   console.log("Employee : ",createdByEmp)
@@ -51,7 +55,7 @@ console.log("Create appointment service running");
   // =========================
   // VALIDATION
   // =========================
-  if (doctor.specialization.toUpperCase() !== deptName.toUpperCase()) {
+  if (empDoctor.departmentId.toString() !== department._id.toString()) {
     throw new ApiError(400, "Doctor not belongs to selected department");
   }
 
@@ -92,12 +96,19 @@ const getAppointments = async (query) => {
   const skip = (page - 1) * limit;
 
   const data = await Appointment.find({ isDeleted: false })
-    .populate('patientId', 'UHID')
+    // .populate({
+    //   path : 'patientId',
+    //   model : 'Patient',
+    //   select : 'UHID'
+    // })
+    .populate('patientId')
     .populate('doctorId')
     .populate('departmentId', 'deptName')
     .skip(skip)
     .limit(limit)
     .lean();
+
+  console.log('My Appointment : ', data);
 
   const total = await Appointment.countDocuments({ isDeleted: false });
 

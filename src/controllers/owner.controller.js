@@ -25,7 +25,31 @@ exports.addAdmin = asyncHandler(async(req,res)=>{
     return res.status(201).send(new ApiResponse(201,responseData));
 })
 
+exports.updateAdmin = asyncHandler(async(req,res)=>{
+    const {userId} = req.params;
+    const data = await ownerService.updateAdmin(userId,req.body);
+    return res.status(200).send(new ApiResponse(200,data));
+})
+
 exports.getAllAdmins = asyncHandler(async(req,res)=>{
     const responseData = await ownerService.getAllAdmins();
-    return res.status(200).send(new ApiResponse(responseData))
+    return res.status(200).send(new ApiResponse(200,responseData))
+})
+
+exports.deleteAdmin = asyncHandler(async()=>{
+    const {userId} = req.params;
+    const data = await ownerService.deleteAdmin(userId);
+    return res.status(200).send(new ApiResponse(200,data));
+})
+
+exports.toggleAdminStatus = asyncHandler(async(req,res)=>{
+    const {userId} = req.params;
+    const data = await ownerService.toggleAdminStatus(userId);
+    return res.status(200).send(new ApiResponse(200,data));
+})
+
+exports.getDashboardStats = asyncHandler(async(req,res)=>{
+    const data = await ownerService.getDashboardStats();
+
+    return res.status(200).send(new ApiResponse(200,data));
 })

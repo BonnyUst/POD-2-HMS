@@ -104,6 +104,7 @@ const addEmployee = async (data) => {
         }
         console.log("Check point 1");
         // ✅ Create User
+        console.log("Password",password)
         newUser = await userService.createBasicUser({
             firstName,
             lastName,
@@ -171,6 +172,9 @@ const addEmployee = async (data) => {
         });
         console.log("Check point 5");
 
+        console.log("roleName:", roleName);
+        console.log("DOCTOR ROLE:", ROLES.DOCTOR.roleName);
+
         // ✅ If role is DOCTOR → create Doctor
         if (roleName?.toUpperCase() === ROLES.DOCTOR.roleName) {
             if (
@@ -180,9 +184,10 @@ const addEmployee = async (data) => {
                 consultationFee == null ||
                 expYears == null
             ) {
+                console.log("Error at role Name");
                 throw new ApiError(400, "Doctor details are required");
             }
-        console.log("Check point 6");
+            console.log("Check point 6");
 
             await Doctor.create({
                 employeeId: newEmployee._id, // 🔥 correct reference

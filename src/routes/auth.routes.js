@@ -6,11 +6,15 @@ const router = createRouter();
 const {
     signup,
     login,
-    verifyEmail
+    verifyEmail,
+    forgotPassword,
+    resetPassword
 } = require('../controllers/auth.controller');
 
 router.post('/signup',userSignupValidator,errorValidate,signup);
 router.post('/login',userLoginValidator,errorValidate,login);
 router.get('/verify-email',verifyEmail);
+router.post('/forgot-password',forgotPassword);
+router.post('/reset-password/:token',resetPassword);
 
 module.exports = router;

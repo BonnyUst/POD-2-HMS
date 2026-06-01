@@ -59,6 +59,10 @@ const patientSchema = new mongoose.Schema(
         isProfileCompleted : {
             type : Boolean,
             default : false,
+        },
+        isDeleted: {
+            type: Boolean,
+            default: false
         }
     },
     {

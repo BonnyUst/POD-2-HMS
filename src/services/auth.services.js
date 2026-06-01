@@ -6,6 +6,7 @@ const Patient = require('../models/Patient')
 const Roles = require('../models/Roles')
 const ROLE_PERMISSIONS = require('../constants/rolePermissions')
 const sendEmail = require('../utils/sendEmail');
+const { verifyEmailTemplate, resendVerificationTemplate, resetPasswordTemplate } = require('../utils/templates/emailTemplates')
 const bcrypt = require('bcrypt')
 const jwt = require('../utils/jwt');
 const crypto = require("crypto");
@@ -14,7 +15,7 @@ const {STATUS} = require('../constants/basic.constant')
 const patientService = require('./patient.services');
 const ROLES = require('../constants/role.constant');
 const verifyUserByToken = async (token) => {
-
+const crypto = require('crypto')
     if (!token) {
         throw new ApiError(400, "Verification token is required");
     }
@@ -54,6 +55,67 @@ const verifyUserByToken = async (token) => {
         patient
     };
 };
+
+const forgotPassword = async(email)=>{
+  const user = await User.findOne({email}).select('+passwordHash');
+
+  if(!user) throw new ApiError(404,"User not Found");
+
+  const token = crypto.randomBytes(32).toString('hex');
+
+  const tempPassword = Math.random().toString(36).slice(-8);
+
+  const hashedPassword = await bcrypt.hash(tempPassword,10);
+
+  user.resetToken = token;
+  user.resetTokenExpiry = Date.now() + 1000 * 60 * 15;
+  user.passwordHash = hashedPassword;
+
+  await user.save();
+  
+  const resetLink = `http://10.11.68.124:3000/api/auth/reset-password/${token}`;
+
+  await sendEmail({
+    to : user.email,
+    subject : "Reset Password - HMS",
+    html : resetPasswordTemplate(resetLink,user.firstName,tempPassword)
+  })
+
+  return { message : "Reset password email sent"};
+}
+// ✅ RESET PASSWORD
+const resetPassword = async ({ token, email, newPassword }) => {
+
+    const hashedToken = crypto
+    .createHash('sha256')
+    .update(token)
+    .digest('hex');
+
+    const user = await User.findOne({
+        resetToken: hashedToken,
+        resetTokenExpiry: { $gt: Date.now() }
+    }).select('+passwordHash');
+
+    if (!user) {
+        throw new Error("Invalid or expired token");
+    }
+
+    // 🔥 Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.passwordHash = hashedPassword;
+
+    // 🔥 CLEAR TOKEN
+    user.resetToken = null;
+    user.resetTokenExpiry = null;
+    if(user.status === STATUS.INACTIVE){
+        user.status = STATUS.ACTIVE;
+    }
+    await user.save();
+
+    return { message: "Password reset successful" };
+};
+
 
 const loginUser = async({email,password})=>{
     const user = await User.findOne({email}).select("+passwordHash");
@@ -118,7 +180,7 @@ const registerApproval = async (data) => {
   await sendEmail({
     to: data.email,
     subject: "Verify your Email - HMS",
-    html: getVerificationTemplate(verificationLink, data.firstName)
+    html : verifyEmailTemplate(verificationLink,data.firstName),
   });
 
   return approval;
@@ -135,6 +197,7 @@ const verifyEmail = async (token) => {
 
   return approval;
 };
+
 
 const resendVerificationEmail = async (email) => {
 
@@ -157,42 +220,11 @@ const resendVerificationEmail = async (email) => {
   await sendEmail({
     to: email,
     subject: "Resend Verification - HMS",
-    html: getVerificationTemplate(verificationLink, approval.firstName)
+    html : resendVerificationTemplate(verificationLink, approval.firstName)
   });
 
   return { message: "Verification email resent" };
 };
 
-const getVerificationTemplate = (link, name) => {
-  return `
-  <div style="font-family: Arial; padding: 20px; background:#f4f6f8;">
-    <div style="max-width: 500px; margin:auto; background:#fff; padding:20px; border-radius:10px;">
 
-      <h2 style="color:#007bff;">Welcome to HMS 🏥</h2>
-
-      <p>Hi ${name || 'User'},</p>
-
-      <p>Thank you for registering with HMS.</p>
-
-      <p>Please verify your email by clicking the button below:</p>
-
-      <a href="${link}" 
-         style="display:inline-block; padding:12px 20px; background:#007bff; color:#fff; text-decoration:none; border-radius:6px;">
-         Verify Email
-      </a>
-
-      <p style="margin-top:20px;">Or copy this link:</p>
-      <p style="word-break: break-all;">${link}</p>
-
-      <hr/>
-
-      <p style="font-size:12px; color:#888;">
-        If you didn’t request this, please ignore this email.
-      </p>
-
-    </div>
-  </div>
-  `;
-};
-
-module.exports = {verifyUserByToken, loginUser,registerApproval,verifyEmail,resendVerificationEmail};
+module.exports = {verifyUserByToken, loginUser,registerApproval,verifyEmail,resendVerificationEmail,forgotPassword, resetPassword};

@@ -27,7 +27,7 @@ const seedRoleMenus = async () => {
 
     // ADMIN
     const adminMenus = mapMenus(
-      ["Dashboard", "Employee", "Patient", "Departments", "Approvals", "Appointments"],
+      ["Dashboard", "Employee","Doctor", "Patient", "Departments", "Approvals", "Appointments"],
       ROLES.ADMIN.roleName
     );
 

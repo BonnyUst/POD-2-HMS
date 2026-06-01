@@ -18,28 +18,35 @@ const seedMenus = async () => {
       order: 1
     });
 
+    // ✅ NEW: DOCTOR MAIN MENU (ONLY FOR ADMIN USAGE)
+    const doctorMain = await Menu.create({
+      name: "Doctor",
+      path: "doctor",
+      order: 2
+    });
+
     const patient = await Menu.create({
       name: "Patient",
       path: "patient",
-      order: 2
+      order: 3
     });
 
     const departments = await Menu.create({
       name: "Departments",
       path: "departments",
-      order: 3
+      order: 4
     });
 
     const approvals = await Menu.create({
       name: "Approvals",
       path: "approval",
-      order: 4
+      order: 5
     });
 
     const appointments = await Menu.create({
       name: "Appointments",
       path: "appointments",
-      order: 5
+      order: 6
     });
 
     // 🔥 SUB MENUS

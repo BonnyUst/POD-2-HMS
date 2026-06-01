@@ -44,3 +44,16 @@ exports.verifyEmail = asyncHandler(async (req, res) => {
     );
 });
 
+exports.forgotPassword = asyncHandler(async(req,res)=>{
+    const {email }= req.body;
+    const result = await authService.forgotPassword(email);
+    return res.status(200).send(new ApiResponse(200,result));
+})
+
+exports.resetPassword = asyncHandler(async(req,res)=>{
+    const { token } = req.params;
+    const {email,password} = req.body;
+
+    const result = await authService.resetPassword({token,email,newPassword : password });
+    return res.status(200).send(new ApiResponse(200,result));
+})

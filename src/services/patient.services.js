@@ -88,7 +88,7 @@ const createPatientRecord = async (patientDetails) => {
 
 const getAllPatients = async () => {
 
-  const patients = await Patient.find()
+  const patients = await Patient.find({isDeleted:false})
     .populate({
       path: 'userId',
       select: 'firstName lastName email phone status'
@@ -126,5 +126,68 @@ const checkPatient = async (UHID) => {
   };
 };
 
-module.exports = {createPatientByUserId,createPatientRecord,getAllPatients,checkPatient,}
+const updatePatient = async (id, data) => {
+  const patient = await Patient.findById(id);
+  if (!patient) throw new ApiError(404, "Patient not found");
+
+  const user = await User.findById(patient.userId);
+
+  Object.assign(user, {
+    firstName: data.firstName,
+    lastName: data.lastName,
+    email: data.email,
+    phone: data.phone
+  });
+
+  await user.save();
+
+  Object.assign(patient, {
+    gender: data.gender,
+    dob: data.dob,
+    bloodGroup: data.bloodGroup,
+    address: {
+      street: data.street,
+      city: data.city,
+      state: data.state,
+      pincode: data.pincode
+    },
+    emgContName: data.emgContName,
+    emgContPhone: data.emgContPhone
+  });
+
+  await patient.save();
+
+  return { message: "Updated successfully" };
+};
+
+const deletePatient = async (id) => {
+  const patient = await Patient.findById(id);
+  if (!patient) throw new ApiError(404, "Patient not found");
+
+  // 🔥 Mark patient deleted
+  patient.isDeleted = true;
+  await patient.save();
+
+  // 🔥 Also deactivate user
+  const user = await User.findById(patient.userId);
+  if (user) {
+    user.status = STATUS.INACTIVE;
+    await user.save();
+  }
+
+  return { message: "Patient deleted successfully" };
+};
+
+const togglePatientStatus = async (userId) => {
+  const user = await User.findById(userId);
+
+  user.status =
+    user.status === STATUS.ACTIVE ? STATUS.INACTIVE : STATUS.ACTIVE;
+
+  await user.save();
+
+  return { status: user.status };
+};
+
+module.exports = {createPatientByUserId,createPatientRecord,getAllPatients,checkPatient,updatePatient,deletePatient,togglePatientStatus,}
 
