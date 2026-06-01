@@ -1,9 +1,9 @@
 const User = require('../models/User.model')
 const RoleModel = require('../models/Role.model');
-const Employee=require('../models/Employee.model')
+const Employee = require('../models/Employee.model')
 const bcrypt = require('bcrypt');
-const ApiError=require('../utils/ApiError');
-const sendEmail=require('./mail.service')
+const ApiError = require('../utils/ApiError');
+const sendEmail = require('./mail.service')
 
 exports.createEmployeeUser = async (userData) => {
     const {
@@ -16,8 +16,8 @@ exports.createEmployeeUser = async (userData) => {
         department,
         designation,
         joiningDate,
-     
-      
+
+
     } = userData;
 
     const existingUser = await User.findOne({
@@ -25,30 +25,30 @@ exports.createEmployeeUser = async (userData) => {
     });
 
     if (existingUser) {
-       throw new ApiError(409, 'User already exists with this email');
+        throw new ApiError(409, 'User already exists with this email');
     }
 
     const employeeRole = await RoleModel.findOne({ name: role });
-    
+
     if (!employeeRole) {
         throw new ApiError(404, 'Employee role Not Found');
     }
-   
-    const passwordHash = await bcrypt.hash(password,10);
-    // const passwordHash = 'asdfsdfasdgasdgasdg';
-    
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+
     const user = await User.create({
         firstName,
         lastName,
         email,
         passwordHash,
         roleId: employeeRole._id,
-        isVerified:true,
-        status:'ACTIVE',
+        isVerified: true,
+        status: 'ACTIVE',
         mustChangePassword: true
     });
 
-   
+
     const employee = await Employee.create({
         userId: user._id,
         phone,
@@ -57,12 +57,12 @@ exports.createEmployeeUser = async (userData) => {
         joiningDate,
 
     });
-let emailSent = false;
-try{
-await sendEmail(
-    email,
-    "HMS Employee Login Credentials",
-    `
+    let emailSent = false;
+    try {
+        await sendEmail(
+            email,
+            "HMS Employee Login Credentials",
+            `
     <h2>Welcome to HMS</h2>
 
     <p>Hello ${firstName} ${lastName},</p>
@@ -80,26 +80,26 @@ await sendEmail(
     <p>HMS Admin Team</p>
     `
 
-);
-emailSent=true;
-}
-catch (error) {
-    console.log("Email sending failed, but account creation will continue");
-    console.log(error.message);
-}
+        );
+        emailSent = true;
+    }
+    catch (error) {
+        console.log("Email sending failed, but account creation will continue");
+        console.log(error.message);
+    }
     return {
         employeeId: employee._id,
-       employeeCode: employee.employeeCode,
+        employeeCode: employee.employeeCode,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
         phone: employee.phone,
-        role:employeeRole.name,
+        role: employeeRole.name,
         department: employee.department,
         designation: employee.designation,
         joiningDate: employee.joiningDate,
         isVerified: user.isVerified,
-        status:user.status,
+        status: user.status,
         mustChangePassword: user.mustChangePassword,
         emailSent
 
@@ -123,7 +123,7 @@ exports.currentProfile = async (userId) => {
     }
 
     return {
-        
+
         userId: employeeProfile.userId._id,
 
         firstName: employeeProfile.userId.firstName,
@@ -148,20 +148,20 @@ exports.currentProfile = async (userId) => {
 
 //to get all the employees
 
-exports.getAllEmployees=async()=>{
-    const employees=await Employee.find()
-    .populate({
-        path:"userId",
-        select:"firstName lastName email roleId isVerified status",
-        populate:{
-            path:"roleId",
-            select:"name roleCode"
-        }
-    })
-    .sort({createdAt:-1});
+exports.getAllEmployees = async () => {
+    const employees = await Employee.find()
+        .populate({
+            path: "userId",
+            select: "firstName lastName email roleId isVerified status",
+            populate: {
+                path: "roleId",
+                select: "name roleCode"
+            }
+        })
+        .sort({ createdAt: -1 });
 
-    return employees.map((employee)=>({
-         employeeId: employee._id,
+    return employees.map((employee) => ({
+        employeeId: employee._id,
         employeeCode: employee.employeeCode,
 
         firstName: employee.userId.firstName,

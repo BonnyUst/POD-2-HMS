@@ -65,6 +65,7 @@ export class Appointments implements OnInit {
     this.getDoctors();
     this.setupSlotWatcher();
   }
+  
 
   // ========================
   // CUSTOM VALIDATOR

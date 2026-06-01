@@ -420,3 +420,28 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ===========================
+   ERROR & VALIDATION STYLES
+=========================== */
+
+.error-msg {
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: 500;
+    display: block;
+}
+
+/* Red border on invalid touched fields */
+.form-group input.ng-invalid.ng-touched,
+.form-group select.ng-invalid.ng-touched,
+.form-group textarea.ng-invalid.ng-touched {
+    border-color: #dc2626;
+}
+
+/* Disabled save button */
+.save-btn:disabled {
+    background-color: #94a3b8;
+    cursor: not-allowed;
+}

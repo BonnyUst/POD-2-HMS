@@ -63,8 +63,12 @@ const getCurrentProfile=async (req,res)=>
     }
     catch(error){
 
-        return res.ApiResponse(500,"Internal Server Error in Profile Fetching");
-
+       return res
+            .status(error.statusCode || 500)
+            .json({
+                success: false,
+                message: error.message || 'Error in Profile Fetching'
+            });
 
     }
 }

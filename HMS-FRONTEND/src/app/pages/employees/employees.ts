@@ -1,43 +1,64 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { DatePipe, NgClass } from '@angular/common';
-import { environment } from '../../../environments/environment';
-import { Employee, CreateEmployeePayload } from '../../models/employee.model';
-import { ApiResponse } from '../../models/api-response.model';
+import { EmployeeService } from '../../services/employee.service';
+import { Employee } from '../../models/employee.model';
 
 @Component({
   selector: 'app-employees',
   standalone: true,
-  imports: [FormsModule, DatePipe, NgClass],
+  imports: [ReactiveFormsModule, DatePipe, NgClass],
   templateUrl: './employees.html',
   styleUrl: './employees.css'
 })
 export class Employees implements OnInit {
-
-  private baseUrl = environment.apiUrl;
 
   employees: Employee[] = [];
   filteredEmployees: Employee[] = [];
   searchText = '';
   showAddEmployeeModal = false;
 
-  employeeForm: CreateEmployeePayload = {
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    phone: '',
-    role: '',
-    department: '',
-    designation: '',
-    joiningDate: ''
-  };
+  // Reactive Form
+  employeeForm = new FormGroup({
+    firstName: new FormControl('', [
+      Validators.required,
+      Validators.minLength(2)
+    ]),
+    lastName: new FormControl('', [
+      Validators.required,
+      Validators.minLength(2)
+    ]),
+    email: new FormControl('', [
+      Validators.required,
+      Validators.pattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$')
+    ]),
+    password: new FormControl('', [
+      Validators.required,
+      Validators.minLength(8),
+      Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$')
+    ]),
+    phone: new FormControl('', [
+      Validators.required,
+      Validators.pattern('^[6-9][0-9]{9}$')
+    ]),
+    role: new FormControl('', [
+      Validators.required
+    ]),
+    department: new FormControl('', [
+      Validators.required
+    ]),
+    designation: new FormControl('', [
+      Validators.required
+    ]),
+    joiningDate: new FormControl('', [
+      Validators.required
+    ])
+  });
 
   constructor(
-    private http: HttpClient,
+    private employeeService: EmployeeService,
     private cd: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.getEmployees();
@@ -48,7 +69,7 @@ export class Employees implements OnInit {
   // ========================
 
   getEmployees() {
-    this.http.get<ApiResponse<Employee[]>>(`${this.baseUrl}/users/list`)
+    this.employeeService.getAllEmployees()
       .subscribe({
         next: (res) => {
           this.employees = res.data;
@@ -91,31 +112,13 @@ export class Employees implements OnInit {
   // ========================
 
   openAddEmployeeModal() {
-    this.resetForm();
+    this.employeeForm.reset();
     this.showAddEmployeeModal = true;
   }
 
   closeAddEmployeeModal() {
     this.showAddEmployeeModal = false;
-    this.resetForm();
-  }
-
-  // ========================
-  // RESET FORM
-  // ========================
-
-  resetForm() {
-    this.employeeForm = {
-      firstName: '',
-      lastName: '',
-      email: '',
-      password: '',
-      phone: '',
-      role: '',
-      department: '',
-      designation: '',
-      joiningDate: ''
-    };
+    this.employeeForm.reset();
   }
 
   // ========================
@@ -123,27 +126,16 @@ export class Employees implements OnInit {
   // ========================
 
   saveEmployee() {
-    if (
-      !this.employeeForm.firstName ||
-      !this.employeeForm.lastName ||
-      !this.employeeForm.email ||
-      !this.employeeForm.password ||
-      !this.employeeForm.phone ||
-      !this.employeeForm.role ||
-      !this.employeeForm.department ||
-      !this.employeeForm.designation ||
-      !this.employeeForm.joiningDate
-    ) {
-      alert('Please fill all required fields');
+    if (this.employeeForm.invalid) {
+      this.employeeForm.markAllAsTouched();
       return;
     }
 
-    console.log('Employee form data:', this.employeeForm);
+    const payload = this.employeeForm.value;
 
-    this.http.post<ApiResponse<Employee>>(
-      `${this.baseUrl}/users/create`,
-      this.employeeForm
-    )
+    console.log('Employee form data:', payload);
+
+    this.employeeService.createEmployee(payload as any)
       .subscribe({
         next: (res) => {
           console.log('Employee created successfully:', res);

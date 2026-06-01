@@ -1,45 +1,89 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import {
+  FormGroup,
+  FormControl,
+  Validators,
+  ReactiveFormsModule,
+  AbstractControl,
+  ValidationErrors
+} from '@angular/forms';
 import { DatePipe } from '@angular/common';
-import { environment } from '../../../environments/environment';
 import { Patient, CreatePatientPayload } from '../../models/patients.model';
-import { ApiResponse } from '../../models/api-response.model';
+import { PatientService } from '../../services/patient.service';
+
+// Custom validator: DOB cannot be in the future
+function futureDateValidator(control: AbstractControl): ValidationErrors | null {
+  if (!control.value) return null;
+
+  const selected = new Date(control.value);
+  const today = new Date();
+
+  selected.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+
+  return selected > today ? { futureDate: true } : null;
+}
 
 @Component({
   selector: 'app-patients',
   standalone: true,
-  imports: [FormsModule, DatePipe],
+  imports: [ReactiveFormsModule, DatePipe],
   templateUrl: './patients.html',
   styleUrl: './patients.css'
 })
 export class Patients implements OnInit {
-
-  private baseUrl = environment.apiUrl;
 
   patients: Patient[] = [];
   filteredPatients: Patient[] = [];
   searchText = '';
   showAddPatientModal = false;
 
-  patientForm: CreatePatientPayload = {
-    firstName: '',
-    lastName: '',
-    phone: '',
-    gender: '',
-    dob: '',
-    bloodGroup: '',
-    address: {
-      city: '',
-      state: '',
-      pincode: ''
-    },
-    emergencyContactName: '',
-    emergencyContactPhone: ''
-  };
+  // ========================
+  // REACTIVE FORM
+  // ========================
+
+  patientForm = new FormGroup({
+    firstName: new FormControl('', [
+      Validators.required,
+      Validators.minLength(2)
+    ]),
+    lastName: new FormControl('', [
+      Validators.required,
+      Validators.minLength(2)
+    ]),
+    phone: new FormControl('', [
+      Validators.required,
+      Validators.pattern('^[6-9][0-9]{9}$')
+    ]),
+    gender: new FormControl('', [
+      Validators.required
+    ]),
+    dob: new FormControl('', [
+      Validators.required,
+      futureDateValidator
+    ]),
+    bloodGroup: new FormControl('', [
+      Validators.required
+    ]),
+    address: new FormGroup({
+      city: new FormControl(''),
+      state: new FormControl(''),
+      pincode: new FormControl('', [
+        Validators.pattern('^[0-9]{6}$')
+      ])
+    }),
+    emergencyContactName: new FormControl('', [
+      Validators.required,
+      Validators.minLength(2)
+    ]),
+    emergencyContactPhone: new FormControl('', [
+      Validators.required,
+      Validators.pattern('^[6-9][0-9]{9}$')
+    ])
+  });
 
   constructor(
-    private http: HttpClient,
+    private patientService: PatientService,
     private cd: ChangeDetectorRef
   ) {}
 
@@ -52,7 +96,7 @@ export class Patients implements OnInit {
   // ========================
 
   getPatients() {
-    this.http.get<ApiResponse<Patient[]>>(`${this.baseUrl}/patients/list`)
+    this.patientService.getAllPatients()
       .subscribe({
         next: (res) => {
           this.patients = res.data;
@@ -96,35 +140,15 @@ export class Patients implements OnInit {
   // ========================
 
   openAddPatientModal() {
-    this.resetForm();
+    this.patientForm.reset();
     this.showAddPatientModal = true;
+    document.body.classList.add('modal-open');
   }
 
   closeAddPatientModal() {
     this.showAddPatientModal = false;
-    this.resetForm();
-  }
-
-  // ========================
-  // RESET FORM
-  // ========================
-
-  resetForm() {
-    this.patientForm = {
-      firstName: '',
-      lastName: '',
-      phone: '',
-      gender: '',
-      dob: '',
-      bloodGroup: '',
-      address: {
-        city: '',
-        state: '',
-        pincode: ''
-      },
-      emergencyContactName: '',
-      emergencyContactPhone: ''
-    };
+    this.patientForm.reset();
+    document.body.classList.remove('modal-open');
   }
 
   // ========================
@@ -132,26 +156,16 @@ export class Patients implements OnInit {
   // ========================
 
   savePatient() {
-    if (
-      !this.patientForm.firstName ||
-      !this.patientForm.lastName ||
-      !this.patientForm.phone ||
-      !this.patientForm.gender ||
-      !this.patientForm.dob ||
-      !this.patientForm.bloodGroup ||
-      !this.patientForm.emergencyContactName ||
-      !this.patientForm.emergencyContactPhone
-    ) {
-      alert('Please fill all required fields');
+    if (this.patientForm.invalid) {
+      this.patientForm.markAllAsTouched();
       return;
     }
 
-    console.log('Patient form data:', this.patientForm);
+    const payload = this.patientForm.value as CreatePatientPayload;
 
-    this.http.post<ApiResponse<Patient>>(
-      `${this.baseUrl}/patients/create`,
-      this.patientForm
-    )
+    console.log('Patient form data:', payload);
+
+    this.patientService.createPatient(payload)
       .subscribe({
         next: (res) => {
           console.log('Patient created successfully:', res);

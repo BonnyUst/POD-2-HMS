@@ -7,11 +7,13 @@ const authMiddleware = require('../middleware/authMiddleware');
 const authRoles = require('../middleware/authRoles');
 const permissions = require('../utils/permissions');
 const patientController=require('../controller/patient.controller');
+const {validateCreatePatient}=require('../validation/patient.validation')
 
 
 router.post('/create',
     authMiddleware,
     authRoles(permissions.ADD_PATIENT),
+    validateCreatePatient,
     patientController.createPatient
 );
 
