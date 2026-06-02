@@ -10,9 +10,10 @@ const authMiddleware=(req,res,next)=>
 
 
         //check whethe token exists 
+        // !authHeader||
+        // !authHeader.startsWith("Bearer ") for better understanding 
         if(
-            !authHeader||
-            !authHeader.startsWith("Bearer ")
+            !authHeader?.startsWith("Bearer ")
         )
         {
             return res.status(401).json(
@@ -37,10 +38,9 @@ const authMiddleware=(req,res,next)=>
     }
     catch(error)
     {
-
         return res.status(401).json({
         success:false,
-        message:"Invalid or expired token "
+        message:error.message||"Invalid or expired token "
         });
         
     }

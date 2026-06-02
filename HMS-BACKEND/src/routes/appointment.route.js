@@ -8,11 +8,7 @@ const authMiddleware=require('../middleware/authMiddleware')
 
 const authRoles=require('../middleware/authRoles')
 const permissions=require('../utils/permissions')
-// console.log("authMiddleware:", typeof authMiddleware);
-// console.log("authRoles:", typeof authRoles);
-// console.log("permission:", permissions.ADD_APPOINTMENT);
-// console.log("validateCreateAppointment:", validateCreateAppointment);
-// console.log("createAppointment:", typeof appointmentController.createAppointment);
+
 router.post(
     '/create',
     authMiddleware,

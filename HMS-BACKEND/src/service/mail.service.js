@@ -1,5 +1,5 @@
 const axios = require("axios");
-const https = require("https");
+const https = require("node:https");
 
 const agent = new https.Agent({
     rejectUnauthorized: false

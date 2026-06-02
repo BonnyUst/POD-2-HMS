@@ -1,13 +1,4 @@
-//  const verificationToken=generateToken({
-//         userId:user._id,
-//         email:user.email
-
-//     });
-
-//     const verificationLink=
-//     `http://localhost:5000/api/users/verify-email/${verificationToken}`;
-//     console.log("Verification Link",verificationLink)
-const crypto = require('crypto');
+const crypto = require('node:crypto');
 const JoinUs = require('../models/JoinUs.model');
 const User = require('../models/User.model');
 const ApiError = require('../utils/ApiError');
@@ -69,7 +60,7 @@ exports.createJoinUsRequest = async (joinUsData) => {
         throw new ApiError(409, 'Join request already exists with this email');
     }
     const passwordHash = await bcrypt.hash(password, 10);
-    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationToken = crypto.randomBytes(32).toString('hex');//decide later on the jwt 
 
     const joinUsRequest = await JoinUs.create({
         firstName,
@@ -95,10 +86,10 @@ exports.createJoinUsRequest = async (joinUsData) => {
         verificationToken,
         verificationTokenExpiry: new Date(Date.now() + 15 * 60 * 1000)
     });
-const verificationLink =
-    `http://localhost:5000/api/join-us/verify/${verificationToken}`;
+    const verificationLink =
+        `http://localhost:5000/api/join-us/verify/${verificationToken}`;
 
-console.log('Verification Link:', verificationLink);
+    console.log('Verification Link:', verificationLink);
 
     return {
         message: 'Join request submitted. Please verify your email.',
@@ -210,6 +201,14 @@ exports.approveJoinUsRequest = async (requestId, approvedBy) => {
         isVerified: true,
         status: 'ACTIVE'
     });
+
+    if (!joinUsRequest) {
+        return res.status(400).json({ success: false, message: "Request not found" });
+    }
+
+    if(!newUser){
+        return res.status(400).json({ success: false, message: "User not found" });
+    }
 
     const newEmployee = await Employee.create({
         userId: newUser._id,

@@ -49,6 +49,11 @@ exports.createEmployeeUser = async (userData) => {
     });
 
 
+    if (!user) {
+        return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    
     const employee = await Employee.create({
         userId: user._id,
         phone,
