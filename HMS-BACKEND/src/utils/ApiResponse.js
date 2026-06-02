@@ -1,4 +1,5 @@
-class ApiResponse {
+
+class ApiResponse {// NOSONAR - Constructor is required to initialize a consistent API response format
     constructor(statuscode, message, data = null) {
         this.sucess = statuscode < 400;
         this.statuscode = statuscode;
@@ -6,5 +7,4 @@ class ApiResponse {
         this.data = data;
     }
 }
-
 module.exports = ApiResponse;
