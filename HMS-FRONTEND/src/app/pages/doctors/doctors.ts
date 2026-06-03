@@ -103,7 +103,7 @@ export class Doctors implements OnInit {
   constructor(
     private doctorService: DoctorService,
     private cd: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.getDoctors();
@@ -225,8 +225,9 @@ export class Doctors implements OnInit {
           this.cd.detectChanges();
         },
         error: (err) => {
-          console.error('Error creating doctor:', err);
-          alert(err.error?.message || 'Something went wrong');
+          console.log('Error creating doctor:', err);
+          console.log('Backend validation errors:', err.error?.errors);
+          console.log('Backend message:', err.error?.message);
         }
       });
   }

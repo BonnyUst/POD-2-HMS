@@ -35,4 +35,9 @@ export class Sidebar implements OnInit {
     //   const nodes = http.post({"/api/node/list", token, role}
     // } raja's notes for understanding the node how it works 
   }
+
+   getFullPath(path: string): string {
+    const basePath = localStorage.getItem('basePath') || '';
+    return `${basePath}${path}`;
+  }
 }

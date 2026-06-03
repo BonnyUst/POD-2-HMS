@@ -4,7 +4,7 @@
         <!-- ng:for(nodes) -->
          @for(node of nodes;track node._id){
 
-            <a [routerLink]="node.path"
+            <a [routerLink]="getFullPath(node.path)"
             routerLinkActive="active"
             [routerLinkActiveOptions]="{exact:true}">
                 <i [class]="node.icon"></i>

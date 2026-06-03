@@ -51,6 +51,31 @@ export const routes: Routes = [
             
             
         ]
-    }
+    },
 
+    //receptionist
+
+    {
+        path:"receptionist", component:DashboardLayout,
+        canActivate:[authGuard],
+        children:[
+            {
+                path:'patients',component:Patients
+            },
+            {
+                path:'appointments',component:Appointments
+            }
+        ]
+    },
+
+    //doctor
+    {
+        path:"doctor", component:DashboardLayout,
+        canActivate:[authGuard],
+        children:[
+            {
+                path:'appointments',component:Appointments
+            }
+        ]
+    }
 ];

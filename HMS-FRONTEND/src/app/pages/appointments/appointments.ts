@@ -58,14 +58,18 @@ export class Appointments implements OnInit {
     private appointmentService: AppointmentService,
     private cd: ChangeDetectorRef
   ) {}
+ngOnInit(): void {
+  const role = localStorage.getItem('role');
 
-  ngOnInit(): void {
+  if (role === 'Doctor') {
+    this.getMyAppointments();
+  } else {
     this.getAppointments();
     this.getPatients();
     this.getDoctors();
     this.setupSlotWatcher();
   }
-  
+}
 
   // ========================
   // CUSTOM VALIDATOR
@@ -137,6 +141,27 @@ export class Appointments implements OnInit {
       this.doctorAvailability = '';
     }
   }
+
+
+  // ========================
+// GET LOGGED-IN DOCTOR APPOINTMENTS
+// ========================
+
+getMyAppointments() {
+  this.appointmentService.getMyAppointments()
+    .subscribe({
+      next: (res) => {
+        this.appointments = res.data;
+        this.filteredAppointments = res.data;
+        console.log('My appointments:', this.appointments);
+        this.cd.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error fetching my appointments:', err);
+      }
+    });
+}
+
 
   // ========================
   // GET ALL APPOINTMENTS

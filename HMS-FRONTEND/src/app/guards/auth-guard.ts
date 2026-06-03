@@ -11,7 +11,7 @@ export const authGuard: CanActivateFn = (route, state) => {
    console.log("Token:", token);
   console.log("Role:", role);
 
-  if (token && role === 'Admin') {
+  if (token) {
     return true;
   }
 

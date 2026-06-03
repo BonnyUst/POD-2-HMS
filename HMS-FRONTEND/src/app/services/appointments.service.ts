@@ -40,4 +40,10 @@ export class AppointmentService {
     );
 }
 
+ getMyAppointments(): Observable<ApiResponse<Appointment[]>> {//for doctor specific 
+    return this.http.get<ApiResponse<Appointment[]>>(
+      `${this.baseUrl}/appointments/my-appointments`
+    );
+  }
+
 }

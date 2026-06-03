@@ -162,6 +162,7 @@ export class Patients implements OnInit {
     }
 
     const payload = this.patientForm.value as CreatePatientPayload;
+    
 
     console.log('Patient form data:', payload);
 
