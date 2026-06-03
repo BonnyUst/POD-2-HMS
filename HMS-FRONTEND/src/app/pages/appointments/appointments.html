@@ -135,7 +135,7 @@
 
                     <!-- Patient -->
                     <div class="form-group">
-                        <label>Patient <span>*</span></label>
+                        <label for="selectPatient">Patient <span>*</span></label>
                         <select formControlName="patientId">
                             <option value="">Select Patient</option>
 
@@ -154,7 +154,7 @@
 
                     <!-- Doctor -->
                     <div class="form-group">
-                        <label>Doctor <span>*</span></label>
+                        <label for="selectDoctor">Doctor <span>*</span></label>
                         <select formControlName="doctorId">
                             <option value="">Select Doctor</option>
 
@@ -173,7 +173,7 @@
 
                     <!-- Date -->
                     <div class="form-group">
-                        <label>Appointment Date <span>*</span></label>
+                        <label for="appointmentDate">Appointment Date <span>*</span></label>
                         <input
                             type="date"
                             formControlName="appointmentDate"
@@ -201,7 +201,7 @@
 
                     <!-- Time Slot -->
                     <div class="form-group">
-                        <label>Time Slot <span>*</span></label>
+                        <label for="timeSlot">Time Slot <span>*</span></label>
 
                         @if (!appointmentForm.get('doctorId')?.value ||
                              !appointmentForm.get('appointmentDate')?.value) {
@@ -258,7 +258,7 @@
 
                     <!-- Reason -->
                     <div class="form-group full-width">
-                        <label>Reason <span>*</span></label>
+                        <label for="reason">Reason <span>*</span></label>
                         <textarea
                             rows="3"
                             placeholder="Enter reason for appointment"

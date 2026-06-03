@@ -14,8 +14,8 @@ export class Sidebar implements OnInit {
 
   nodes: any[] = [];//to hold the nodes coming from the backend
 
-  constructor(private http: HttpClient,
-    private cd:ChangeDetectorRef
+  constructor(readonly http: HttpClient,
+    readonly cd:ChangeDetectorRef
   ) { }//inject httpClient
 
 //ng is for fetching the data like that 

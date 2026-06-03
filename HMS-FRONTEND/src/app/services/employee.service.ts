@@ -10,9 +10,9 @@ import { ApiResponse } from '../models/api-response.model';
 })
 export class EmployeeService {
 
-  private baseUrl = environment.apiUrl;
+  readonly baseUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(readonly http: HttpClient) {}
 
   getAllEmployees(): Observable<ApiResponse<Employee[]>> {
     return this.http.get<ApiResponse<Employee[]>>(`${this.baseUrl}/users/list`);

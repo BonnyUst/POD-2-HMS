@@ -1,8 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Auth } from '../../services/auth';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef } from '@angular/core';
-
 @Component({
   selector: 'app-profile',
   imports: [CommonModule],
@@ -14,8 +12,8 @@ export class Profile implements OnInit {
   profile: any = null;
   errorMessage = '';
 
-  constructor(private authService: Auth,
-    private cd: ChangeDetectorRef
+  constructor(readonly authService: Auth,
+    readonly cd: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -27,7 +25,7 @@ export class Profile implements OnInit {
       next: (res) => {
         console.log('Profile response:', res);
         this.profile = res.data;
-         this.cd.detectChanges();
+        this.cd.detectChanges();
       },
       error: (err) => {
         console.log('Profile fetch error:', err);

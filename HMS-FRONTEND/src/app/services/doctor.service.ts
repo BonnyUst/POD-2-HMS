@@ -10,9 +10,9 @@ import { ApiResponse } from '../models/api-response.model';
 })
 export class DoctorService {
 
-  private baseUrl = environment.apiUrl;
+  readonly baseUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(readonly http: HttpClient) {}
 
   getAllDoctors(): Observable<ApiResponse<Doctor[]>> {
     return this.http.get<ApiResponse<Doctor[]>>(`${this.baseUrl}/doctors/list`);

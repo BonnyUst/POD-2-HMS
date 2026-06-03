@@ -1,6 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit ,ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef } from '@angular/core';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -11,7 +10,7 @@ import { environment } from '../../../environments/environment';
 })
 export class AdminDashboard implements OnInit {
 
-  private baseUrl=environment.apiUrl;
+  readonly baseUrl=environment.apiUrl;
 
   stats = {
     totalPatients: 0,
@@ -25,8 +24,8 @@ export class AdminDashboard implements OnInit {
 
   selectedSection = 'employees';
 
-  constructor(private http: HttpClient,
-    private cd: ChangeDetectorRef
+  constructor(readonly http: HttpClient,
+    readonly cd: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {

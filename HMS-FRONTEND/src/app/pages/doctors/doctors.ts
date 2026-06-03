@@ -101,8 +101,8 @@ export class Doctors implements OnInit {
   });
 
   constructor(
-    private doctorService: DoctorService,
-    private cd: ChangeDetectorRef
+    readonly doctorService: DoctorService,
+    readonly cd: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {

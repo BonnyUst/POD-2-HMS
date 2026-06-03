@@ -13,7 +13,7 @@ export class Navbar {
 
   showProfileDropdown = false;
 
-  constructor(private router: Router) {}
+  constructor(readonly router: Router) {}
 
   toggleProfileDropdown() {
     this.showProfileDropdown = !this.showProfileDropdown;

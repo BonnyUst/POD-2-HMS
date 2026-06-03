@@ -5,7 +5,6 @@ import { environment } from '../../environments/environment';
 
 import { Appointment, CreateAppointmentPayload,SlotResponse } from '../models/appointments.model';
 import { Patient } from '../models/patients.model';
-import { Employee } from '../models/employee.model';
 import { ApiResponse } from '../models/api-response.model';
 import { Doctor } from '../models/doctor.model';
 
@@ -14,9 +13,9 @@ import { Doctor } from '../models/doctor.model';
 })
 export class AppointmentService {
 
-  private baseUrl = environment.apiUrl;
+  readonly baseUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(readonly http: HttpClient) {}
 
   getAppointments(): Observable<ApiResponse<Appointment[]>> {
     return this.http.get<ApiResponse<Appointment[]>>(`${this.baseUrl}/appointments/list`);

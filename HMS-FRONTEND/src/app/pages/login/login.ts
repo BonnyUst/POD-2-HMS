@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 import { Auth } from '../../services/auth';
-import { Route, Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 @Component({
   selector: 'app-login',
   imports: [FormsModule, RouterLink],
@@ -13,8 +12,8 @@ export class Login {
   email = '';
   password = '';
 
-  constructor(private auth: Auth,
-    private router: Router
+  constructor(readonly auth: Auth,
+    readonly router: Router
 
   ) { }
 
@@ -53,15 +52,12 @@ export class Login {
         console.log(loginData)
         if (res.data.user.roleId.name === 'Admin') {
           this.router.navigate(['/admin/dashboard']);
-          return;
         }
-        if (res.data.user.roleId.name === 'Receptionist') {
+        else if (res.data.user.roleId.name === 'Receptionist') {
           this.router.navigate([`${basePath}/patients`]);
-          return;
         }
-         if (res.data.user.roleId.name === 'Doctor') {
+        else if (res.data.user.roleId.name === 'Doctor') {
           this.router.navigate([`${basePath}/appointments`]);
-          return;
         }
       },
 

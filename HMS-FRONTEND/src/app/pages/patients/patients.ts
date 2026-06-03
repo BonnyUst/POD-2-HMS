@@ -83,8 +83,8 @@ export class Patients implements OnInit {
   });
 
   constructor(
-    private patientService: PatientService,
-    private cd: ChangeDetectorRef
+    readonly patientService: PatientService,
+    readonly cd: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {

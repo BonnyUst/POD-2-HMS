@@ -55,8 +55,8 @@ export class Appointments implements OnInit {
   });
 
   constructor(
-    private appointmentService: AppointmentService,
-    private cd: ChangeDetectorRef
+    readonly appointmentService: AppointmentService,
+    readonly cd: ChangeDetectorRef
   ) {}
 ngOnInit(): void {
   const role = localStorage.getItem('role');

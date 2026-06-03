@@ -5,9 +5,9 @@ import { environment } from '../../environments/environment';
   providedIn: 'root',
 })
 export class Auth {
-  private baseUrl=environment.apiUrl;
+  readonly baseUrl=environment.apiUrl;
 
-  constructor(private http: HttpClient) { }
+  constructor(readonly http: HttpClient) { }
 
   getProfile() {
     return this.http.get<any>(`${this.baseUrl}/users/profile`);
