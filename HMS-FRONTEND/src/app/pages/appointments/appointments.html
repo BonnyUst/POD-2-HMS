@@ -5,10 +5,12 @@
         <h2>Appointments</h2>
 
         <div class="header-actions">
+            @if (canCreateAppointment) {
             <button class="add-btn" (click)="openAddAppointmentModal()">
                 <i class="bi bi-plus-lg"></i>
                 Add Appointment
             </button>
+            }
         </div>
     </div>
 
@@ -50,11 +52,11 @@
                     <td>{{ appointment.patientId?.UHID }}</td>
 
                     <td>
-                        {{ appointment.doctorId?.userId?.firstName }}
-                        {{ appointment.doctorId?.userId?.lastName }}
+                        {{ appointment.doctorId?.employeeId?.userId?.firstName }}
+                        {{ appointment.doctorId?.employeeId?.userId?.lastName }}
                     </td>
 
-                    <td>{{ appointment.doctorId?.department }}</td>
+                    <td>{{ appointment.doctorId?.employeeId?.department }}</td>
 
                     <td>{{ appointment.appointmentDate | date:'dd-MM-yyyy' }}</td>
 

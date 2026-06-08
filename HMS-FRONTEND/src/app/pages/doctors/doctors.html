@@ -1,4 +1,4 @@
-<div class="employee-page">
+<div class="doctor-page">
 
     <!-- Header -->
     <div class="page-header">
@@ -21,7 +21,7 @@
     </div>
 
     <!-- Doctor Table -->
-    <div class="employee-table-section">
+    <div class="doctor-table-section">
         <table>
             <thead>
                 <tr>
@@ -83,13 +83,28 @@
 
     <!-- Footer -->
     <div class="table-footer">
-        <p>Records: {{ filteredDoctors.length }} of {{ doctors.length }}</p>
+    <p>
+        Records: {{ startRecord }} - {{ endRecord }} of {{ filteredDoctors.length }}
+    </p>
 
-        <div class="pagination">
-            <i class="bi bi-chevron-left"></i>
-            <i class="bi bi-chevron-right"></i>
-        </div>
+    <div class="pagination">
+        <i
+            class="bi bi-chevron-left"
+            [class.disabled]="currentPage === 1"
+            (click)="goToPreviousPage()">
+        </i>
+
+        <span class="page-info">
+            Page {{ currentPage }} of {{ totalPages }}
+        </span>
+
+        <i
+            class="bi bi-chevron-right"
+            [class.disabled]="currentPage === totalPages || totalPages === 0"
+            (click)="goToNextPage()">
+        </i>
     </div>
+</div>
 
 </div>
 
