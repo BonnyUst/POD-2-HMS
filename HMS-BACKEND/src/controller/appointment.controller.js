@@ -4,7 +4,8 @@ exports.createAppointment = async (req, res, next) => {
     try {
         const appointment = await appointmentService.createAppointment(
             req.body,
-            req.user?._id
+            req.user?._id,
+            req.user?.role
         );
 
         return res.status(201).json({
@@ -60,7 +61,7 @@ exports.getAvailableSlots = async (req, res, next) => {
 exports.getMyAppointments = async (req, res, next) => {
     try {
         const appointments = await appointmentService.getMyAppointments(
-            req.user.userId
+            req.user
         );
 
         return res.status(200).json({

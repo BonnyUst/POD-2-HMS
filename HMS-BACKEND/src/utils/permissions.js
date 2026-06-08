@@ -13,12 +13,14 @@ const permissions = {
     DELETE_EMPLOYEE: ["Admin"],
 
     ADD_DOCTOR: ["Admin"],
-    VIEW_DOCTOR: ["Admin"],
+    VIEW_DOCTOR: ["Admin","Receptionist","Doctor","Patient"],
     UPDATE_DOCTOR: ["Admin"],
     DELETE_DOCTOR: ["Admin"],
 
-    ADD_APPOINTMENT:["Admin","Receptionist"],
-    VIEW_APPOINTMENT:["Admin"],
+    ADD_APPOINTMENT:["Admin","Receptionist","Patient"],
+    VIEW_APPOINTMENT:["Admin","Receptionist","Doctor","Patient"],
+
+
 
     APPROVE_EMPLOYEE:["Admin"],
     PENDING_APPROVE_EMPLOYEE:["Admin"]
