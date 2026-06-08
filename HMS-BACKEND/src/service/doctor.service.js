@@ -26,6 +26,13 @@ exports.createDoctorByAdmin = async (doctorData) => {
         experienceYears
     } = doctorData;
 
+    const existingDoctor = await Doctor.findOne({ medicalRegistrationNo });
+
+
+    if (existingDoctor) {
+        throw new ApiError(409, 'Medical registration number already exists');
+    }
+
 
     const employeeData = await userService.createEmployeeUser({
         firstName,
@@ -71,8 +78,6 @@ exports.createDoctorByAdmin = async (doctorData) => {
         availabilityStartTime: doctor.availabilityStartTime,
         availabilityEndTime: doctor.availabilityEndTime,
         experienceYears: doctor.experienceYears,
-
-     
 
         isVerified: employeeData.isVerified,
         status: employeeData.status,

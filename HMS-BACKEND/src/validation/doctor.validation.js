@@ -1,11 +1,29 @@
 const { body } = require('express-validator');
+const timeRegex = /^(0[1-9]|1[0-2]):[0-5]\d\s(AM|PM)$/;
+
+const convertTimeToMinutes = (timeStr) => {
+    const [time, period] = timeStr.split(' ');
+    let [hours, minutes] = time.split(':').map(Number);
+
+    if (period === 'PM' && hours !== 12) {
+        hours += 12;
+    }
+
+    if (period === 'AM' && hours === 12) {
+        hours = 0;
+    }
+
+    return hours * 60 + minutes;
+};
 
 const validateCreateDoctor = [
     body("firstName")
+        .trim()
         .notEmpty()
         .withMessage("First Name is required"),
 
     body("lastName")
+        .trim()
         .notEmpty()
         .withMessage("Last Name is required"),
 
@@ -55,11 +73,41 @@ const validateCreateDoctor = [
 
     body("availabilityStartTime")
         .notEmpty()
-        .withMessage("Availability start time is required"),
+        .withMessage("Availability start time is required")
+        .matches(timeRegex)
+        .withMessage("Availability start time must be in format 09:00 AM"),
+
 
     body("availabilityEndTime")
         .notEmpty()
-        .withMessage("Availability end time is required"),
+        .withMessage("Availability end time is required")
+        .matches(timeRegex)
+        .withMessage("Availability end time must be in format 05:00 PM")
+        .custom((endTime, { req }) => {
+            const startTime = req.body.availabilityStartTime;
+
+            if (!startTime || !endTime) {
+                return true;
+            }
+
+            if (!timeRegex.test(startTime) || !timeRegex.test(endTime)) {
+                return true;
+            }
+            //using if condition to skip if anything is wrong it will be captured in the validate middleware
+
+            const start = convertTimeToMinutes(startTime);
+            const end = convertTimeToMinutes(endTime);
+
+            if (end <= start) {
+                throw new Error("Availability end time must be after start time");
+            }
+
+            if (end - start < 60) {
+                throw new Error("Availability must be at least 1 hour");
+            }
+
+            return true;
+        }),
 
     body("experienceYears")
         .notEmpty()
@@ -67,4 +115,4 @@ const validateCreateDoctor = [
         .isNumeric()
         .withMessage("Experience years must be a number")
 ];
-module.exports = {validateCreateDoctor};
+module.exports = { validateCreateDoctor };

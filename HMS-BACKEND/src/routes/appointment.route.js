@@ -30,4 +30,10 @@ router.get('/available-slots',
     appointmentController.getAvailableSlots
 );
 
+router.get(
+  "/my-appointments",
+  authMiddleware,
+  appointmentController.getMyAppointments
+);
+
 module.exports = router;

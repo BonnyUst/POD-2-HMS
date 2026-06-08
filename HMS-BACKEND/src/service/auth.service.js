@@ -30,7 +30,8 @@ exports.loginEmployee=async({email,password})=>
     const loginToken=generateToken({
         userId:user._id,
         role:user.roleId.name,
-        rolecode:user.roleId.roleCode
+        rolecode:user.roleId.roleCode,
+        basePath:user.roleId.basePath
 
     },'1d');
 

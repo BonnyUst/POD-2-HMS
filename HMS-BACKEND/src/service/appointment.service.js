@@ -127,6 +127,38 @@ exports.getAppointments = async () => {
 };
 
 
+exports.getMyAppointments = async (userId) => {
+    const employee = await Employee.findOne({ userId });
+
+    if (!employee) {
+        throw new ApiError(404, "Employee profile not found");
+    }
+
+    const doctor = await Doctor.findOne({ employeeId: employee._id });
+
+    if (!doctor) {
+        throw new ApiError(404, "Doctor profile not found");
+    }
+
+    const appointments = await Appointment.find({
+        doctorId: doctor._id
+    })
+        .populate("patientId", "UHID firstName lastName phone gender bloodGroup")
+        .populate({
+            path: "doctorId",
+            populate: {
+                path: "employeeId",
+                populate: {
+                    path: "userId",
+                    select: "firstName lastName email"
+                }
+            }
+        })
+        .sort({ appointmentDate: -1 });
+
+    return appointments;
+};
+
 
 exports.getAvailableSlots = async (doctorId, appointmentDate) => {
     // Find doctor to get availability

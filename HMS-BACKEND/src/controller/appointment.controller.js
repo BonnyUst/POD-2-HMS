@@ -56,3 +56,19 @@ exports.getAvailableSlots = async (req, res, next) => {
         next(error);
     }
 };
+
+exports.getMyAppointments = async (req, res, next) => {
+    try {
+        const appointments = await appointmentService.getMyAppointments(
+            req.user.userId
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "Doctor appointments fetched successfully",
+            data: appointments
+        });
+    } catch (error) {
+        next(error);
+    }
+};
