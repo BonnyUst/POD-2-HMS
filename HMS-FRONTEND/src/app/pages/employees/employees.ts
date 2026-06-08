@@ -17,20 +17,24 @@ export class Employees implements OnInit {
   filteredEmployees: Employee[] = [];
   searchText = '';
   showAddEmployeeModal = false;
+  currentPage = 1;
+  pageSize = 10;
 
   // Reactive Form
   employeeForm = new FormGroup({
     firstName: new FormControl('', [
       Validators.required,
-      Validators.minLength(2)
+      Validators.minLength(2),
+      Validators.pattern(/^(?!\s+$)[A-Za-z\s]+$/)
     ]),
     lastName: new FormControl('', [
       Validators.required,
-      Validators.minLength(2)
+      Validators.minLength(1),
+      Validators.pattern(/^(?!\s+$)[A-Za-z\s]+$/)
     ]),
     email: new FormControl('', [
       Validators.required,
-      Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/)
+      Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
     ]),
     password: new FormControl('', [
       Validators.required,
@@ -64,6 +68,31 @@ export class Employees implements OnInit {
     this.getEmployees();
   }
 
+  get paginatedEmployees(): Employee[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+
+    return this.filteredEmployees.slice(startIndex, endIndex);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredEmployees.length / this.pageSize);
+  }
+
+  get startRecord(): number {
+    if (this.filteredEmployees.length === 0) {
+      return 0;
+    }
+
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get endRecord(): number {
+    return Math.min(
+      this.currentPage * this.pageSize,
+      this.filteredEmployees.length
+    );
+  }
   // ========================
   // GET ALL EMPLOYEES
   // ========================
@@ -81,6 +110,18 @@ export class Employees implements OnInit {
           console.error('Error fetching employees:', err);
         }
       });
+  }
+
+  goToPreviousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  goToNextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
   }
 
   // ========================
@@ -105,6 +146,7 @@ export class Employees implements OnInit {
       employee.department?.toLowerCase().includes(search) ||
       employee.designation?.toLowerCase().includes(search)
     );
+    this.currentPage = 1;
   }
 
   // ========================

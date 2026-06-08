@@ -18,6 +18,9 @@ export class Appointments implements OnInit {
   appointments: Appointment[] = [];
   filteredAppointments: Appointment[] = [];
 
+  currentPage = 1;
+  pageSize = 10;
+
   patients: Patient[] = [];
   doctors: Doctor[] = [];
 
@@ -57,19 +60,19 @@ export class Appointments implements OnInit {
   constructor(
     readonly appointmentService: AppointmentService,
     readonly cd: ChangeDetectorRef
-  ) {}
-ngOnInit(): void {
-  const role = localStorage.getItem('role');
+  ) { }
+  ngOnInit(): void {
+    const role = localStorage.getItem('role');
 
-  if (role === 'Doctor') {
-    this.getMyAppointments();
-  } else {
-    this.getAppointments();
-    this.getPatients();
-    this.getDoctors();
-    this.setupSlotWatcher();
+    if (role === 'Doctor') {
+      this.getMyAppointments();
+    } else {
+      this.getAppointments();
+      this.getPatients();
+      this.getDoctors();
+      this.setupSlotWatcher();
+    }
   }
-}
 
   // ========================
   // CUSTOM VALIDATOR
@@ -142,25 +145,36 @@ ngOnInit(): void {
     }
   }
 
+  goToPreviousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  goToNextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
 
   // ========================
-// GET LOGGED-IN DOCTOR APPOINTMENTS
-// ========================
+  // GET LOGGED-IN DOCTOR APPOINTMENTS
+  // ========================
 
-getMyAppointments() {
-  this.appointmentService.getMyAppointments()
-    .subscribe({
-      next: (res) => {
-        this.appointments = res.data;
-        this.filteredAppointments = res.data;
-        console.log('My appointments:', this.appointments);
-        this.cd.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error fetching my appointments:', err);
-      }
-    });
-}
+  getMyAppointments() {
+    this.appointmentService.getMyAppointments()
+      .subscribe({
+        next: (res) => {
+          this.appointments = res.data;
+          this.filteredAppointments = res.data;
+          console.log('My appointments:', this.appointments);
+          this.cd.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error fetching my appointments:', err);
+        }
+      });
+  }
 
 
   // ========================
@@ -217,6 +231,32 @@ getMyAppointments() {
       });
   }
 
+  get paginatedAppointments(): Appointment[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+
+    return this.filteredAppointments.slice(startIndex, endIndex);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredAppointments.length / this.pageSize);
+  }
+
+  get startRecord(): number {
+    if (this.filteredAppointments.length === 0) {
+      return 0;
+    }
+
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get endRecord(): number {
+    return Math.min(
+      this.currentPage * this.pageSize,
+      this.filteredAppointments.length
+    );
+  }
+
   // ========================
   // FILTER / SEARCH
   // ========================
@@ -226,6 +266,7 @@ getMyAppointments() {
 
     if (!search) {
       this.filteredAppointments = [...this.appointments];
+      this.currentPage = 1;
       return;
     }
 
@@ -241,6 +282,7 @@ getMyAppointments() {
       appointment.status?.toLowerCase().includes(search) ||
       appointment.reason?.toLowerCase().includes(search)
     );
+    this.currentPage = 1;
   }
 
   // ========================

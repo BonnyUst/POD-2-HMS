@@ -15,6 +15,9 @@ export class Doctors implements OnInit {
 
   doctors: Doctor[] = [];
   filteredDoctors: Doctor[] = [];
+
+  currentPage = 1;
+  pageSize = 10;
   searchText = '';
   showAddDoctorModal = false;
 
@@ -45,15 +48,18 @@ export class Doctors implements OnInit {
   doctorForm = new FormGroup({
     firstName: new FormControl('', [
       Validators.required,
-      Validators.minLength(2)
+      Validators.minLength(2),
+      Validators.pattern(/^(?!\s+$)[A-Za-z\s]+$/)
     ]),
     lastName: new FormControl('', [
       Validators.required,
-      Validators.minLength(2)
+      Validators.minLength(2),
+      Validators.pattern(/^(?!\s+$)[A-Za-z\s]+$/)
     ]),
     email: new FormControl('', [
       Validators.required,
-      Validators.email
+      Validators.email,
+
     ]),
     password: new FormControl('', [
       Validators.required,
@@ -163,6 +169,43 @@ export class Doctors implements OnInit {
       });
   }
 
+  get paginatedDoctors(): Doctor[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+
+    return this.filteredDoctors.slice(startIndex, endIndex);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredDoctors.length / this.pageSize);
+  }
+
+  get startRecord(): number {
+    if (this.filteredDoctors.length === 0) {
+      return 0;
+    }
+
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get endRecord(): number {
+    return Math.min(
+      this.currentPage * this.pageSize,
+      this.filteredDoctors.length
+    );
+  }
+
+  goToPreviousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  goToNextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
   // ========================
   // FILTER / SEARCH
   // ========================
@@ -172,6 +215,7 @@ export class Doctors implements OnInit {
 
     if (!search) {
       this.filteredDoctors = [...this.doctors];
+      this.currentPage=1;
       return;
     }
 
@@ -185,6 +229,7 @@ export class Doctors implements OnInit {
       doctor.qualification?.toLowerCase().includes(search) ||
       doctor.medicalRegistrationNo?.toLowerCase().includes(search)
     );
+    this.currentPage=1;
   }
 
   // ========================

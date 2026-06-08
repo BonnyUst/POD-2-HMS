@@ -15,10 +15,7 @@
     <!-- Search -->
     <div class="table-toolbar">
         <div class="search-box">
-            <input
-                type="text"
-                placeholder="Search doctors..."
-                [value]="searchText"
+            <input type="text" placeholder="Search doctors..." [value]="searchText"
                 (input)="searchText = $any($event.target).value; filterDoctors()" />
         </div>
     </div>
@@ -43,7 +40,7 @@
             </thead>
 
             <tbody>
-                @for (doctor of filteredDoctors; track doctor.doctorId) {
+                @for (doctor of paginatedDoctors; track doctor.doctorId) {
                 <tr>
                     <td>{{ doctor.employeeCode }}</td>
                     <td>{{ doctor.firstName }} {{ doctor.lastName }}</td>
@@ -56,9 +53,7 @@
                     <td>{{ doctor.experienceYears }} Years</td>
                     <td>{{ doctor.availabilityStartTime }} - {{ doctor.availabilityEndTime }}</td>
                     <td>
-                        <span
-                            class="status-badge"
-                            [ngClass]="{
+                        <span class="status-badge" [ngClass]="{
                                 'status-active': doctor.status === 'ACTIVE',
                                 'status-inactive': doctor.status === 'INACTIVE'
                             }">
@@ -125,87 +120,81 @@
 
                     <div class="form-group">
                         <label for="firstName"> <span>*</span></label>
-                        <input
-                            type="text"
-                            placeholder="Enter first name"
-                            formControlName="firstName" />
+                        <input type="text" placeholder="Enter first name" formControlName="firstName" />
 
                         @if (doctorForm.get('firstName')?.hasError('required') &&
-                             doctorForm.get('firstName')?.touched) {
+                        doctorForm.get('firstName')?.touched) {
                         <small class="error-msg">First name is required</small>
                         }
                         @if (doctorForm.get('firstName')?.hasError('minlength') &&
-                             doctorForm.get('firstName')?.touched) {
+                        doctorForm.get('firstName')?.touched) {
                         <small class="error-msg">Minimum 2 characters required</small>
+                        }
+                        @if (doctorForm.get('firstName')?.hasError('pattern') &&
+                        doctorForm.get('firstName')?.touched) {
+                        <small class="error-msg">First name cannot contain only spaces, numbers, or special
+                            characters</small>
                         }
                     </div>
 
                     <div class="form-group">
                         <label for="lastName">Last Name <span>*</span></label>
-                        <input
-                            type="text"
-                            placeholder="Enter last name"
-                            formControlName="lastName" />
+                        <input type="text" placeholder="Enter last name" formControlName="lastName" />
 
                         @if (doctorForm.get('lastName')?.hasError('required') &&
-                             doctorForm.get('lastName')?.touched) {
+                        doctorForm.get('lastName')?.touched) {
                         <small class="error-msg">Last name is required</small>
                         }
                         @if (doctorForm.get('lastName')?.hasError('minlength') &&
-                             doctorForm.get('lastName')?.touched) {
+                        doctorForm.get('lastName')?.touched) {
                         <small class="error-msg">Minimum 2 characters required</small>
+                        }
+                        @if (doctorForm.get('lastName')?.hasError('pattern') &&
+                        doctorForm.get('lastName')?.touched) {
+                        <small class="error-msg">First name cannot contain only spaces, numbers, or special
+                            characters</small>
                         }
                     </div>
 
                     <div class="form-group">
                         <label for="email">Email <span>*</span></label>
-                        <input
-                            type="email"
-                            placeholder="Enter email"
-                            formControlName="email" />
+                        <input type="email" placeholder="Enter email" formControlName="email" />
 
                         @if (doctorForm.get('email')?.hasError('required') &&
-                             doctorForm.get('email')?.touched) {
+                        doctorForm.get('email')?.touched) {
                         <small class="error-msg">Email is required</small>
                         }
                         @if (doctorForm.get('email')?.hasError('email') &&
-                             doctorForm.get('email')?.touched) {
+                        doctorForm.get('email')?.touched) {
                         <small class="error-msg">Enter a valid email</small>
                         }
                     </div>
 
                     <div class="form-group">
                         <label for="password">Password <span>*</span></label>
-                        <input
-                            type="password"
-                            placeholder="Enter password"
-                            formControlName="password" />
+                        <input type="password" placeholder="Enter password" formControlName="password" />
 
                         @if (doctorForm.get('password')?.hasError('required') &&
-                             doctorForm.get('password')?.touched) {
+                        doctorForm.get('password')?.touched) {
                         <small class="error-msg">Password is required</small>
                         }
                         @if (doctorForm.get('password')?.hasError('minlength') &&
-                             doctorForm.get('password')?.touched) {
+                        doctorForm.get('password')?.touched) {
                         <small class="error-msg">Minimum 6 characters required</small>
                         }
                     </div>
 
                     <div class="form-group">
                         <label for="phone">Phone <span>*</span></label>
-                        <input
-                            type="text"
-                            placeholder="Enter phone number"
-                            formControlName="phone" 
-                            maxlength="10"/>
+                        <input type="text" placeholder="Enter phone number" formControlName="phone" maxlength="10" />
 
                         @if (doctorForm.get('phone')?.hasError('required') &&
-                             doctorForm.get('phone')?.touched) {
+                        doctorForm.get('phone')?.touched) {
                         <small class="error-msg">Phone is required</small>
                         }
                         @if (doctorForm.get('phone')?.hasError('pattern') &&
-                             doctorForm.get('phone')?.touched) {
-                        <small class="error-msg">Enter valid 10 digit phone number</small>
+                        doctorForm.get('phone')?.touched) {
+                        <small class="error-msg">Enter valid Indian phone number (starts with 6-9)</small>
                         }
                     </div>
 
@@ -224,7 +213,7 @@
                         </select>
 
                         @if (doctorForm.get('department')?.invalid &&
-                             doctorForm.get('department')?.touched) {
+                        doctorForm.get('department')?.touched) {
                         <small class="error-msg">Department is required</small>
                         }
                     </div>
@@ -239,19 +228,17 @@
                         </select>
 
                         @if (doctorForm.get('designation')?.invalid &&
-                             doctorForm.get('designation')?.touched) {
+                        doctorForm.get('designation')?.touched) {
                         <small class="error-msg">Designation is required</small>
                         }
                     </div>
 
                     <div class="form-group">
                         <label for="joiningDate">Joining Date <span>*</span></label>
-                        <input
-                            type="date"
-                            formControlName="joiningDate" />
+                        <input type="date" formControlName="joiningDate" />
 
                         @if (doctorForm.get('joiningDate')?.invalid &&
-                             doctorForm.get('joiningDate')?.touched) {
+                        doctorForm.get('joiningDate')?.touched) {
                         <small class="error-msg">Joining date is required</small>
                         }
                     </div>
@@ -263,56 +250,44 @@
 
                     <div class="form-group">
                         <label for="specialization">Specialization <span>*</span></label>
-                        <input
-                            type="text"
-                            placeholder="Eg: Cardiology"
-                            formControlName="specialization" />
+                        <input type="text" placeholder="Eg: Cardiology" formControlName="specialization" />
 
                         @if (doctorForm.get('specialization')?.invalid &&
-                             doctorForm.get('specialization')?.touched) {
+                        doctorForm.get('specialization')?.touched) {
                         <small class="error-msg">Specialization is required</small>
                         }
                     </div>
 
                     <div class="form-group">
                         <label for="qualification">Qualification <span>*</span></label>
-                        <input
-                            type="text"
-                            placeholder="Eg: MBBS MD"
-                            formControlName="qualification" />
+                        <input type="text" placeholder="Eg: MBBS MD" formControlName="qualification" />
 
                         @if (doctorForm.get('qualification')?.invalid &&
-                             doctorForm.get('qualification')?.touched) {
+                        doctorForm.get('qualification')?.touched) {
                         <small class="error-msg">Qualification is required</small>
                         }
                     </div>
 
                     <div class="form-group">
                         <label for="consultationFee">Consultation Fee <span>*</span></label>
-                        <input
-                            type="number"
-                            placeholder="Enter consultation fee"
-                            formControlName="consultationFee" />
+                        <input type="number" placeholder="Enter consultation fee" formControlName="consultationFee" />
 
                         @if (doctorForm.get('consultationFee')?.hasError('required') &&
-                             doctorForm.get('consultationFee')?.touched) {
+                        doctorForm.get('consultationFee')?.touched) {
                         <small class="error-msg">Consultation fee is required</small>
                         }
                         @if (doctorForm.get('consultationFee')?.hasError('min') &&
-                             doctorForm.get('consultationFee')?.touched) {
+                        doctorForm.get('consultationFee')?.touched) {
                         <small class="error-msg">Fee must be greater than 0</small>
                         }
                     </div>
 
                     <div class="form-group">
                         <label for="medicalRegistrationNo">Medical Registration No <span>*</span></label>
-                        <input
-                            type="text"
-                            placeholder="Eg: KL-MED-12345"
-                            formControlName="medicalRegistrationNo" />
+                        <input type="text" placeholder="Eg: KL-MED-12345" formControlName="medicalRegistrationNo" />
 
                         @if (doctorForm.get('medicalRegistrationNo')?.invalid &&
-                             doctorForm.get('medicalRegistrationNo')?.touched) {
+                        doctorForm.get('medicalRegistrationNo')?.touched) {
                         <small class="error-msg">Registration number is required</small>
                         }
                     </div>
@@ -328,7 +303,7 @@
                         </select>
 
                         @if (doctorForm.get('availabilityStartTime')?.invalid &&
-                             doctorForm.get('availabilityStartTime')?.touched) {
+                        doctorForm.get('availabilityStartTime')?.touched) {
                         <small class="error-msg">Start time is required</small>
                         }
                     </div>
@@ -343,38 +318,35 @@
                         </select>
 
                         @if (doctorForm.get('availabilityEndTime')?.invalid &&
-                             doctorForm.get('availabilityEndTime')?.touched) {
+                        doctorForm.get('availabilityEndTime')?.touched) {
                         <small class="error-msg">End time is required</small>
                         }
 
                         <!-- Group level validators -->
                         @if (doctorForm.hasError('invalidAvailability') &&
-                             doctorForm.get('availabilityEndTime')?.touched) {
+                        doctorForm.get('availabilityEndTime')?.touched) {
                         <small class="error-msg">End time must be after start time</small>
                         }
                         @if (doctorForm.hasError('minAvailability') &&
-                             doctorForm.get('availabilityEndTime')?.touched) {
+                        doctorForm.get('availabilityEndTime')?.touched) {
                         <small class="error-msg">Availability must be at least 1 hour</small>
                         }
                     </div>
 
                     <div class="form-group">
                         <label for="experienceYears">Experience Years <span>*</span></label>
-                        <input
-                            type="number"
-                            placeholder="Enter experience"
-                            formControlName="experienceYears" />
+                        <input type="number" placeholder="Enter experience" formControlName="experienceYears" />
 
                         @if (doctorForm.get('experienceYears')?.hasError('required') &&
-                             doctorForm.get('experienceYears')?.touched) {
+                        doctorForm.get('experienceYears')?.touched) {
                         <small class="error-msg">Experience is required</small>
                         }
                         @if (doctorForm.get('experienceYears')?.hasError('min') &&
-                             doctorForm.get('experienceYears')?.touched) {
+                        doctorForm.get('experienceYears')?.touched) {
                         <small class="error-msg">Experience cannot be negative</small>
                         }
                         @if (doctorForm.get('experienceYears')?.hasError('max') &&
-                             doctorForm.get('experienceYears')?.touched) {
+                        doctorForm.get('experienceYears')?.touched) {
                         <small class="error-msg">Experience cannot exceed 60 years</small>
                         }
                     </div>
@@ -387,10 +359,7 @@
 
         <div class="modal-footer">
             <button class="cancel-btn" (click)="closeAddDoctorModal()">Cancel</button>
-            <button
-                class="save-btn"
-                (click)="saveDoctor()"
-                [disabled]="doctorForm.invalid">
+            <button class="save-btn" (click)="saveDoctor()" [disabled]="doctorForm.invalid">
                 Save
             </button>
         </div>

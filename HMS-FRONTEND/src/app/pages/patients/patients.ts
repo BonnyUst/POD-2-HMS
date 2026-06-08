@@ -45,11 +45,13 @@ export class Patients implements OnInit {
   patientForm = new FormGroup({
     firstName: new FormControl('', [
       Validators.required,
-      Validators.minLength(2)
+      Validators.minLength(2),
+      Validators.pattern(/^(?!\s+$)[A-Za-z\s]+$/)
     ]),
     lastName: new FormControl('', [
       Validators.required,
-      Validators.minLength(2)
+      Validators.minLength(1),
+      Validators.pattern(/^(?!\s+$)[A-Za-z\s]+$/)
     ]),
     phone: new FormControl('', [
       Validators.required,
@@ -85,7 +87,7 @@ export class Patients implements OnInit {
   constructor(
     readonly patientService: PatientService,
     readonly cd: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.getPatients();
@@ -162,7 +164,7 @@ export class Patients implements OnInit {
     }
 
     const payload = this.patientForm.value as CreatePatientPayload;
-    
+
 
     console.log('Patient form data:', payload);
 
