@@ -20,7 +20,7 @@ const counterSchema = new mongoose.Schema(
   }
 );
 
-// Prevent duplicate counters for same name + year
+
 counterSchema.index({ name: 1, year: 1 }, { unique: true });
 
 module.exports = mongoose.model('Counter', counterSchema);

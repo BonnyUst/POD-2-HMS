@@ -4,7 +4,7 @@ const authService = require('../services/auth.services');
 const approvalService = require('../services/approval.services');
 
 exports.registerApproval = asyncHandler(async(req,res)=>{
-    console.log("REQ BODY : ", req.body);
+    
 
     const result = await authService.registerApproval(req.body);
     return res.status(200).send(new ApiResponse(200,result));
@@ -12,7 +12,7 @@ exports.registerApproval = asyncHandler(async(req,res)=>{
 
 exports.verifyEmail = asyncHandler(async(req,res)=>{
     const token  = req.params.token;
-    console.log("TOKEN IS : ", token);
+    
     const result = await authService.verifyEmail(token);
     return res.status(200).send(new ApiResponse(200,result));
 })
@@ -33,7 +33,7 @@ exports.getApprovals = asyncHandler(async (req, res) => {
 
 exports.approve = asyncHandler(async (req, res) => {
   const { id } = req.params;
-    console.log("ID : ",id);
+    
     console.log("approve Controller")
   const result = await approvalService.approveEmployee(id);
 

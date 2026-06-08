@@ -3,10 +3,11 @@ const {createRouter,auth,errorValidate} = require('./routesServices/routes.heade
 const {registerApproval, verifyEmail,resendVerificationEmail,getApprovals,approve,reject} = require('../controllers/approval.controller');
 const authorize = require('../middleware/authorize.middleware');
 const PERMISSIONS = require('../constants/permissions');
+const { registerApprovalValidator } = require('../validations/registerApproval.validation');
 
 const router = createRouter();
 
-router.post('/register',registerApproval);
+router.post('/register',registerApprovalValidator,errorValidate,registerApproval);
 router.get('/verify/:token',verifyEmail);
 router.post('/resend-verification',resendVerificationEmail)
 

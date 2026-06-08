@@ -32,15 +32,15 @@ exports.toggleStatus = asyncHandler(async(req,res)=>{
 
 exports.addEmployeeByAdmin = asyncHandler(async(req,res)=>{
     const data = req.body;
-    console.log("REQ BODY : ", data);
-    // 🔥 FIND ADMIN DEPARTMENT FROM EMPLOYEE TABLE
+    
+
     const adminEmployee = await Employee.findOne({ userId: req.user.userId });
 
     if (!adminEmployee) {
         throw new ApiError(404, "Admin employee record not found");
     }
 
-    // 🔥 ATTACH ADMIN DEPT
+
     data.adminDeptId = adminEmployee.departmentId;
 
     const employee = await employeeService.addEmployeeByAdmin(data);
@@ -48,3 +48,14 @@ exports.addEmployeeByAdmin = asyncHandler(async(req,res)=>{
     return res.status(201).send(new ApiResponse(201, employee));
 
 })
+
+exports.updateEmployee = asyncHandler(async (req, res) => {
+    
+    
+    const { userId } = req.params;
+    const data = req.body;
+
+    const result = await employeeService.updateEmployee(userId, data);
+
+    return res.status(200).send(new ApiResponse(200, result));
+});

@@ -15,11 +15,11 @@ const sendEmail = require('../utils/sendEmail'); // assuming you have this
 const addEmployeeByAdmin = async (data) => {
 
     console.log('Check in before add Employee')
-    // 🔥 STEP 1: Create employee using your existing logic
+
     const employee = await addEmployee(data);
     console.log('Check in before User check')
 
-    // 🔥 STEP 2: Get created user
+
     const newUser = await User.findById(employee.userId);
 
     if (!newUser) {
@@ -27,10 +27,10 @@ const addEmployeeByAdmin = async (data) => {
     }
     console.log('Check in before token')
 
-    // 🔥 STEP 3: Auto verify user (no email verification needed)
+
     newUser.isVerified = true;
 
-    // 🔥 STEP 4: Generate reset token
+
     const resetToken = crypto.randomBytes(32).toString('hex');
 
     const hashedToken = crypto
@@ -43,7 +43,7 @@ const addEmployeeByAdmin = async (data) => {
 
     const savedUser = await newUser.save();
 
-    // 🔥 STEP 5: Send email (password reset link)
+
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
     console.log("check point for admin creation")
     await sendEmail({
@@ -69,7 +69,7 @@ const addEmployeeByAdmin = async (data) => {
 };
 
 const addResetToken = async(userId)=>{
-    //add reset token and save the user
+
 }
 const addEmployee = async (data) => {
     console.log("Add Employee service layer running")
@@ -87,7 +87,7 @@ const addEmployee = async (data) => {
             designation,
             joiningDate,
             adminDeptId,
-            // doctor fields
+
             medRegNo,
             specialization,
             qualification,
@@ -97,13 +97,13 @@ const addEmployee = async (data) => {
             expYears
         } = data;
 
-        // ✅ Check user already exists
+
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             throw new ApiError(409, "User already exists");
         }
-        console.log("Check point 1");
-        // ✅ Create User
+        
+
         console.log("Password",password)
         newUser = await userService.createBasicUser({
             firstName,
@@ -118,12 +118,12 @@ const addEmployee = async (data) => {
         }
 
         const normalizedRole = roleName?.toUpperCase()?.trim();
-        // ✅ Get Role
-        console.log("Check point 2");
+
+        
 
         const employeeRole = await Roles.findOne({roleName: normalizedRole });
         
-        console.log("ROLE FROM DB:", employeeRole);
+        
 
         if (!employeeRole) {
             throw new ApiError(404, "Role not found");
@@ -131,18 +131,18 @@ const addEmployee = async (data) => {
 
         newUser.roleId = employeeRole._id;
         await newUser.save();
-        console.log("RAW roleName:", roleName);
-        console.log("NORMALIZED roleName:", roleName?.toUpperCase()?.trim());
+        
+        
 
 
-        // ✅ Generate Employee ID
+
         const genEmployeeId = await generateId(employeeRole.roleId);
-        console.log("Check point 3");
+        
 
-        // ✅ Get Department
+
         let department;
 
-        // 🔥 IF ADMIN CREATED EMPLOYEE → FORCE ADMIN DEPARTMENT
+
         if (data.adminDeptId) {
 
             department = await Departments.findById(data.adminDeptId);
@@ -153,7 +153,7 @@ const addEmployee = async (data) => {
 
         } else {
 
-            // fallback (manual creation / system use)
+
             department = await Departments.findOne({ deptName });
             console.log("dept check point 2",deptName)
 
@@ -161,8 +161,8 @@ const addEmployee = async (data) => {
                 throw new ApiError(404, "Department not found");
             }
         }
-        console.log("Check point 4");
-        // ✅ Create Employee
+        
+
         const newEmployee = await Employee.create({
             userId: newUser._id,
             employeeId: genEmployeeId,
@@ -170,12 +170,12 @@ const addEmployee = async (data) => {
             designation,
             joiningDate
         });
-        console.log("Check point 5");
+        
 
-        console.log("roleName:", roleName);
-        console.log("DOCTOR ROLE:", ROLES.DOCTOR.roleName);
+        
+        
 
-        // ✅ If role is DOCTOR → create Doctor
+
         if (roleName?.toUpperCase() === ROLES.DOCTOR.roleName) {
             if (
                 !medRegNo ||
@@ -184,10 +184,10 @@ const addEmployee = async (data) => {
                 consultationFee == null ||
                 expYears == null
             ) {
-                console.log("Error at role Name");
+                
                 throw new ApiError(400, "Doctor details are required");
             }
-            console.log("Check point 6");
+            
 
             await Doctor.create({
                 employeeId: newEmployee._id, // 🔥 correct reference
@@ -204,7 +204,7 @@ const addEmployee = async (data) => {
         return newEmployee;
 
     } catch (error) {
-        // ⚠️ Rollback user if something fails
+
         if (newUser) {
             await User.findByIdAndDelete(newUser._id);
         }
@@ -225,13 +225,21 @@ const getEmployeeByDept = async(adminDeptId)=>{
     .lean();
 
   return employees.map(emp => ({
+
     employeeId: emp.employeeId,
-    fullName: `${emp.userId.firstName} ${emp.userId.lastName}`,
     email: emp.userId.email,
     phone: emp.userId.phone,
     roleName: emp.userId.roleId?.roleName || '',
     status: emp.userId.status,
-    userId: emp.userId._id
+    userId: emp.userId._id,
+
+
+    firstName: emp.userId.firstName,
+    lastName: emp.userId.lastName,
+
+
+    designation: emp.designation,
+    joiningDate: emp.joiningDate
   }));
 }
 
@@ -244,4 +252,46 @@ const toggleEmployeeStatus = async(userId)=>{
 
   return { message: "Status updated", status: user.status };
 }
-module.exports = { addEmployee,getEmployeeByDept,toggleEmployeeStatus,addEmployeeByAdmin };
+
+const updateEmployee = async (userId, data) => {
+    console.log("Update service in employee")
+  const user = await User.findById(userId);
+  if (!user) throw new ApiError(404, "User not found");
+
+
+  user.firstName = data.firstName;
+  user.lastName = data.lastName;
+  user.phone = data.phone;
+
+  await user.save();
+
+
+  const employee = await Employee.findOne({ userId });
+
+  if (!employee) throw new ApiError(404, "Employee not found");
+
+  employee.designation = data.designation;
+  employee.joiningDate = data.joiningDate;
+
+  await employee.save();
+
+
+  if (data.roleName === "DOCTOR") {
+    const doctor = await Doctor.findOne({ employeeId: employee._id });
+
+    if (doctor) {
+      doctor.specialization = data.specialization || doctor.specialization;
+      doctor.qualification = data.qualification || doctor.qualification;
+      doctor.consultationFee = data.consultationFee || doctor.consultationFee;
+      doctor.avlblStartTime = data.avlblStartTime || doctor.avlblStartTime;
+      doctor.avlblEndTime = data.avlblEndTime || doctor.avlblEndTime;
+      doctor.expYears = data.expYears || doctor.expYears;
+
+      await doctor.save();
+    }
+  }
+
+  return { message: "Employee updated" };
+};
+
+module.exports = { addEmployee,getEmployeeByDept,toggleEmployeeStatus,updateEmployee,addEmployeeByAdmin };

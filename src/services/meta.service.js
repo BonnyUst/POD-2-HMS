@@ -9,21 +9,21 @@ const { BLOOD_GROUP } = require('../constants/hms.constant');
 const ROLE_DEPT_MAP = require('../utils/roleDeptMap');
 const ROLES = require('../constants/role.constant');
 
-// ✅ GET MENU BY ROLE
+
 const getMenuByRole = async (roleName) => {
 
   const roleMenus = await RoleMenu.find({ roleName })
     .populate('menuId');
 
-console.log("ROLE:", roleName);
-console.log("ROLE MENUS:", await RoleMenu.countDocuments());
-console.log(await RoleMenu.find({ roleName }));
+
+
+
 
   const menus = roleMenus
     .map(rm => rm.menuId)
     .filter(m => m && m.isVisible);
 
-  // 🔥 build hierarchy
+
   const parentMenus = menus.filter(m => !m.parentId);
 
   const finalMenus = parentMenus.map(parent => ({
@@ -37,7 +37,7 @@ console.log(await RoleMenu.find({ roleName }));
 };
 
 
-// ✅ CREATE MENU
+
 const createMenu = async (data) => {
 
   const { name, path, parentId, order } = data;
@@ -57,7 +57,7 @@ const createMenu = async (data) => {
 };
 
 
-// ✅ UPDATE MENU
+
 const updateMenu = async (menuId, data) => {
 
   const menu = await Menu.findByIdAndUpdate(
@@ -74,7 +74,7 @@ const updateMenu = async (menuId, data) => {
 };
 
 
-// ✅ DELETE MENU
+
 const deleteMenu = async (menuId) => {
 
   const menu = await Menu.findById(menuId);
@@ -83,15 +83,15 @@ const deleteMenu = async (menuId) => {
     throw new ApiError(404, "Menu not found");
   }
 
-  // delete menu
+
   await Menu.findByIdAndDelete(menuId);
 
-  // delete role mappings
+
   await RoleMenu.deleteMany({ menuId });
 };
 
 
-// ✅ TOGGLE MENU VISIBILITY
+
 const toggleMenu = async (menuId) => {
 
   const menu = await Menu.findById(menuId);
@@ -108,17 +108,17 @@ const toggleMenu = async (menuId) => {
 };
 
 
-// ✅ ASSIGN MENUS TO ROLE
+
 const assignMenusToRole = async (roleName, menuIds) => {
 
   if (!roleName || !menuIds?.length) {
     throw new ApiError(400, "roleName and menuIds required");
   }
 
-  // remove old mappings
+
   await RoleMenu.deleteMany({ roleName });
 
-  // insert new mappings
+
   const roleMenus = menuIds.map(menuId => ({
     roleName,
     menuId

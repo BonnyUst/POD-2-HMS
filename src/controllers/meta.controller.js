@@ -2,11 +2,11 @@ const metaService = require('../services/meta.service');
 const ApiResponse = require('../utils/ApiResponse');
 const asyncHandler = require('express-async-handler');
 
-// ✅ GET MENUS (ROLE BASED)
+
 exports.getMyMenus = asyncHandler(async (req, res) => {
 
- console.log("USER:", req.user);
-  console.log("ROLE:", req.user.roleName);
+ 
+  
   const roleName = req.user.roleName;
 
   const menus = await metaService.getMenuByRole(roleName);
@@ -17,7 +17,7 @@ exports.getMyMenus = asyncHandler(async (req, res) => {
 });
 
 
-// ✅ CREATE MENU
+
 exports.createMenu = asyncHandler(async (req, res) => {
 
   const menu = await metaService.createMenu(req.body);
@@ -28,7 +28,7 @@ exports.createMenu = asyncHandler(async (req, res) => {
 });
 
 
-// ✅ UPDATE MENU
+
 exports.updateMenu = asyncHandler(async (req, res) => {
 
   const updatedMenu = await metaService.updateMenu(
@@ -42,7 +42,7 @@ exports.updateMenu = asyncHandler(async (req, res) => {
 });
 
 
-// ✅ DELETE MENU
+
 exports.deleteMenu = asyncHandler(async (req, res) => {
 
   await metaService.deleteMenu(req.params.id);
@@ -53,7 +53,7 @@ exports.deleteMenu = asyncHandler(async (req, res) => {
 });
 
 
-// ✅ TOGGLE MENU VISIBILITY
+
 exports.toggleMenu = asyncHandler(async (req, res) => {
 
   const menu = await metaService.toggleMenu(req.params.id);
@@ -64,7 +64,7 @@ exports.toggleMenu = asyncHandler(async (req, res) => {
 });
 
 
-// ✅ ASSIGN MENUS TO ROLE
+
 exports.assignMenusToRole = asyncHandler(async (req, res) => {
 
   const { roleName, menuIds } = req.body;

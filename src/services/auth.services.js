@@ -66,14 +66,16 @@ const forgotPassword = async(email)=>{
   const tempPassword = Math.random().toString(36).slice(-8);
 
   const hashedPassword = await bcrypt.hash(tempPassword,10);
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
-  user.resetToken = token;
+    user.resetToken = hashedToken;
   user.resetTokenExpiry = Date.now() + 1000 * 60 * 15;
   user.passwordHash = hashedPassword;
 
   await user.save();
   
-  const resetLink = `http://10.11.68.124:3000/api/auth/reset-password/${token}`;
+  const resetLink = `http://10.11.68.124:3000/auth/reset-password/${token}`;
+  console.log(resetLink)
 
   await sendEmail({
     to : user.email,
@@ -83,7 +85,7 @@ const forgotPassword = async(email)=>{
 
   return { message : "Reset password email sent"};
 }
-// ✅ RESET PASSWORD
+
 const resetPassword = async ({ token, email, newPassword }) => {
 
     const hashedToken = crypto
@@ -100,12 +102,12 @@ const resetPassword = async ({ token, email, newPassword }) => {
         throw new Error("Invalid or expired token");
     }
 
-    // 🔥 Hash new password
+
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     user.passwordHash = hashedPassword;
 
-    // 🔥 CLEAR TOKEN
+
     user.resetToken = null;
     user.resetTokenExpiry = null;
     if(user.status === STATUS.INACTIVE){
@@ -147,20 +149,20 @@ const loginUser = async({email,password})=>{
     return {token : token,roleName: role.roleName, permissions : permissions};
 }
 
-// const registerApproval = async (data) => {
 
-//   const token = crypto.randomBytes(32).toString('hex');
 
-//   const approval = await Approval.create({
-//     ...data,
-//     verificationToken: token,
-//     isEmailVerified: false,
-//     status: "PENDING"
-//   });
 
-//   await sendEmail(data.email, token);
-//   return approval;
-// };
+
+
+
+
+
+
+
+
+
+
+
 
 const registerApproval = async (data) => {
 
@@ -176,7 +178,7 @@ const registerApproval = async (data) => {
   const verificationLink = `http://localhost:5000/api/register-approval/verify/${token}`;
 
   console.log("VERIFICATION LINK : ",verificationLink);
-  // 🔥 SEND EMAIL
+
   await sendEmail({
     to: data.email,
     subject: "Verify your Email - HMS",

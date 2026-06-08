@@ -3,7 +3,7 @@ const jwt = require('../utils/jwt');
 
 const jwtAuth = (req,res,next)=>{
     const authHeader = req.headers.authorization;
-
+    
     if (!authHeader?.startsWith("Bearer ")) {
         return next(new ApiError(401,'Token required'));
     }

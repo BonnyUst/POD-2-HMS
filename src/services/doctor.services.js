@@ -3,13 +3,15 @@ const Employee = require('../models/Employee');
 const Departments = require('../models/Departments');
 const ApiError = require('../utils/ApiError');
 const { STATUS } = require('../constants/basic.constant');
+const User = require('../models/User');
+const Appointment = require('../models/Appointments');
 
 const getDoctorsByDept = async (deptName) => {
 
   const department = await Departments.findOne({ deptName });
   if (!department) throw new ApiError(404, "Department not found");
 
-  // 🔥 STEP 1: GET EMPLOYEES IN THIS DEPARTMENT
+
   const employees = await Employee.find({
     departmentId: department._id
   }).populate({
@@ -17,21 +19,21 @@ const getDoctorsByDept = async (deptName) => {
     select: 'firstName lastName email phone status'
   });
 
-  // 🔥 STEP 2: GET EMPLOYEE IDs
+
   const empIds = employees.map(emp => emp._id);
 
-  // 🔥 STEP 3: GET DOCTORS USING OBJECT ID
+
   const doctors = await Doctor.find({
     employeeId: { $in: empIds }
   });
 
-  // 🔥 STEP 4: MAP EMPLOYEE DATA
+
   const empMap = new Map();
   employees.forEach(emp => {
     empMap.set(emp._id.toString(), emp);
   });
 
-  // 🔥 STEP 5: FINAL RESPONSE
+
   return doctors.map(doc => {
     const emp = empMap.get(doc.employeeId.toString());
 
@@ -42,13 +44,47 @@ const getDoctorsByDept = async (deptName) => {
   });
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const updateDoctor = async (empObjectId, data) => {
-  console.log("Incoming id : ", empObjectId)
-  const emp = await Employee.findOne({employeeId : empObjectId});
+
+  
+
+
+  const emp = await Employee.findOne({ employeeId: empObjectId });
   if (!emp) throw new ApiError(404, "Employee not found");
+
 
   const doctor = await Doctor.findOne({ employeeId: emp._id });
   if (!doctor) throw new ApiError(404, "Doctor not found");
+
 
   Object.assign(doctor, {
     medRegNo: data.medRegNo,
@@ -60,10 +96,20 @@ const updateDoctor = async (empObjectId, data) => {
     expYears: data.expYears
   });
 
+
   Object.assign(emp, {
     designation: data.designation,
     joiningDate: data.joiningDate
   });
+
+
+  await User.findByIdAndUpdate(emp.userId, {
+    firstName: data.firstName,
+    lastName: data.lastName,
+    phone: data.phone,
+    email: data.email   // optional if editable
+  });
+
 
   await doctor.save();
   await emp.save();
@@ -135,4 +181,87 @@ const checkDoctor = async (empId) => {
     message: "Doctor exists"
   };
 };
-module.exports = { getDoctorsByDept,checkDoctor,getDoctorsInfoByDept, updateDoctor };
+
+const getDoctorDashboard = async(userId)=>{
+
+  const employee = await Employee.findOne({ userId }).populate('departmentId');
+  if (!employee) throw new Error("Employee not found");
+
+
+  const doctor = await Doctor.findOne({ employeeId: employee._id });
+  if (!doctor) throw new Error("Doctor not found");
+
+
+  const user = await User.findById(userId);
+
+
+  const todayStart = new Date();
+  todayStart.setHours(0,0,0,0);
+
+  const todayEnd = new Date();
+  todayEnd.setHours(23,59,59,999);
+
+
+
+
+
+  const todayAppointments = await Appointment.countDocuments({
+    doctorId: doctor._id,
+    appointmentDate: { $gte: todayStart, $lte: todayEnd },
+    isDeleted: false
+  });
+
+  const completed = await Appointment.countDocuments({
+    doctorId: doctor._id,
+    status: "COMPLETED",
+    appointmentDate: { $gte: todayStart, $lte: todayEnd },
+    isDeleted: false
+  });
+
+  const pending = await Appointment.countDocuments({
+    doctorId: doctor._id,
+    status: "BOOKED",
+    appointmentDate: { $gte: todayStart, $lte: todayEnd },
+    isDeleted: false
+  });
+
+  const cancelled = await Appointment.countDocuments({
+    doctorId: doctor._id,
+    status: "CANCELLED",
+    appointmentDate: { $gte: todayStart, $lte: todayEnd },
+    isDeleted: false
+  });
+
+
+
+
+
+  const appointments = await Appointment.find({
+    doctorId: doctor._id,
+    appointmentDate: { $gte: todayStart, $lte: todayEnd },
+    isDeleted: false
+  })
+    .populate('patientId', 'UHID')
+    .populate('departmentId', 'deptName')
+    .sort({ "timeslot.start": 1 })
+    .lean();
+
+  return {
+    doctorInfo: {
+      name: `${user.firstName} ${user.lastName}`,
+      department: employee.departmentId?.deptName,
+      specialization: doctor.specialization
+    },
+
+    stats: {
+      todayAppointments,
+      completed,
+      pending,
+      cancelled
+    },
+
+    todayAppointments: appointments
+  };
+
+}
+module.exports = { getDoctorsByDept,checkDoctor,getDoctorsInfoByDept, updateDoctor,getDoctorDashboard };

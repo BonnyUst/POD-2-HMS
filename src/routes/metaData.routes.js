@@ -15,7 +15,7 @@ const {
   getPatientMetaData
 } = require('../controllers/meta.controller');
 
-// /api/
+
 router.get('/meta',getMetaData);
 router.get('/meta/patient',auth,getPatientMetaData);
 router.post('/join-us',checkJoinUs);

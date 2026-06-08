@@ -21,7 +21,7 @@ const authorizeAppointment = (action) => {
 
         if (action === 'CREATE') {
 
-          // 🔥 FIXED HERE
+
           const employee = await Employee.findOne({ userId: user.userId });
 
           if (!employee) {
@@ -30,7 +30,7 @@ const authorizeAppointment = (action) => {
 
           const userDeptId = employee.departmentId;
 
-          // 🔥 FIXED HERE
+
           const department = await Departments.findOne({ deptName: req.body.deptName });
 
           if (!department) {

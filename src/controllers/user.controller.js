@@ -4,7 +4,7 @@ const userService = require('../services/user.services');
 const ApiResponse = require('../utils/ApiResponse');
 
 exports.getMyInfo = asyncHandler(async(req,res)=>{
-    console.log("REQ.USER:",req.user);
+    
     const userId= req.user.userId;
     const role = req.user.role;
     const responseData = await userService.getMyInfo(userId,role);
@@ -13,7 +13,7 @@ exports.getMyInfo = asyncHandler(async(req,res)=>{
 
 exports.getMyProfile = asyncHandler(async (req, res) => {
 
-  console.log("USER FROM TOKEN:", req.user); // 🔥 DEBUG
+
 
   if (!req.user || !req.user.userId) {
     throw new Error("User not authenticated");

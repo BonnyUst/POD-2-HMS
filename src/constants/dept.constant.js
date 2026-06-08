@@ -16,25 +16,24 @@ const departments = [
 
 module.exports = departments;
 
-// Role Departments 
-// DOCTOR Cardiology, ENT, Neurology 
-// NURSE ICU, Emergency, Ward
-// RECEPTIONIST Front Desk, OPD 
-// PHARMACIST Pharmacy
-
-// here i need to change admin may have more depts
 
 
-// Department (Cardiology)
-//         ↓
-// adminIds = [Admin1, Admin2]
 
-// Admin1 logs in
-//         ↓
-// Tries to create Doctor in ENT ❌
-//         ↓
-// Blocked (not his department)
 
-// Tries to create Doctor in Cardiology ✅
-//         ↓
-// Allowed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

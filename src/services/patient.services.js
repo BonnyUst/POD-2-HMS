@@ -5,6 +5,8 @@ const Patient = require('../models/Patient')
 const Roles = require('../models/Roles')
 const userService = require('./user.services');
 const { STATUS } = require('../constants/basic.constant');
+const sendEmail = require('../utils/sendEmail');
+const { patientAccountTemplate } = require('../utils/templates/emailTemplates');
 
 const createPatientByUserId = async(userId)=>{
     const role = await Roles.findOne({roleName : "PATIENT"});
@@ -44,7 +46,7 @@ const createPatientRecord = async (patientDetails) => {
     emgContPhone
   } = patientDetails;
 
-  // ✅ Create User
+
   const newPatUser = await userService.createBasicUser({
     firstName,
     lastName,
@@ -53,15 +55,15 @@ const createPatientRecord = async (patientDetails) => {
     password
   });
 
-  // ✅ Create Patient Base
+
   const newPatient = await createPatientByUserId(newPatUser._id);
 
-  // ✅ Assign Fields
+
   newPatient.gender = gender;
   newPatient.dob = dob;
   newPatient.bloodGroup = bloodGroup;
 
-  // ✅ FIXED ADDRESS
+
   newPatient.address = {
     street,
     city,
@@ -72,16 +74,28 @@ const createPatientRecord = async (patientDetails) => {
   newPatient.emgContName = emgContName;
   newPatient.emgContPhone = emgContPhone;
 
-  // ✅ Profile completed
+
   newPatient.isProfileCompleted = true;
 
-  // ✅ Activate user
+
   newPatUser.status = STATUS.ACTIVE;
   await newPatUser.save();
 
-  // ✅ Save patient
+
   await newPatient.save();
 
+  const loginUrl = `${process.env.FRONTEND_URL}/auth/login`;
+
+  await sendEmail({
+    to : email,
+    subject: "HMS - Your Patient Account",
+    html : patientAccountTemplate({
+      name : firstName + " " + lastName,
+      email,
+      password,
+      loginUrl
+    })
+  })
   return newPatient;
 };
 
@@ -164,11 +178,11 @@ const deletePatient = async (id) => {
   const patient = await Patient.findById(id);
   if (!patient) throw new ApiError(404, "Patient not found");
 
-  // 🔥 Mark patient deleted
+
   patient.isDeleted = true;
   await patient.save();
 
-  // 🔥 Also deactivate user
+
   const user = await User.findById(patient.userId);
   if (user) {
     user.status = STATUS.INACTIVE;

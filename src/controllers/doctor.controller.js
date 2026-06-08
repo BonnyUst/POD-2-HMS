@@ -8,7 +8,7 @@ exports.getDoctorsByDept = asyncHandler(async (req, res) => {
 
     let { dept } = req.query; // 🔥 change const → let
 
-    // 🔥 handle null, undefined, empty, "null"
+
     if (!dept || dept === "null") {
 
         const adminUserId = req.user.userId;
@@ -28,7 +28,7 @@ exports.getDoctorsByDept = asyncHandler(async (req, res) => {
         dept = adminDept.deptName; // ✅ now works
     }
 
-    console.log("Get DOC by Dept Controller →", dept);
+    
 
     const data = await doctorService.getDoctorsByDept(dept);
 
@@ -39,7 +39,7 @@ exports.getDoctorsInfoByDept = asyncHandler(async (req, res) => {
 
     let { dept } = req.query; // 🔥 change const → let
 
-    // 🔥 handle null, undefined, empty, "null"
+
     if (!dept || dept === "null") {
 
         const adminUserId = req.user.userId;
@@ -59,7 +59,7 @@ exports.getDoctorsInfoByDept = asyncHandler(async (req, res) => {
         dept = adminDept.deptName; // ✅ now works
     }
 
-    console.log("Get DOC by Dept Controller →", dept);
+    
 
     const data = await doctorService.getDoctorsInfoByDept(dept);
 
@@ -79,3 +79,10 @@ exports.updateDoctor = asyncHandler(async (req, res) => {
   const data = await doctorService.updateDoctor(empId, req.body);
   res.status(200).json(new ApiResponse(200, data));
 });
+
+exports.getDashboard = asyncHandler(async(req,res)=>{
+    const userId = req.user.userId;
+    const data = await doctorService.getDoctorDashboard(userId);
+    return res.status(200).send(new ApiResponse(200,data));
+})
+

@@ -5,10 +5,10 @@ const Patient = require('../models/Patient')
 const Doctor = require('../models/Doctor')
 const Employee = require('../models/Employee')
 const Departments = require('../models/Departments')
-// const departments = require('../constants/dept.constant');
+
 
 const createAppointment = async (data, user) => {
-console.log("Create appointment service running");
+
 
   const {
     patientUHID,
@@ -18,50 +18,50 @@ console.log("Create appointment service running");
     timeslot
   } = data;
 
-  // =========================
-  // 🔥 GET EMPLOYEE FROM USERID
-  // =========================
 
-  console.log("incoming patientUHID : ", patientUHID);
+
+
+
+  
 
   const createdByEmp = await Employee.findOne({ userId: user.userId });
-  console.log("USER : ",user);
+  
   console.log("Employee : ",createdByEmp)
   if (!createdByEmp) {
     throw new ApiError(404, "Employee not found");
   }
 
-  // =========================
-  // PATIENT
-  // =========================
+
+
+
   const patient = await Patient.findOne({ UHID: patientUHID });
   if (!patient) throw new ApiError(404, "Patient not found");
 
-  // =========================
-  // DOCTOR
-  // =========================
+
+
+
   const empDoctor = await Employee.findOne({ employeeId: doctorEmployeeId });
   if (!empDoctor) throw new ApiError(404, "Doctor employee not found");
 
   const doctor = await Doctor.findOne({ employeeId: empDoctor._id });
   if (!doctor) throw new ApiError(404, "Doctor not found");
 
-  // =========================
-  // DEPARTMENT
-  // =========================
+
+
+
   const department = await Departments.findOne({ deptName });
   if (!department) throw new ApiError(404, "Department not found");
 
-  // =========================
-  // VALIDATION
-  // =========================
+
+
+
   if (empDoctor.departmentId.toString() !== department._id.toString()) {
     throw new ApiError(400, "Doctor not belongs to selected department");
   }
 
-  // =========================
-  // SLOT CHECK
-  // =========================
+
+
+
   const conflict = await Appointment.findOne({
     doctorId: doctor._id,
     appointmentDate,
@@ -73,9 +73,9 @@ console.log("Create appointment service running");
     throw new ApiError(409, "Doctor already booked for this slot");
   }
 
-  // =========================
-  // CREATE
-  // =========================
+
+
+
   const appointmentId = await generateId(`APMNT-${department.deptId}`);
 
   return await Appointment.create({
@@ -96,11 +96,6 @@ const getAppointments = async (query) => {
   const skip = (page - 1) * limit;
 
   const data = await Appointment.find({ isDeleted: false })
-    // .populate({
-    //   path : 'patientId',
-    //   model : 'Patient',
-    //   select : 'UHID'
-    // })
     .populate('patientId')
     .populate('doctorId')
     .populate('departmentId', 'deptName')
@@ -108,7 +103,7 @@ const getAppointments = async (query) => {
     .limit(limit)
     .lean();
 
-  console.log('My Appointment : ', data);
+  
 
   const total = await Appointment.countDocuments({ isDeleted: false });
 
@@ -149,7 +144,7 @@ const updateAppointment = async (id, data) => {
     timeslot
   } = data;
 
-  // 🔥 SLOT CHECK (exclude current)
+
   const conflict = await Appointment.findOne({
     _id: { $ne: id },
     doctorId: appointment.doctorId,

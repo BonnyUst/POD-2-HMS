@@ -13,11 +13,11 @@ const authorize = (requiredPermission) => {
 
       const roleCode = user.roleName; // "OWN", "DOC", etc.
 
-      console.log("USER ROLE:", user.roleName);
-      console.log("REQUIRED:", requiredPermission);
-      console.log("HAS:", ROLE_PERMISSIONS[user.roleName]);
+      
+      
+      
 
-      // 🔥 ✅ OWNER BYPASS
+
       if (roleCode === ROLES.OWNER.roleName) {
         return next();
       }

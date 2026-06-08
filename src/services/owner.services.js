@@ -13,46 +13,46 @@ const Doctor = require('../models/Doctor');
 const Appointment = require('../models/Appointments')
 const Approval = require('../models/Approvals');
 const { adminAccountTemplate } = require('../utils/templates/emailTemplates');
-// const addAdmin = async (adminDetails) => {
-//   try {
 
-//     const {
-//       deptName
-//     } = adminDetails;
 
-//     // force ADMIN role
-//     adminDetails.roleName = ROLES.ADMIN.roleName;
 
-//     // create employee (this already creates user + role)
-//     const newEmployee = await employeeService.addEmployee(adminDetails);
 
-//     // ✅ normalize dept
-//     const departmentInfo = await Departments.findOne({
-//       deptName: deptName.toUpperCase().trim()
-//     });
 
-//     if (!departmentInfo) {
-//       throw new ApiError(404, "Department not found");
-//     }
 
-//     const userId = newEmployee.userId;
 
-//     // ✅ FIX: ObjectId comparison
-//     const alreadyExists = departmentInfo.adminIds.some(
-//       id => id.toString() === userId.toString()
-//     );
 
-//     if (!alreadyExists) {
-//       departmentInfo.adminIds.push(userId);
-//       await departmentInfo.save();
-//     }
 
-//     return newEmployee;
 
-//   } catch (error) {
-//     throw error;
-//   }
-// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const addAdmin = async (adminDetails) => {
   try {
@@ -61,7 +61,7 @@ const addAdmin = async (adminDetails) => {
     adminDetails.roleName = ROLES.ADMIN.roleName;
 
     const newEmployee = await employeeService.addEmployee(adminDetails);
-    console.log("Admin check point 1");
+    
     const departmentInfo = await Departments.findOne({
   deptName: new RegExp(`^${deptName}$`, 'i')
 });
@@ -69,47 +69,51 @@ const addAdmin = async (adminDetails) => {
     if (!departmentInfo) {
       throw new ApiError(404, "Department not found");
     }
-    console.log("Admin check point 2");
+    
 
     const userId = newEmployee.userId;
 
-    // 🔥 STEP 3: ADD ADMIN TO DEPARTMENT
+
     const alreadyExists = departmentInfo.adminIds.some(
       id => id.toString() === userId.toString()
     );
-    console.log("Admin check point 3");
+    
 
     if (!alreadyExists) {
       departmentInfo.adminIds.push(userId);
       await departmentInfo.save();
     }
 
-    // =====================================================
-    // 🔥 EMAIL + RESET PASSWORD FLOW
-    // =====================================================
-    console.log("Admin check point 4");
+
+
+
+    
 
     const newUser = await User.findById(userId);
 
     if (!newUser) {
       throw new ApiError(404, "User not found after creation");
     }
-    console.log("Admin check point 5");
-    // ✅ Auto verify
-    newUser.isVerified = true;
-
-    // ✅ Generate reset token
-    const resetToken = crypto.randomBytes(32).toString('hex');
-
     
 
-    newUser.resetToken = resetToken;
+    newUser.isVerified = true;
+
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+
+
+    newUser.resetToken = hashedToken;
+
     newUser.resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000);
 
     await newUser.save();
-    console.log("Admin check point 6");
+    
 
-    // ✅ Reset URL
+
     const resetUrl = `${process.env.FRONTEND_URL}/api/auth/reset-password/${resetToken}`;
 
     console.log("EMAIL DATA:", {
@@ -118,7 +122,7 @@ const addAdmin = async (adminDetails) => {
       resetUrl
     });
     
-    // ✅ Send Email
+
     await sendEmail({
       to: newUser.email,
       subject: "HMS Admin Account Created - Set Your Password",
@@ -129,9 +133,9 @@ const addAdmin = async (adminDetails) => {
         resetUrl
       })
     });
-    console.log("Admin check point 7");
+    
 
-    // =====================================================
+
 
     return newEmployee;
 
@@ -151,7 +155,7 @@ const updateAdmin = async(userId, data)=>{
     joiningDate
   } = data;
 
-  // 🔥 1. USER UPDATE
+
   const user = await User.findById(userId);
   if (!user) throw new ApiError(404, "User not found");
 
@@ -162,14 +166,14 @@ const updateAdmin = async(userId, data)=>{
 
   await user.save();
 
-  // 🔥 2. EMPLOYEE UPDATE
+
   const employee = await Employee.findOne({ userId });
   if (!employee) throw new ApiError(404, "Employee not found");
 
   employee.designation = designation;
   employee.joiningDate = joiningDate;
 
-  // 🔥 3. DEPARTMENT UPDATE
+
   if (deptName) {
     const dept = await Departments.findOne({
       deptName: deptName.toUpperCase().trim()
@@ -270,20 +274,20 @@ const getDashboardStats = async()=>{
     });
   }
 
-  // 🔥 4. TOTAL APPOINTMENTS
+
   const totalAppointments = await Appointment.countDocuments({
     isDeleted: false
   });
 
-  // 🔥 5. TOTAL APPROVALS (PENDING ONLY)
+
   const totalApprovals = await Approval.countDocuments({
     status: APPROVAL_STATUS.PENDING
   });
 
-  // 🔥 6. TOTAL DEPARTMENTS
+
   const totalDepartments = await Departments.countDocuments();
 
-  // 🔥 7. TOTAL ROLES
+
   const totalRoles = await Roles.countDocuments();
 
   return {

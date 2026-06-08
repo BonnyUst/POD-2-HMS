@@ -137,10 +137,44 @@ const content = ` <h3 style="color:#1976d2;">Admin Account Created</h3>
 return baseTemplate(content);
 };
 
+const patientAccountTemplate = ({ name, email, password, loginUrl }) => {
+  const content = `
+    <h3 style="color:#007bff;">Patient Account Created</h3>
+
+    <p>Hi ${name || "Patient"},</p>
+
+    <p>Your account has been created by our hospital team.</p>
+
+    <p>Please use the below credentials to login:</p>
+
+    <div style="background:#f1f5f9; padding:15px; border-radius:8px; margin:15px 0;">
+      <p style="margin:5px 0;"><b>Email:</b> ${email}</p>
+      <p style="margin:5px 0;"><b>Password:</b> ${password}</p>
+    </div>
+
+    <p>Click the button below to login:</p>
+
+    <a href="${loginUrl}" 
+       style="display:inline-block; padding:12px 20px; background:#007bff; color:#fff; text-decoration:none; border-radius:6px;">
+       Login to HMS
+    </a>
+
+    <p style="margin-top:20px;">Or copy this link:</p>
+    <p style="word-break:break-all;">${loginUrl}</p>
+
+    <p style="margin-top:20px; color:#dc3545;">
+      ⚠️ Please change your password after login for security.
+    </p>
+  `;
+
+  return baseTemplate(content);
+};
+
 
 module.exports = {
   verifyEmailTemplate,
   resendVerificationTemplate,
   adminAccountTemplate,
-  resetPasswordTemplate
+  resetPasswordTemplate,
+  patientAccountTemplate,
 };

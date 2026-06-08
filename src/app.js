@@ -38,13 +38,13 @@ const startServer = async () => {
   await seedRoleMenus();
 
   app.listen(process.env.PORT, () => {
-    console.log("Server running");
+    
   });
 };
 
 startServer();
 const app = express();
-console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
+
 app.use(helmet());
 app.use(cors(
     {

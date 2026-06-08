@@ -1,6 +1,6 @@
 const { create } = require('../models/Roles');
 const {createRouter,auth,errorValidate} = require('./routesServices/routes.header');
-const {userSignupValidator,userLoginValidator} = require('../validations/authValidations')
+const {userSignupValidator, userLoginValidator} = require('../validations/authValidations')
 const router = createRouter();
 
 const {

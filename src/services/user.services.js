@@ -20,17 +20,17 @@ const createAuthUser = async (data) => {
         password
     } = data;
 
-    // 1. Create basic user
+
     const user = await createBasicUser({ firstName, lastName, email,phone, password });
 
     try {
-        // 2. Get role
+
         const role = await Roles.findOne({ roleId: ROLES.PATIENT.roleId });
         if (!role) {
             throw new ApiError(404, 'Role not found');
         }
 
-        // 3. Generate verification token
+
         const verificationToken = crypto.randomBytes(32).toString('hex');
 
         const hashedToken = crypto
@@ -40,7 +40,7 @@ const createAuthUser = async (data) => {
 
         const verificationTokenExpiry = new Date(Date.now() + 60 * 60 * 1000);
 
-        // 4. UPDATE existing user (IMPORTANT FIX)
+
         user.phone = phone;
         user.roleId = role._id;
         user.verificationToken = hashedToken;
@@ -48,9 +48,9 @@ const createAuthUser = async (data) => {
 
         await user.save();
 
-        // 5. Verify URL
+
         const verifyUrl = `${process.env.FRONTEND_URL}/api/auth/verify-email?token=${verificationToken}`;
-        console.log(`Click this link to verify ${verifyUrl}`);
+        
 
         await sendEmail({
             to: email,
@@ -111,7 +111,7 @@ const createAuthUser = async (data) => {
         return user;
 
     } catch (err) {
-        // 🔥 rollback
+
         await User.findByIdAndDelete(user._id);
         throw err;
     }
@@ -155,7 +155,7 @@ const getMyInfo = async(userId,role)=>{
 
 const getMyProfile = async (userId) => {
 
-  console.log("FETCHING PROFILE FOR:", userId);
+  
 
   if (!userId) throw new Error("UserId missing");
 
@@ -165,13 +165,13 @@ const getMyProfile = async (userId) => {
 
   if (!user) throw new Error("User not found");
 
-  console.log("Check point 1");
+  
 
   const employee = await Employee.findOne({ userId: user._id })
     .populate('departmentId', 'deptName') // ✅ FIXED
     .lean();
 
-  console.log("EMPLOYEE:", employee);
+  
 
   let doctor = null;
 
@@ -185,7 +185,7 @@ const getMyProfile = async (userId) => {
     }).lean();
   }
 
-  console.log("DOCTOR:", doctor);
+  
 
   return {
     firstName: user.firstName,

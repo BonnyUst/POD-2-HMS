@@ -37,8 +37,7 @@ const employeeSchema = new mongoose.Schema(
 );
 module.exports = mongoose.model("Employee", employeeSchema)
 
-// employeeSchema.pre('save', async function () {
-//   if (this.isNew) {
-//     this.employeeCode = await generateId('Employee', 'EMP');
-//   }
-// });
+
+
+
+

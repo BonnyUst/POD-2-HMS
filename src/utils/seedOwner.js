@@ -7,14 +7,12 @@ const { STATUS } = require('../constants/basic.constant');
 const seedOwner = async () => {
     try {
         const ownerRole = await Roles.findOne({roleId : ROLES.OWNER.roleId});
-        console.log("Owner: ", ownerRole);
+        
         if(!ownerRole){
             throw new ApiError(404,"Owner role not found");
         }
         const existingUser = await User.findOne({ email: 'owner@gmail.com' });
-        if (existingUser) {
-            console.log("Previous Owner details : ",existingUser)
-            console.log('Owner already seeded');
+        if (existingUser) {        
             return;
         }
         const passwordHash = await bcrypt.hash('Owner@123', 12);
@@ -28,16 +26,12 @@ const seedOwner = async () => {
             roleId: ownerRole._id,
             isVerified: true,
         });
-        
-        console.log(
-            '✅ Owner seeded successfully'
-        );
     }
     catch (error) {
         if (error.code === 11000) {
-            console.log("⚡ Owner already seeded");
+            
         } else {
-            console.error("❌ Owner seeding roles:", error.message);
+            throw error;
         }
     }
 }

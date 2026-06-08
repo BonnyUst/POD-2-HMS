@@ -20,7 +20,7 @@ const getDepartmentEmployees = async ({ departmentId, page, limit, role }) => {
         })
         .lean();
 
-    // 🔥 ROLE FILTER (after populate)
+
     if (role !== 'ALL') {
         employees = employees.filter(
             e => e.userId.roleId?.roleName === role

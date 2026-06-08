@@ -12,7 +12,7 @@ const approvalSchema = new mongoose.Schema(
 
   roleName: String,
 
-  // ✅ ADD THESE
+
   gender: String,
   bloodGroup: String,
 
@@ -24,7 +24,7 @@ const approvalSchema = new mongoose.Schema(
   designation: String,
   joiningDate: Date,
 
-  // Doctor fields
+
   isDoctor: Boolean,
   medRegNo: String,
   specialization: String,
