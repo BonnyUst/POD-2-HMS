@@ -28,4 +28,10 @@ router.get(
 );
 
 
+router.put(
+    "/update/:doctorId",
+    authMiddleware,
+    authRoles(permissions.UPDATE_DOCTOR),
+    doctorController.updateDoctor
+);
 module.exports=router;

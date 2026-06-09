@@ -7,6 +7,10 @@ export interface Doctor {
   lastName: string;
   email: string;
   phone: string;
+
+  department: string;
+  designation: string;
+  joiningDate: string;
   specialization: string;
   qualification: string;
   consultationFee: number;
@@ -35,4 +39,23 @@ export interface CreateDoctorPayload {
   availabilityStartTime: string;
   availabilityEndTime: string;
   experienceYears: number | null;
+}
+
+export interface UpdateDoctorPayload {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  department?: string;
+  designation?: string;
+  joiningDate?: string;
+  status?: string;
+
+  specialization?: string;
+  qualification?: string;
+  consultationFee?: number;
+  medicalRegistrationNo?: string;
+  availabilityStartTime?: string;
+  availabilityEndTime?: string;
+  experienceYears?: number;
 }

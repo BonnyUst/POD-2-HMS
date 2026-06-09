@@ -34,6 +34,7 @@
                     <th>Designation</th>
                     <th>Joining Date</th>
                     <th>Status</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
 
@@ -55,6 +56,18 @@
                             }">
                             {{ employee.status }}
                         </span>
+                    </td>
+                    <td>
+                        @if (employee.userId !== loggedInUserId) {
+                        <button class="action-btn edit-btn" (click)="openEditEmployeeModal(employee)">
+                            <i class="bi bi-pencil-square"></i>
+                            Edit
+                        </button>
+                        }
+
+                        @if (employee.userId === loggedInUserId) {
+                        <span class="self-label">Self</span>
+                        }
                     </td>
                 </tr>
                 }
@@ -105,7 +118,7 @@
     <div class="modal-box">
 
         <div class="modal-header">
-            <h2>Add Employee</h2>
+          <h2>{{ isEditMode ? 'Edit Employee' : 'Add Employee' }}</h2>
 
             <button class="close-btn" (click)="closeAddEmployeeModal()">
                 <i class="bi bi-x-lg"></i>

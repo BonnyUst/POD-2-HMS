@@ -16,11 +16,14 @@ export class Doctors implements OnInit {
   doctors: Doctor[] = [];
   filteredDoctors: Doctor[] = [];
 
+
   currentPage = 1;
   pageSize = 10;
   searchText = '';
   showAddDoctorModal = false;
 
+  isEditMode = false;
+  selectedDoctor: Doctor | null = null;
   departments = [
     'OPD', 'IPD', 'Lab',
     'Pharmacy', 'Admin', 'Front Office'
@@ -215,7 +218,7 @@ export class Doctors implements OnInit {
 
     if (!search) {
       this.filteredDoctors = [...this.doctors];
-      this.currentPage=1;
+      this.currentPage = 1;
       return;
     }
 
@@ -229,7 +232,7 @@ export class Doctors implements OnInit {
       doctor.qualification?.toLowerCase().includes(search) ||
       doctor.medicalRegistrationNo?.toLowerCase().includes(search)
     );
-    this.currentPage=1;
+    this.currentPage = 1;
   }
 
   // ========================
@@ -237,13 +240,60 @@ export class Doctors implements OnInit {
   // ========================
 
   openAddDoctorModal() {
+    this.isEditMode = false;
+    this.selectedDoctor = null;
+
     this.doctorForm.reset({ designation: 'Jr Doctor' });
+
+    this.doctorForm.get('password')?.setValidators([
+      Validators.required,
+      Validators.minLength(6)
+    ]);
+    this.doctorForm.get('password')?.updateValueAndValidity();
+
     this.showAddDoctorModal = true;
   }
+  openEditDoctorModal(doctor: Doctor) {
+    this.isEditMode = true;
+    this.selectedDoctor = doctor;
 
+    this.doctorForm.reset();
+
+    this.doctorForm.patchValue({
+      firstName: doctor.firstName,
+      lastName: doctor.lastName,
+      email: doctor.email,
+      password: '',
+      phone: doctor.phone,
+      department: doctor.department,
+      designation: doctor.designation,
+      joiningDate: doctor.joiningDate ? doctor.joiningDate.split('T')[0] : '',
+      specialization: doctor.specialization,
+      qualification: doctor.qualification,
+      consultationFee: doctor.consultationFee as any,
+      medicalRegistrationNo: doctor.medicalRegistrationNo,
+      availabilityStartTime: doctor.availabilityStartTime,
+      availabilityEndTime: doctor.availabilityEndTime,
+      experienceYears: doctor.experienceYears as any
+    });
+
+    this.doctorForm.get('password')?.clearValidators();
+    this.doctorForm.get('password')?.updateValueAndValidity();
+
+    this.showAddDoctorModal = true;
+  }
   closeAddDoctorModal() {
     this.showAddDoctorModal = false;
+    this.isEditMode = false;
+    this.selectedDoctor = null;
+
     this.doctorForm.reset({ designation: 'Jr Doctor' });
+
+    this.doctorForm.get('password')?.setValidators([
+      Validators.required,
+      Validators.minLength(6)
+    ]);
+    this.doctorForm.get('password')?.updateValueAndValidity();
   }
 
   // ========================
@@ -253,6 +303,48 @@ export class Doctors implements OnInit {
   saveDoctor() {
     if (this.doctorForm.invalid) {
       this.doctorForm.markAllAsTouched();
+      return;
+    }
+
+    if (this.isEditMode && this.selectedDoctor) {
+      const payload = {
+        firstName: this.doctorForm.get('firstName')?.value,
+        lastName: this.doctorForm.get('lastName')?.value,
+        email: this.doctorForm.get('email')?.value,
+        phone: this.doctorForm.get('phone')?.value,
+        department: this.doctorForm.get('department')?.value,
+        designation: this.doctorForm.get('designation')?.value,
+        joiningDate: this.doctorForm.get('joiningDate')?.value,
+        status: this.selectedDoctor.status,
+
+        specialization: this.doctorForm.get('specialization')?.value,
+        qualification: this.doctorForm.get('qualification')?.value,
+        consultationFee: this.doctorForm.get('consultationFee')?.value,
+        medicalRegistrationNo: this.doctorForm.get('medicalRegistrationNo')?.value,
+        availabilityStartTime: this.doctorForm.get('availabilityStartTime')?.value,
+        availabilityEndTime: this.doctorForm.get('availabilityEndTime')?.value,
+        experienceYears: this.doctorForm.get('experienceYears')?.value
+      };
+
+      this.doctorService.updateDoctor(
+        this.selectedDoctor.doctorId,
+        payload as any
+      ).subscribe({
+        next: (res) => {
+          console.log('Doctor updated successfully:', res);
+          alert('Doctor updated successfully!');
+          this.closeAddDoctorModal();
+          this.getDoctors();
+          this.cd.detectChanges();
+        },
+        error: (err) => {
+          console.error('Full error:', err);
+          console.error('Backend error body:', err.error);
+          console.error('Backend message:', err.error?.message);
+          alert(err.error?.message || 'Something went wrong');
+        }
+      });
+
       return;
     }
 
@@ -273,6 +365,7 @@ export class Doctors implements OnInit {
           console.log('Error creating doctor:', err);
           console.log('Backend validation errors:', err.error?.errors);
           console.log('Backend message:', err.error?.message);
+          alert(err.error?.message || 'Something went wrong');
         }
       });
   }

@@ -19,6 +19,9 @@ export class Employees implements OnInit {
   showAddEmployeeModal = false;
   currentPage = 1;
   pageSize = 10;
+  isEditMode = false;
+  selectedEmployee: Employee | null = null;
+  loggedInUserId: string | null = null;
 
   // Reactive Form
   employeeForm = new FormGroup({
@@ -152,45 +155,123 @@ export class Employees implements OnInit {
   // ========================
   // MODAL CONTROLS
   // ========================
-
   openAddEmployeeModal() {
+    this.isEditMode = false;
+    this.selectedEmployee = null;
+
     this.employeeForm.reset();
+
+    this.employeeForm.get('password')?.setValidators([
+      Validators.required,
+      Validators.minLength(8),
+      Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$')
+    ]);
+    this.employeeForm.get('password')?.updateValueAndValidity();
+
     this.showAddEmployeeModal = true;
   }
 
+  openEditEmployeeModal(employee: Employee) {
+    this.isEditMode = true;
+    this.selectedEmployee = employee;
+
+    this.employeeForm.reset();
+
+    this.employeeForm.patchValue({
+      firstName: employee.firstName,
+      lastName: employee.lastName,
+      email: employee.email,
+      password: '',
+      phone: employee.phone,
+      role: employee.role,
+      department: employee.department,
+      designation: employee.designation,
+      joiningDate: employee.joiningDate ? employee.joiningDate.split('T')[0] : ''
+    });
+
+    this.employeeForm.get('password')?.clearValidators();
+    this.employeeForm.get('password')?.updateValueAndValidity();
+
+    this.employeeForm.get('role')?.disable();
+
+    this.showAddEmployeeModal = true;
+  }
   closeAddEmployeeModal() {
     this.showAddEmployeeModal = false;
+    this.isEditMode = false;
+    this.selectedEmployee = null;
+
     this.employeeForm.reset();
+
+    this.employeeForm.get('role')?.enable();
+    this.employeeForm.get('password')?.setValidators([
+      Validators.required,
+      Validators.minLength(8),
+      Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$')
+    ]);
+    this.employeeForm.get('password')?.updateValueAndValidity();
   }
 
   // ========================
   // SAVE EMPLOYEE
   // ========================
 
-  saveEmployee() {
-    if (this.employeeForm.invalid) {
-      this.employeeForm.markAllAsTouched();
-      return;
-    }
-
-    const payload = this.employeeForm.value;
-
-    console.log('Employee form data:', payload);
-
-    this.employeeService.createEmployee(payload as any)
-      .subscribe({
-        next: (res) => {
-          console.log('Employee created successfully:', res);
-          alert('Employee created successfully!');
-          this.closeAddEmployeeModal();
-          this.getEmployees();
-          this.cd.detectChanges();
-        },
-        error: (err) => {
-          console.error('Error creating employee:', err);
-          alert(err.error?.message || 'Something went wrong');
-        }
-      });
+ saveEmployee() {
+  if (this.employeeForm.invalid) {
+    this.employeeForm.markAllAsTouched();
+    return;
   }
+
+  if (this.isEditMode && this.selectedEmployee) {
+    const payload = {
+      firstName: this.employeeForm.get('firstName')?.value,
+      lastName: this.employeeForm.get('lastName')?.value,
+      email: this.employeeForm.get('email')?.value,
+      phone: this.employeeForm.get('phone')?.value,
+      department: this.employeeForm.get('department')?.value,
+      designation: this.employeeForm.get('designation')?.value,
+      joiningDate: this.employeeForm.get('joiningDate')?.value,
+      status: this.selectedEmployee.status
+    };
+
+    this.employeeService.updateEmployee(
+      this.selectedEmployee.employeeId,
+      payload as any
+    ).subscribe({
+      next: (res) => {
+        console.log('Employee updated successfully:', res);
+        alert('Employee updated successfully!');
+        this.closeAddEmployeeModal();
+        this.getEmployees();
+        this.cd.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error updating employee:', err);
+        alert(err.error?.message || 'Something went wrong');
+      }
+    });
+
+    return;
+  }
+
+  const payload = this.employeeForm.getRawValue();
+
+  console.log('Employee form data:', payload);
+
+  this.employeeService.createEmployee(payload as any)
+    .subscribe({
+      next: (res) => {
+        console.log('Employee created successfully:', res);
+        alert('Employee created successfully!');
+        this.closeAddEmployeeModal();
+        this.getEmployees();
+        this.cd.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error creating employee:', err);
+        alert(err.error?.message || 'Something went wrong');
+      }
+    });
+}
 
 }

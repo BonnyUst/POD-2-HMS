@@ -31,6 +31,13 @@ router.get(
     userController.getAllEmployees
 )
 
+router.put(
+  "/update/:employeeId",
+  authMiddleware,
+  authRoles(permissions.UPDATE_EMPLOYEE),
+  userController.updateEmployee
+);
+
 module.exports = router;
 
 

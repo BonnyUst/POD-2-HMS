@@ -4,7 +4,7 @@ const permissions = {
 
     ADD_PATIENT: ["Admin", "Receptionist"],
     VIEW_PATIENT: ["Admin", "Receptionist", "Doctor"],
-    UPDATE_PATIENT: ["Admin"],
+    UPDATE_PATIENT: ["Admin","Receptionist"],
     DELETE_PATIENT: ["Admin"],
 
     ADD_EMPLOYEE: ["Admin"],
@@ -19,6 +19,7 @@ const permissions = {
 
     ADD_APPOINTMENT:["Admin","Receptionist","Patient"],
     VIEW_APPOINTMENT:["Admin","Receptionist","Doctor","Patient"],
+
 
 
 

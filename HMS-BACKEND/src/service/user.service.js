@@ -111,6 +111,96 @@ exports.createEmployeeUser = async (userData) => {
     };
 }
 
+exports.updateEmployee = async (employeeId, data,loggedInUserId) => {
+    const {
+        firstName,
+        lastName,
+        email,
+        phone,
+        department,
+        designation,
+        joiningDate,
+        status
+    } = data;
+
+    const employee = await Employee.findById(employeeId);
+
+    if (!employee) {
+        throw new ApiError(404, "Employee not found");
+    }
+
+    if (employee.userId.toString() === loggedInUserId.toString()) {
+    throw new ApiError(403, "You cannot edit your own employee profile");
+}
+
+
+    const user = await User.findById(employee.userId);
+
+    if (!user) {
+        throw new ApiError(404, "User not found for this employee");
+    }
+
+    if (email && email !== user.email) {
+        const existingUser = await User.findOne({ email });
+
+        if (existingUser) {
+            throw new ApiError(409, "Email already exists");
+        }
+
+        user.email = email;
+    }
+
+    if (firstName !== undefined) {
+        user.firstName = firstName;
+    }
+
+    if (lastName !== undefined) {
+        user.lastName = lastName;
+    }
+
+    if (status !== undefined) {
+        user.status = status;
+        employee.status = status;
+    }
+
+    if (phone !== undefined) {
+        employee.phone = phone;
+    }
+
+    if (department !== undefined) {
+        employee.department = department;
+    }
+
+    if (designation !== undefined) {
+        employee.designation = designation;
+    }
+
+    if (joiningDate !== undefined) {
+        employee.joiningDate = joiningDate;
+    }
+
+    await user.save();
+    await employee.save();
+
+    return {
+        employeeId: employee._id,
+        employeeCode: employee.employeeCode,
+
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+
+        phone: employee.phone,
+        department: employee.department,
+        designation: employee.designation,
+        joiningDate: employee.joiningDate,
+
+        isVerified: user.isVerified,
+        status: user.status,
+        mustChangePassword: user.mustChangePassword
+    };
+};
+
 
 exports.currentProfile = async (userId) => {
     const employeeProfile = await Employee.findOne({ userId })

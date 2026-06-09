@@ -24,6 +24,33 @@ const createDoctorByAdmin = async (req, res) => {
     }
 }
 
+const updateDoctor = async (req, res) => {
+    try {
+        const { doctorId } = req.params;
+
+        const updatedDoctor = await doctorService.updateDoctor(
+            doctorId,
+            req.body
+        );
+
+        return res
+            .status(200)
+            .json(new ApiResponse(
+                200,
+                "Doctor Updated Successfully",
+                updatedDoctor
+            ));
+    } catch (error) {
+        return res
+            .status(error.statusCode || 500)
+            .json({
+                success: false,
+                message: error.message || "Something went wrong"
+            });
+    }
+};
+
+
 const getAllDoctors = async (req, res, next) => {
     try {
         const doctors = await doctorService.getAllDoctors();
@@ -39,4 +66,4 @@ const getAllDoctors = async (req, res, next) => {
     }
 };
 
-module.exports = { createDoctorByAdmin,getAllDoctors }
+module.exports = { createDoctorByAdmin,getAllDoctors,updateDoctor }

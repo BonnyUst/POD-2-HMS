@@ -86,6 +86,118 @@ exports.createDoctorByAdmin = async (doctorData) => {
     };
 
 };
+exports.updateDoctor = async (doctorId, data) => {
+    const {
+        firstName,
+        lastName,
+        email,
+        phone,
+        department,
+        designation,
+        joiningDate,
+        status,
+
+        specialization,
+        qualification,
+        consultationFee,
+        medicalRegistrationNo,
+        availabilityStartTime,
+        availabilityEndTime,
+        experienceYears
+    } = data;
+
+    const doctor = await Doctor.findById(doctorId);
+
+    if (!doctor) {
+        throw new ApiError(404, "Doctor not found");
+    }
+
+    const employee = await Employee.findById(doctor.employeeId);
+
+    if (!employee) {
+        throw new ApiError(404, "Employee record not found for this doctor");
+    }
+
+    const user = await User.findById(employee.userId);
+
+    if (!user) {
+        throw new ApiError(404, "User record not found for this doctor");
+    }
+
+    if (email && email !== user.email) {
+        const existingUser = await User.findOne({ email });
+
+        if (existingUser) {
+            throw new ApiError(409, "Email already exists");
+        }
+
+        user.email = email;
+    }
+
+    if (
+        medicalRegistrationNo &&
+        medicalRegistrationNo !== doctor.medicalRegistrationNo
+    ) {
+        const existingDoctor = await Doctor.findOne({ medicalRegistrationNo });
+
+        if (existingDoctor) {
+            throw new ApiError(409, "Medical registration number already exists");
+        }
+
+        doctor.medicalRegistrationNo = medicalRegistrationNo;
+    }
+
+    if (firstName !== undefined) user.firstName = firstName;
+    if (lastName !== undefined) user.lastName = lastName;
+
+    if (status !== undefined) {
+        user.status = status;
+        employee.status = status;
+    }
+
+    if (phone !== undefined) employee.phone = phone;
+    if (department !== undefined) employee.department = department;
+    if (designation !== undefined) employee.designation = designation;
+    if (joiningDate !== undefined) employee.joiningDate = joiningDate;
+
+    if (specialization !== undefined) doctor.specialization = specialization;
+    if (qualification !== undefined) doctor.qualification = qualification;
+    if (consultationFee !== undefined) doctor.consultationFee = consultationFee;
+    if (availabilityStartTime !== undefined) doctor.availabilityStartTime = availabilityStartTime;
+    if (availabilityEndTime !== undefined) doctor.availabilityEndTime = availabilityEndTime;
+    if (experienceYears !== undefined) doctor.experienceYears = experienceYears;
+
+    await user.save();
+    await employee.save();
+    await doctor.save();
+
+    return {
+        doctorId: doctor._id,
+
+        employeeId: employee._id,
+        employeeCode: employee.employeeCode,
+
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+
+        phone: employee.phone,
+        department: employee.department,
+        designation: employee.designation,
+        joiningDate: employee.joiningDate,
+
+        specialization: doctor.specialization,
+        qualification: doctor.qualification,
+        consultationFee: doctor.consultationFee,
+        medicalRegistrationNo: doctor.medicalRegistrationNo,
+        availabilityStartTime: doctor.availabilityStartTime,
+        availabilityEndTime: doctor.availabilityEndTime,
+        experienceYears: doctor.experienceYears,
+
+        status: user.status,
+        isVerified: user.isVerified
+    };
+};
 
 exports.getAllDoctors = async () => {
     const doctors = await Doctor.find()

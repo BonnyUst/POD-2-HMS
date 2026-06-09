@@ -1,6 +1,7 @@
 // For GET response (list of employees)
 export interface Employee {
   employeeId: string;
+  userId: string;
   employeeCode: string;
   firstName: string;
   lastName: string;
@@ -26,4 +27,14 @@ export interface CreateEmployeePayload {
   department: string;
   designation: string;
   joiningDate: string;
+}
+export interface UpdateEmployeePayload {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  department?: string;
+  designation?: string;
+  joiningDate?: string;
+  status?: string;
 }

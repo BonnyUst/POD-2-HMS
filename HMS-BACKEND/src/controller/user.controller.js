@@ -1,27 +1,55 @@
 const ApiResponse = require('../utils/ApiResponse')
-const userService=require('../service/user.service')
+const userService = require('../service/user.service')
 
 
 
-const createEmployeeByAdmin=async(req,res,next)=>{
-    try{
-        const employee=await userService.createEmployeeUser(req.body);
-
-        return res    
-            .status(201)
-        .json(new ApiResponse(201,"Employee Registered Successfully",employee));
-    }
-
-    
-    catch(error)
-    {
+const createEmployeeByAdmin = async (req, res, next) => {
+    try {
+        const employee = await userService.createEmployeeUser(req.body);
 
         return res
-        .status(error.statusCode||500)
-        .json({
-            success:false,
-            message:error.message||"something went wrong"
-        });
+            .status(201)
+            .json(new ApiResponse(201, "Employee Registered Successfully", employee));
+    }
+
+
+    catch (error) {
+
+        return res
+            .status(error.statusCode || 500)
+            .json({
+                success: false,
+                message: error.message || "something went wrong"
+            });
+    }
+};
+
+const updateEmployee = async (req, res) => {
+    try {
+        const { employeeId } = req.params;
+
+
+        const loggedInUserId = req.user.userId;
+        const updatedEmployee = await userService.updateEmployee(
+            employeeId,
+            req.body,
+            loggedInUserId
+        );
+
+        return res
+            .status(200)
+            .json(new ApiResponse(
+                200,
+                "Employee Updated Successfully",
+                updatedEmployee
+            ));
+    } catch (error) {
+        return res
+            .status(error.statusCode || 500)
+            .json({
+                success: false,
+                message: error.message || "Something went wrong"
+            });
     }
 };
 
@@ -46,24 +74,23 @@ const getAllEmployees = async (req, res) => {
     }
 };
 
-const getCurrentProfile=async (req,res)=>
-{
-    try{
+const getCurrentProfile = async (req, res) => {
+    try {
 
-        const userId=req.user.userId;
-        const profile=await userService.currentProfile(userId);
-        
+        const userId = req.user.userId;
+        const profile = await userService.currentProfile(userId);
+
         return res.status(200)
-        .json({
-            success:true,
-            statusCode:200,
-            message:"Profile Fetched Successfully",
-            data:profile
-        })
+            .json({
+                success: true,
+                statusCode: 200,
+                message: "Profile Fetched Successfully",
+                data: profile
+            })
     }
-    catch(error){
+    catch (error) {
 
-       return res
+        return res
             .status(error.statusCode || 500)
             .json({
                 success: false,
@@ -73,4 +100,4 @@ const getCurrentProfile=async (req,res)=>
     }
 }
 
-module.exports={createEmployeeByAdmin,getCurrentProfile,getAllEmployees};
+module.exports = { createEmployeeByAdmin, getCurrentProfile, getAllEmployees, updateEmployee };

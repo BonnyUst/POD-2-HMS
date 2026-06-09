@@ -36,6 +36,7 @@
                     <th>Experience</th>
                     <th>Availability</th>
                     <th>Status</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
 
@@ -60,6 +61,12 @@
                             {{ doctor.status }}
                         </span>
                     </td>
+                    <td>
+                        <button class="action-btn edit-btn" (click)="openEditDoctorModal(doctor)">
+                            <i class="bi bi-pencil-square"></i>
+                            Edit
+                        </button>
+                    </td>
                 </tr>
                 }
             </tbody>
@@ -83,28 +90,23 @@
 
     <!-- Footer -->
     <div class="table-footer">
-    <p>
-        Records: {{ startRecord }} - {{ endRecord }} of {{ filteredDoctors.length }}
-    </p>
+        <p>
+            Records: {{ startRecord }} - {{ endRecord }} of {{ filteredDoctors.length }}
+        </p>
 
-    <div class="pagination">
-        <i
-            class="bi bi-chevron-left"
-            [class.disabled]="currentPage === 1"
-            (click)="goToPreviousPage()">
-        </i>
+        <div class="pagination">
+            <i class="bi bi-chevron-left" [class.disabled]="currentPage === 1" (click)="goToPreviousPage()">
+            </i>
 
-        <span class="page-info">
-            Page {{ currentPage }} of {{ totalPages }}
-        </span>
+            <span class="page-info">
+                Page {{ currentPage }} of {{ totalPages }}
+            </span>
 
-        <i
-            class="bi bi-chevron-right"
-            [class.disabled]="currentPage === totalPages || totalPages === 0"
-            (click)="goToNextPage()">
-        </i>
+            <i class="bi bi-chevron-right" [class.disabled]="currentPage === totalPages || totalPages === 0"
+                (click)="goToNextPage()">
+            </i>
+        </div>
     </div>
-</div>
 
 </div>
 
@@ -115,7 +117,7 @@
     <div class="modal-box">
 
         <div class="modal-header">
-            <h2>Add Doctor</h2>
+           <h2>{{ isEditMode ? 'Edit Doctor' : 'Add Doctor' }}</h2>
 
             <button class="close-btn" (click)="closeAddDoctorModal()">
                 <i class="bi bi-x-lg"></i>
