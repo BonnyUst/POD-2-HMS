@@ -2,7 +2,7 @@ const Appointment = require('../models/Appointment.model');
 const Patient = require('../models/Patient.model');
 const Employee = require('../models/Employee.model');
 const ApiError = require('../utils/ApiError');
-const Doctor=require('../models/Doctor.model')
+const Doctor = require('../models/Doctor.model')
 const generateTimeSlots = (startTime, endTime) => {
     const slots = [];
 
@@ -41,7 +41,7 @@ const generateTimeSlots = (startTime, endTime) => {
 };
 
 
-exports.createAppointment = async (appointmentData, loggedInUserId) => {
+exports.createAppointment = async (appointmentData, loggedInUserId, loggedInUserRole) => {
     const {
         patientId,
         doctorId,
@@ -50,57 +50,59 @@ exports.createAppointment = async (appointmentData, loggedInUserId) => {
         reason
     } = appointmentData;
 
-    const patient = await Patient.findById(patientId);
+    let finalPatientId = patientId;
 
-    if (!patient) {
-        throw new ApiError(404, 'Patient not found');
+    if (!finalPatientId && loggedInUserRole === 'Patient') {
+        const loggedInPatient = await Patient.findOne({ userId: loggedInUserId });
+        if (!loggedInPatient) throw new ApiError(404, 'Patient profile not found');
+        finalPatientId = loggedInPatient._id;
     }
+
+    if (!finalPatientId) throw new ApiError(400, 'Patient is required');
+
+    const patient = await Patient.findById(finalPatientId);
+    if (!patient) throw new ApiError(404, 'Patient not found');
 
     const employeeRecord = await Employee.findById(doctorId).populate({
         path: 'userId',
-        populate: {
-            path: 'roleId'
-        }
+        populate: { path: 'roleId' }
     });
 
-    if (!employeeRecord) {
-        throw new ApiError(404, 'Doctor not found');
-    }
+    if (!employeeRecord) throw new ApiError(404, 'Doctor not found');
 
     if (employeeRecord.userId?.roleId?.name !== 'Doctor') {
         throw new ApiError(400, 'Selected employee is not a doctor');
     }
 
-        // Validate time slot is within doctor's availability
     const doctor = await Doctor.findOne({ employeeId: doctorId });
+    if (!doctor) throw new ApiError(404, 'Doctor profile not found'); // ✅ throw if not found
 
-    if (doctor) {
-        const availableSlots = generateTimeSlots(
-            doctor.availabilityStartTime,
-            doctor.availabilityEndTime
+    const availableSlots = generateTimeSlots(
+        doctor.availabilityStartTime,
+        doctor.availabilityEndTime
+    );
+
+    if (!availableSlots.includes(timeSlot)) {
+        throw new ApiError(400,
+            `Doctor is only available from ${doctor.availabilityStartTime} to ${doctor.availabilityEndTime}`
         );
-
-        if (!availableSlots.includes(timeSlot)) {
-            throw new ApiError(400,
-                `Doctor is only available from ${doctor.availabilityStartTime} to ${doctor.availabilityEndTime}`
-            );
-        }
     }
 
-    // Check if slot is already booked
+    // ✅ doctor._id not doctor_.id
     const existingAppointment = await Appointment.findOne({
-        doctorId,
+        doctorId: doctor._id,
         appointmentDate,
         timeSlot,
         status: 'BOOKED'
     });
+
     if (existingAppointment) {
         throw new ApiError(409, 'Doctor already has an appointment in this time slot');
     }
 
     const appointment = await Appointment.create({
-        patientId,
-        doctorId,
+        patientId: finalPatientId,
+        doctorId: doctor._id, // ✅ Doctor._id
         appointmentDate,
         timeSlot,
         reason,
@@ -109,81 +111,93 @@ exports.createAppointment = async (appointmentData, loggedInUserId) => {
 
     return appointment;
 };
-
 exports.getAppointments = async () => {
     const appointments = await Appointment.find()
         .populate('patientId')
         .populate({
             path: 'doctorId',
             populate: {
-                path: 'userId',
-                select: 'firstName lastName email'
+                path: 'employeeId',
+                populate: {
+                    path: 'userId',
+                    select: 'firstName lastName email'
+                }
             }
         })
         .populate('createdBy', 'firstName lastName email')
         .sort({ createdAt: -1 });
 
+    console.log('doctorId sample:', JSON.stringify(appointments[0]?.doctorId, null, 2));
+
     return appointments;
 };
+exports.getMyAppointments = async (user) => {
+    const { userId, rolecode } = user;
 
-
-exports.getMyAppointments = async (userId) => {
-    const employee = await Employee.findOne({ userId });
-
-    if (!employee) {
-        throw new ApiError(404, "Employee profile not found");
+    if (!['DOC', 'PAT'].includes(rolecode)) {
+        throw new ApiError(403, 'Only patients and doctors can access my appointments');
     }
 
-    const doctor = await Doctor.findOne({ employeeId: employee._id });
+    if (rolecode === 'DOC') {
+        const employee = await Employee.findOne({ userId });
+        if (!employee) throw new ApiError(404, 'Employee profile not found');
 
-    if (!doctor) {
-        throw new ApiError(404, "Doctor profile not found");
-    }
+        const doctor = await Doctor.findOne({ employeeId: employee._id });
+        if (!doctor) throw new ApiError(404, 'Doctor profile not found');
 
-    const appointments = await Appointment.find({
-        doctorId: doctor._id
-    })
-        .populate("patientId", "UHID firstName lastName phone gender bloodGroup")
-        .populate({
-            path: "doctorId",
-            populate: {
-                path: "employeeId",
+        return await Appointment.find({ doctorId: doctor._id })
+            .populate('patientId', 'UHID firstName lastName phone gender bloodGroup')
+            .populate({
+                path: 'doctorId',
                 populate: {
-                    path: "userId",
-                    select: "firstName lastName email"
+                    path: 'employeeId',
+                    populate: {
+                        path: 'userId',
+                        select: 'firstName lastName email'
+                    }
                 }
-            }
-        })
-        .sort({ appointmentDate: -1 });
+            })
+            .sort({ appointmentDate: -1 });
+    }
 
-    return appointments;
+    if (rolecode === 'PAT') {
+        const patient = await Patient.findOne({ userId });
+        if (!patient) throw new ApiError(404, 'Patient profile not found');
+
+        return await Appointment.find({ patientId: patient._id })
+            .populate('patientId', 'UHID firstName lastName phone gender bloodGroup')
+            .populate({
+                path: 'doctorId',
+                populate: {
+                    path: 'employeeId',
+                    populate: {
+                        path: 'userId',
+                        select: 'firstName lastName email'
+                    }
+                }
+            })
+            .sort({ appointmentDate: -1 });
+    }
 };
-
 
 exports.getAvailableSlots = async (doctorId, appointmentDate) => {
-    // Find doctor to get availability
+    // doctorId here is employeeId from the frontend
     const doctor = await Doctor.findOne({ employeeId: doctorId });
+    if (!doctor) throw new ApiError(404, 'Doctor not found');
 
-    if (!doctor) {
-        throw new ApiError(404, 'Doctor not found');
-    }
-
-    // Generate all possible slots from doctor's availability
     const allSlots = generateTimeSlots(
         doctor.availabilityStartTime,
         doctor.availabilityEndTime
     );
 
-    // Find booked slots for this doctor on this date
+    // ✅ Fix: use doctor._id, not the raw doctorId (employeeId) param
     const bookedAppointments = await Appointment.find({
-        doctorId,
+        doctorId: doctor._id,
         appointmentDate,
         status: 'BOOKED'
     }).select('timeSlot');
 
     const bookedSlots = bookedAppointments.map(apt => apt.timeSlot);
-
-    // Filter out booked slots
     const availableSlots = allSlots.filter(slot => !bookedSlots.includes(slot));
 
     return {

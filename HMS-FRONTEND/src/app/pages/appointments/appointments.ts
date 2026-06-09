@@ -24,6 +24,7 @@ export class Appointments implements OnInit {
   patients: Patient[] = [];
   doctors: Doctor[] = [];
 
+  userRole = '';
   searchText = '';
   showAddAppointmentModal = false;
 
@@ -63,6 +64,7 @@ export class Appointments implements OnInit {
   ) { }
   ngOnInit(): void {
     const role = localStorage.getItem('role');
+    this.userRole = role || '';
 
     if (role === 'Doctor') {
       this.getMyAppointments();
@@ -72,6 +74,9 @@ export class Appointments implements OnInit {
       this.getDoctors();
       this.setupSlotWatcher();
     }
+  }
+  get canCreateAppointment(): boolean {
+    return this.userRole !== 'Doctor';
   }
 
   // ========================
@@ -275,9 +280,10 @@ export class Appointments implements OnInit {
       appointment.patientId?.firstName?.toLowerCase().includes(search) ||
       appointment.patientId?.lastName?.toLowerCase().includes(search) ||
       appointment.patientId?.UHID?.toLowerCase().includes(search) ||
-      appointment.doctorId?.userId?.firstName?.toLowerCase().includes(search) ||
-      appointment.doctorId?.userId?.lastName?.toLowerCase().includes(search) ||
-      appointment.doctorId?.department?.toLowerCase().includes(search) ||
+
+      appointment.doctorId?.employeeId?.userId?.firstName?.toLowerCase().includes(search) ||
+      appointment.doctorId?.employeeId?.userId?.lastName?.toLowerCase().includes(search) ||
+      appointment.doctorId?.employeeId?.department?.toLowerCase().includes(search) ||
       appointment.timeSlot?.toLowerCase().includes(search) ||
       appointment.status?.toLowerCase().includes(search) ||
       appointment.reason?.toLowerCase().includes(search)

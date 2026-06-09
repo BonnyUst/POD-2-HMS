@@ -33,6 +33,7 @@ router.get('/available-slots',
 router.get(
   "/my-appointments",
   authMiddleware,
+  authRoles(permissions.VIEW_APPOINTMENT),
   appointmentController.getMyAppointments
 );
 

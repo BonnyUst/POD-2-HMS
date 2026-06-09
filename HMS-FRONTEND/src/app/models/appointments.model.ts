@@ -1,4 +1,4 @@
-// appointment.model.ts
+// appointments.model.ts
 
 export interface Appointment {
   _id: string;
@@ -18,13 +18,27 @@ export interface AppointmentPatient {
   lastName: string;
   phone: string;
   UHID: string;
+  gender?: string;
+  bloodGroup?: string;
 }
 
 export interface AppointmentDoctor {
   _id: string;
+  employeeId: AppointmentDoctorEmployee;
+  specialization?: string;
+  qualification?: string;
+  consultationFee?: number;
+  medicalRegistrationNo?: string;
+  availabilityStartTime?: string;
+  availabilityEndTime?: string;
+  experienceYears?: number;
+}
+
+export interface AppointmentDoctorEmployee {
+  _id: string;
+  employeeCode: string;
   department: string;
   designation: string;
-  employeeCode: string;
   userId: AppointmentDoctorUser;
 }
 

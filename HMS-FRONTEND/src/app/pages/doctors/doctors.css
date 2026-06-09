@@ -1,24 +1,13 @@
 /* ===========================
    FONT (GLOBAL MATCH)
 =========================== */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
-:host {
-  display: block;
-  font-family: 'DM Sans', sans-serif;
-}
-
-
-/* ===========================
-   PAGE
-=========================== */
 .employee-page {
-  background: #F1EFE8;
-  height: calc(100vh - 17vh);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  padding: 16px;
+    background: #f1f5f9;
+    height: calc(100vh - 17vh);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 
@@ -105,49 +94,53 @@
 /* ===========================
    TABLE SECTION
 =========================== */
-.employee-table-section {
-  background: #ffffff;
-  border: 0.5px solid #D3D1C7;
-  border-radius: 10px;
 
-  flex: 1;
-  overflow-y: auto;
+.employee-table-section {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-top: none;
+    width: 100%;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .employee-table-section table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
 }
 
-/* Sticky header */
 .employee-table-section thead {
-  position: sticky;
-  top: 0;
-  background: #ffffff;
-  z-index: 10;
-  border-bottom: 1px solid #D3D1C7;
+    position: sticky;
+    top: 0;
+    background-color: #ffffff;
+    z-index: 10;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .employee-table-section th {
-  text-align: left;
-  padding: 12px 10px;
-
-  font-size: 13px;
-  font-weight: 600;
-  color: #5F5E5A;
+    text-align: left;
+    padding: 12px 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+    white-space: normal;
+    word-break: break-word;
+    border-bottom: 2px solid #e2e8f0;
 }
 
 .employee-table-section td {
-  padding: 12px 10px;
-
-  font-size: 13px;
-  color: #2C2C2A;
-  border-bottom: 1px solid #F1EFE8;
+    padding: 12px 10px;
+    font-size: 13px;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+    white-space: normal;
+    word-break: break-word;
 }
 
 .employee-table-section tbody tr:hover {
-  background: #F8F7F3;
+    background-color: #f8fafc;
 }
 
 
