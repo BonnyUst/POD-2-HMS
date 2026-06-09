@@ -1,199 +1,233 @@
-.join-container {
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+:host {
+  display: block;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* PAGE */
+.login-page {
   min-height: 100vh;
-  background: #f1f5f9;
+  background: #F1EFE8;
   display: flex;
+  align-items: center;
   justify-content: center;
-  align-items: flex-start;
-  padding: 40px 20px;
+  padding: 32px;
 }
 
-.join-card {
+/* CONTAINER */
+.login-container {
   width: 100%;
-  max-width: 950px;
-  background: white;
-  padding: 35px;
-  border-radius: 18px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+  max-width: 1200px;
+  min-height: 680px;
+  display: grid;
+  grid-template-columns: 1fr 480px;
+  background: #ffffff;
+  border: 0.5px solid #D3D1C7;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
-.join-header {
-  text-align: center;
-  margin-bottom: 30px;
+/* BRANDING */
+.login-branding {
+  border-right: 0.5px solid #D3D1C7;
+  display: flex;
+  align-items: center;
+  padding: 64px;
 }
 
-.join-header h2 {
-  font-size: 30px;
-  color: #0f172a;
-  margin-bottom: 8px;
-}
-
-.join-header p {
-  color: #64748b;
-  font-size: 15px;
-}
-
-.email-check-form {
+.branding-content {
   max-width: 500px;
-  margin: 0 auto;
 }
 
-.section-title {
-  margin: 30px 0 18px;
-  font-size: 18px;
+.brand-badge {
+  padding: 8px 14px;
+  border-radius: 9999px;
+  background: #E6F1FB;
+  color: #185FA5;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.login-branding h1 {
+  font-size: 36px;
   font-weight: 700;
-  color: #0f172a;
-  border-left: 4px solid #2563eb;
-  padding-left: 10px;
+  color: #2C2C2A;
+  margin-bottom: 18px;
 }
 
+.login-branding p {
+  font-size: 15px;
+  color: #5F5E5A;
+}
+
+.branding-actions {
+  margin-top: 36px;
+}
+
+.join-us-button {
+  color: #185FA5;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* PANEL */
+.login-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* HEADER */
+.login-header {
+  margin-bottom: 24px;
+}
+
+.login-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #2C2C2A;
+}
+
+/* FORM */
+.login-form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* GRID */
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 22px;
+  gap: 16px;
 }
 
+/* GROUP */
 .form-group {
   display: flex;
   flex-direction: column;
+  gap: 6px;
 }
 
 .form-group label {
-  color: #334155;
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 7px;
+  font-size: 13px;
+  font-weight: 500;
 }
 
-.form-group input,
-.form-group select {
-  padding: 12px 14px;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
+/* INPUT */
+.enterprise-input {
+  height: 44px;
+  border: 1px solid #D3D1C7;
+  border-radius: 8px;
+  padding: 0 14px;
   font-size: 14px;
+}
+
+.enterprise-input:focus {
   outline: none;
-  background: white;
-  transition: 0.2s ease;
+  border-color: #185FA5;
+  box-shadow: 0 0 0 3px rgba(24,95,165,.2);
 }
 
-.form-group input:focus,
-.form-group select:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-}
-
-.checked-email-box {
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  color: #1e3a8a;
-  padding: 14px;
+/* SECTION */
+.section-card {
+  border: 0.5px solid #D3D1C7;
   border-radius: 12px;
+  padding: 20px;
+}
+
+.section-card h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* EMAIL BOX */
+.checked-email-box {
+  background: #E6F1FB;
+  color: #185FA5;
+  padding: 10px;
+  border-radius: 8px;
   display: flex;
-  justify-content: space-between;
+  gap: 10px;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 25px;
-}
-
-.checked-email-box span {
-  font-size: 14px;
-}
-
-.checked-email-box strong {
-  flex: 1;
-  font-size: 14px;
 }
 
 .checked-email-box button {
   border: none;
-  background: #2563eb;
+  background: #185FA5;
   color: white;
-  padding: 8px 12px;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+/* BUTTON */
+.login-button {
+  height: 44px;
   border-radius: 8px;
-  cursor: pointer;
-}
-
-.doctor-section {
-  margin-top: 30px;
-  padding: 25px;
-  border-radius: 14px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-}
-
-.submit-btn {
-  margin-top: 30px;
-  width: 100%;
-  padding: 14px;
   border: none;
-  border-radius: 12px;
-  background: #2563eb;
+  background: #185FA5;
   color: white;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s ease;
 }
 
-.submit-btn:hover {
-  background: #1d4ed8;
+.login-button:hover {
+  background: #0C447C;
 }
 
-.submit-btn:disabled {
-  background: #94a3b8;
-  cursor: not-allowed;
-}
-
+/* SUCCESS */
 .success-message {
-  background: #dcfce7;
-  color: #166534;
+  background: #EAF3DE;
+  color: #27500A;
   padding: 12px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  text-align: center;
-  font-weight: 500;
+  border-radius: 8px;
+  font-size: 13px;
 }
 
+/* ERROR */
 .error-message {
-  background: #fee2e2;
-  color: #991b1b;
+  background: #FCEBEB;
+  color: #A32D2D;
   padding: 12px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  text-align: center;
-  font-weight: 500;
+  border-radius: 8px;
+  font-size: 13px;
 }
 
-.login-text {
-  text-align: center;
+/* FOOTER */
+.login-footer {
   margin-top: 20px;
-  color: #64748b;
+  padding-top: 16px;
+  border-top: 0.5px solid #D3D1C7;
 }
 
-.login-text a {
-  color: #2563eb;
-  text-decoration: none;
+.footer-register-link {
+  color: #185FA5;
   font-weight: 600;
 }
 
-.login-text a:hover {
-  text-decoration: underline;
-}
-
-@media (max-width: 768px) {
-  .join-card {
-    padding: 25px;
-  }
-
-  .form-grid {
+/* RESPONSIVE */
+@media (max-width: 992px) {
+  .login-container {
     grid-template-columns: 1fr;
   }
 
-  .checked-email-box {
-    flex-direction: column;
-    align-items: flex-start;
+  .login-branding {
+    display: none;
   }
+}
 
-  .checked-email-box button {
-    width: 100%;
+@media (max-width: 576px) {
+  .form-grid {
+    grid-template-columns: 1fr;
   }
 }

@@ -1,26 +1,31 @@
 <div class="navbar">
 
-    <div class="navbar-left-section">
-        HMS LOGO
+    <!-- LEFT -->
+    <div class="navbar-left">
+        <div class="logo">HMS Portal</div>
     </div>
 
-    <div class="navbar-right-section">
+    <!-- RIGHT -->
+    <div class="navbar-right">
 
-        <div class="navbar-profile-wrapper">
-            <div class="navbar-profile-icon" (click)="toggleProfileDropdown()">
+        <div class="profile-wrapper">
+
+            <div class="profile-icon" (click)="toggleProfileDropdown()">
                 👤
             </div>
 
-            @if (showProfileDropdown) {
-            <div class="navbar-profile-dropdown">
-                <button class="dropdown-btn" (click)="viewProfile()">
+            <div class="profile-dropdown" *ngIf="showProfileDropdown">
+
+                <button class="dropdown-item" (click)="viewProfile()">
                     View Profile
                 </button>
-                <button class="dropdown-btn logout-btn" (click)="logout()">
+
+                <button class="dropdown-item logout" (click)="logout()">
                     Logout
                 </button>
+
             </div>
-            }
+
         </div>
 
     </div>

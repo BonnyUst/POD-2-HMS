@@ -1,153 +1,148 @@
-.profile-container {
-  min-height: calc(100vh - 10vh);
-  background-color: #f5f7fa;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 30px;
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+:host {
+  display: block;
+  font-family: 'DM Sans', sans-serif;
 }
 
+/* PAGE */
+.profile-page {
+  background: #F1EFE8;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+/* HEADER */
+.page-header {
+  margin-bottom: 16px;
+}
+
+.page-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2C2C2A;
+}
+
+/* CARD */
 .profile-card {
-  width: 100%;
-  max-width: 850px;
-  background-color: #ffffff;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+  background: #ffffff;
+  border: 0.5px solid #D3D1C7;
+  border-radius: 12px;
+  padding: 20px;
 }
 
+/* HEADER SECTION */
 .profile-header {
-  text-align: center;
-  margin-bottom: 28px;
-}
-
-.avatar {
-  width: 75px;
-  height: 75px;
-  margin: 0 auto 15px;
-  border-radius: 50%;
-  background-color: #0f172a;
-  color: #ffffff;
   display: flex;
-  justify-content: center;
   align-items: center;
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: 1px;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
-.profile-header h2 {
-  margin: 0;
-  color: #0f172a;
-  font-size: 26px;
+/* AVATAR */
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+
+  background: #E6F1FB;
+  color: #185FA5;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 18px;
   font-weight: 700;
+}
+
+/* NAME */
+.profile-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: #2C2C2A;
 }
 
 .profile-header p {
-  margin-top: 8px;
-  color: #64748b;
+  margin: 4px 0 0;
   font-size: 14px;
+  color: #5F5E5A;
 }
 
-.profile-details {
+/* SECTION */
+.profile-section {
+  margin-top: 20px;
+}
+
+/* TITLE */
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* GRID */
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 16px;
+}
+
+/* ITEM */
+.detail-item {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 4px;
 }
 
-.profile-row {
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  align-items: center;
-  gap: 20px;
-  padding: 14px 16px;
-  border-radius: 10px;
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
-}
-
+/* LABEL */
 .label {
-  color: #334155;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.value {
-  color: #475569;
-  font-size: 14px;
-  text-align: left;
-  word-break: break-word;
-}
-
-.label {
-  color: #334155;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.value {
-  color: #475569;
-  font-size: 14px;
-  text-align: left;
-  word-break: break-word;
-}
-
-.status-badge {
-  background-color: #dcfce7;
-  color: #166534;
-  padding: 5px 12px;
-  border-radius: 20px;
   font-size: 13px;
+  font-weight: 500;
+  color: #5F5E5A;
+}
+
+/* VALUE */
+.value {
+  font-size: 14px;
+  color: #2C2C2A;
+}
+
+/* STATUS */
+.status-badge {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
   font-weight: 600;
 }
 
-.error {
-  background-color: #fee2e2;
-  color: #b91c1c;
+.status-badge.success {
+  background: #EAF3DE;
+  color: #27500A;
+}
+
+/* ERROR */
+.error-box {
+  background: #FCEBEB;
+  color: #A32D2D;
   padding: 12px;
   border-radius: 8px;
-  text-align: center;
-  font-size: 14px;
+  margin-bottom: 16px;
+  font-size: 13px;
 }
 
+/* LOADING */
 .loading {
   text-align: center;
-  color: #64748b;
-  font-size: 15px;
-}
-
-.section-title {
-  margin-top: 18px;
-  margin-bottom: 4px;
-  color: #0f172a;
-  font-size: 15px;
-  font-weight: 700;
-  border-left: 4px solid #0f172a;
-  padding-left: 10px;
-}
-
-.floating-back-btn {
-  position: fixed;
-  top: 90px;
-  left: 25px;
-  z-index: 1000;
-
-  padding: 10px 18px;
-  border: none;
-  border-radius: 999px;
-
-  background-color: #0f172a;
-  color: white;
-
   font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
-  transition: 0.2s ease;
+  color: #5F5E5A;
 }
 
-.floating-back-btn:hover {
-  background-color: #1e293b;
-  transform: translateY(-2px);
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
 }

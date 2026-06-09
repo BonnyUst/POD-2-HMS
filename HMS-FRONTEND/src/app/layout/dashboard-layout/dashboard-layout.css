@@ -1,15 +1,68 @@
-.dashboard-layout{
-    min-height: 100vh;
+/* ===========================
+   FONT IMPORT (GLOBAL STYLE)
+=========================== */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+:host {
+  display: block;
+  font-family: 'DM Sans', sans-serif;
 }
 
-.body-section{
-    display: flex;
+/* ===========================
+   DASHBOARD LAYOUT
+=========================== */
+
+.dashboard-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #F1EFE8;
 }
 
+/* ===========================
+   BODY SECTION
+=========================== */
 
-.content{
-    /* takes remaining spaces  */
-    flex:1;
-    padding:20px;
-    background-color: azure;
+.body-section {
+  display: flex;
+  flex: 1;
+  min-height: 0; /* prevents overflow issues */
+}
+
+/* ===========================
+   CONTENT AREA
+=========================== */
+
+.content {
+  flex: 1;
+  padding: 20px;
+  background: #F1EFE8;
+  overflow-y: auto;
+}
+
+/* ===========================
+   SCROLLBAR
+=========================== */
+
+.content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.content::-webkit-scrollbar-thumb {
+  background: #D3D1C7;
+  border-radius: 3px;
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+
+@media (max-width: 768px) {
+  .body-section {
+    flex-direction: column;
+  }
+
+  .content {
+    padding: 16px;
+  }
 }

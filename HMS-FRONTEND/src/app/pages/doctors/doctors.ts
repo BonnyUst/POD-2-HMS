@@ -1,13 +1,13 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormControl, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
-import { DatePipe, NgClass } from '@angular/common';
+import {  NgClass } from '@angular/common';
 import { DoctorService } from '../../services/doctor.service';
 import { Doctor } from '../../models/doctor.model';
 
 @Component({
   selector: 'app-doctors',
   standalone: true,
-  imports: [ReactiveFormsModule, DatePipe, NgClass],
+  imports: [ReactiveFormsModule, NgClass],
   templateUrl: './doctors.html',
   styleUrl: './doctors.css'
 })

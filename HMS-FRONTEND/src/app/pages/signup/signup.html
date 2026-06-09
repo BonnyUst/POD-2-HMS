@@ -1,26 +1,77 @@
+<div class="signup-page">
 
-<div class="signup-container">
-    <div class="signup-box">
-<h1>Sign Up</h1>
+  <div class="signup-container">
 
-<form action="">
-    <input type="text" placeholder="First Name">
-    <input type="text" placeholder="Last Name">
-    <input type="email" placeholder="Enter Your Mail">
-    <input type="password" placeholder="Enter your password">
-    <button type="button" (click)="showDemoMessage()">Sign Up</button>
+    <!-- LEFT BRANDING -->
+    <div class="signup-branding">
+      <div class="branding-content">
 
-<p class="demo-message" *ngIf="message">
-  {{ message }}
-</p>
-    
-</form>
+        <span class="brand-badge">HMS Portal</span>
 
-<p> 
-    Already have an account ?
-    <a routerLink="/login">login</a>
-</p>
+        <h1>Join Our Hospital System</h1>
 
-</div>
+        <p>
+          Submit your registration request to access the internal
+          Hospital Management System. Your account will be activated
+          after admin approval.
+        </p>
+
+      </div>
+    </div>
+
+    <!-- RIGHT FORM PANEL -->
+    <div class="signup-panel">
+
+      <div class="signup-card">
+
+        <div class="signup-header">
+          <h2>Create Account</h2>
+          <p>Fill in your details to get started</p>
+        </div>
+
+        <form class="signup-form">
+
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" placeholder="Enter first name" class="enterprise-input">
+          </div>
+
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" placeholder="Enter last name" class="enterprise-input">
+          </div>
+
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" placeholder="Enter your email" class="enterprise-input">
+          </div>
+
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" placeholder="Enter password" class="enterprise-input">
+          </div>
+
+          <button type="button" class="signup-button" (click)="showDemoMessage()">
+            Sign Up
+          </button>
+
+          <p class="demo-message" *ngIf="message">
+            {{ message }}
+          </p>
+
+        </form>
+
+        <div class="signup-footer">
+          <p>
+            Already have an account?
+            <a routerLink="/login">Login</a>
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
 
 </div>
