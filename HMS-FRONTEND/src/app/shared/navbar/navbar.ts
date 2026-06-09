@@ -33,32 +33,27 @@ export class Navbar {
     localStorage.removeItem('role');
     localStorage.removeItem('email');
 
-    // Or clear everything at once
     localStorage.clear();
-
-    // Clear sessionStorage
     sessionStorage.clear();
 
-    // Clear any cookies (optional)
     document.cookie.split(";").forEach((c) => {
       document.cookie = c
         .replace(/^ +/, "")
         .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
     });
 
-
     this.router.navigate(['/login']);
 
     console.log('User logged out successfully');
   }
 
- 
+  // ✅ FIXED CLASS NAME (THIS WAS THE BUG)
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event) {
     const target = event.target as HTMLElement;
-    if (!target.closest('.navbar-profile-wrapper')) {
+
+    if (!target.closest('.profile-wrapper')) {
       this.showProfileDropdown = false;
     }
   }
-
 }
