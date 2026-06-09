@@ -1,6 +1,8 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Auth } from '../../services/auth';
 import { CommonModule } from '@angular/common';
+import { Location } from '@angular/common';
+
 @Component({
   selector: 'app-profile',
   imports: [CommonModule],
@@ -13,12 +15,17 @@ export class Profile implements OnInit {
   errorMessage = '';
 
   constructor(readonly authService: Auth,
-    readonly cd: ChangeDetectorRef
+    readonly cd: ChangeDetectorRef,
+    private location:Location
   ) { }
 
   ngOnInit(): void {
     this.getProfile();
   }
+
+  goBack(): void {
+  this.location.back();
+}
 
   getProfile() {
     this.authService.getProfile().subscribe({

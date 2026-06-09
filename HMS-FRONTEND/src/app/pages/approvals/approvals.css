@@ -1,7 +1,10 @@
 .approval-section {
-  /* padding: 20px; */
   width: 100%;
 }
+
+/* ===========================
+   HEADER
+=========================== */
 
 .section-header {
   margin-bottom: 20px;
@@ -9,61 +12,79 @@
 
 .section-header h2 {
   margin: 0;
-  font-size: 24px;
-  color: #0f172a;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
 .section-header p {
   margin-top: 6px;
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 14px;
 }
 
+/* ===========================
+   TABLE
+=========================== */
 .table-section {
   width: 100%;
-  overflow-x: auto;
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-}
+  background-color: var(--card-bg);
+  border-radius: var(--radius-md);
+  border: 0.5px solid var(--border-color);
+  box-shadow: none;
 
+  overflow-x: auto;
+  overflow-y: auto;
+
+  max-height: calc(100vh - 220px);
+}
 table {
   width: 100%;
   border-collapse: collapse;
   min-width: 900px;
+  table-layout: fixed;
 }
-
 thead {
-  background-color: #0f172a;
-  color: white;
+  background-color: var(--page-bg);
+  color: var(--text-secondary);
 }
 
 th {
   padding: 14px 12px;
   text-align: left;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 0.5px solid var(--border-color);
 }
 
 td {
-  padding: 13px 12px;
-  border-bottom: 1px solid #e2e8f0;
+  padding: 14px 12px;
+  border-bottom: 0.5px solid var(--border-color);
   font-size: 14px;
-  color: #334155;
+  color: var(--text-primary);
 }
 
 tbody tr:hover {
-  background-color: #f8fafc;
+  background-color: #F8F8F5;
 }
 
+/* ===========================
+   STATUS
+=========================== */
+
 .status-badge {
-  background-color: #fef3c7;
-  color: #92400e;
+  background-color: var(--warning-bg);
+  color: var(--warning-text);
   padding: 5px 10px;
-  border-radius: 20px;
+  border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
 }
+
+/* ===========================
+   ACTION BUTTONS
+=========================== */
 
 .action-buttons {
   display: flex;
@@ -75,97 +96,140 @@ tbody tr:hover {
 .details-btn {
   border: none;
   padding: 7px 12px;
-  border-radius: 6px;
-  color: white;
+  border-radius: var(--radius-sm);
+  color: #ffffff;
   font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   transition: 0.2s ease;
 }
 
 .details-btn {
-  background-color: #2563eb;
+  background-color: var(--primary);
 }
 
 .details-btn:hover {
-  background-color: #1d4ed8;
+  background-color: var(--primary-dark);
 }
 
 .approve-btn {
-  background-color: #16a34a;
+  background-color: var(--success-text);
 }
 
 .approve-btn:hover {
-  background-color: #15803d;
+  background-color: #1f4208;
 }
 
 .reject-btn {
-  background-color: #dc2626;
+  background-color: var(--danger-text);
 }
 
 .reject-btn:hover {
-  background-color: #b91c1c;
+  background-color: #842323;
 }
 
+/* ===========================
+   EXPANDED DETAILS
+=========================== */
+
 .expanded-row td {
-  background-color: #f8fafc;
+  background-color: #FAFAF8;
   padding: 0;
+  border-bottom: 0.5px solid var(--border-color);
+  overflow: hidden;
 }
 
 .details-box {
   padding: 18px;
-  border-top: 1px solid #e2e8f0;
-}
+  border-top: 0.5px solid var(--border-color);
 
-.details-grid {
+  max-height: none;
+  overflow: visible;
+}.details-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 15px;
 }
 
 .details-grid div {
-  background-color: white;
+  background-color: var(--card-bg);
   padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-}
-
-.details-grid label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: #64748b;
-  margin-bottom: 5px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--border-color);
+  min-width: 0;
 }
 
 .details-grid p {
   margin: 0;
-  color: #0f172a;
+  color: var(--text-primary);
   font-size: 14px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
+.details-box::-webkit-scrollbar {
+  width: 6px;
+}
+
+.details-box::-webkit-scrollbar-track {
+  background: var(--page-bg);
+}
+
+.details-box::-webkit-scrollbar-thumb {
+  background: #B8B6AD;
+  border-radius: 3px;
+}
+
+.details-box::-webkit-scrollbar-thumb:hover {
+  background: var(--text-placeholder);
+}
 .doctor-section {
   margin-top: 20px;
 }
 
 .doctor-section h4 {
   margin-bottom: 12px;
-  color: #0f172a;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 600;
 }
 
+/* ===========================
+   EMPTY STATE
+=========================== */
+
 .empty-state {
-  background-color: white;
+  background-color: var(--card-bg);
   padding: 40px;
   text-align: center;
-  border-radius: 12px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-md);
+  border: 0.5px solid var(--border-color);
+  box-shadow: none;
 }
 
 .empty-state h3 {
   margin: 0;
-  color: #0f172a;
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .empty-state p {
   margin-top: 8px;
-  color: #64748b;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+
+@media (max-width: 768px) {
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
 }
