@@ -38,7 +38,7 @@
             </thead>
 
             <tbody>
-                @for (patient of filteredPatients; track patient.patientId) {
+                @for (patient of paginatedPatients; track patient.patientId) {
                 <tr>
                     <td>{{ patient.UHID }}</td>
                     <td>{{ patient.firstName }} {{ patient.lastName }}</td>
@@ -72,11 +72,21 @@
 
     <!-- Footer -->
     <div class="table-footer">
-        <p>Records: {{ filteredPatients.length }} of {{ patients.length }}</p>
+        <p>
+            Records: {{ startRecord }} - {{ endRecord }} of {{ filteredPatients.length }}
+        </p>
 
         <div class="pagination">
-            <i class="bi bi-chevron-left"></i>
-            <i class="bi bi-chevron-right"></i>
+            <i class="bi bi-chevron-left" [class.disabled]="currentPage === 1" (click)="goToPreviousPage()">
+            </i>
+
+            <span class="page-info">
+                Page {{ currentPage }} of {{ totalPages || 1 }}
+            </span>
+
+            <i class="bi bi-chevron-right" [class.disabled]="currentPage === totalPages || totalPages === 0"
+                (click)="goToNextPage()">
+            </i>
         </div>
     </div>
 

@@ -35,6 +35,8 @@ export class Patients implements OnInit {
 
   patients: Patient[] = [];
   filteredPatients: Patient[] = [];
+  currentPage = 1;
+  itemsPerPage = 5;
   searchText = '';
   showAddPatientModal = false;
 
@@ -112,6 +114,42 @@ export class Patients implements OnInit {
       });
   }
 
+  get totalPages(): number {
+    return Math.ceil(this.filteredPatients.length / this.itemsPerPage);
+  }
+
+  get paginatedPatients(): Patient[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+
+    return this.filteredPatients.slice(startIndex, endIndex);
+  }
+
+  get startRecord(): number {
+    if (this.filteredPatients.length === 0) {
+      return 0;
+    }
+
+    return (this.currentPage - 1) * this.itemsPerPage + 1;
+  }
+
+  get endRecord(): number {
+    const end = this.currentPage * this.itemsPerPage;
+    return end > this.filteredPatients.length ? this.filteredPatients.length : end;
+  }
+
+  goToPreviousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
   // ========================
   // FILTER / SEARCH
   // ========================
@@ -135,6 +173,7 @@ export class Patients implements OnInit {
       patient.state?.toLowerCase().includes(search) ||
       patient.createdByName?.toLowerCase().includes(search)
     );
+    this.currentPage = 1;
   }
 
   // ========================
