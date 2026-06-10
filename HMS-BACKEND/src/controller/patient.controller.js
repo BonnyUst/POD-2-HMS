@@ -1,3 +1,5 @@
+// controllers/patient.controller.js
+const ApiResponse=require('../utils/ApiResponse')
 const patientService = require('../service/patient.service');
 
 exports.createPatient = async (req, res, next) => {
@@ -30,4 +32,42 @@ exports.getAllPatients = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+
+exports.registerPatient = async (req, res, next) => {
+  try {
+    const result = await patientService.registerPatient(req.body);
+
+    return res.status(201).json({
+      success: true,
+      message: "Patient registered successfully",
+      data: result
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
+exports.getPatientProfile = async (req, res, next) => {
+    try {
+      console.log("Logged in userId:", req.user.userId);
+        const userId = req.user.userId;
+
+        const profile = await patientService.getPatientProfile(userId);
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    "Patient profile fetched successfully",
+                    profile
+                )
+            );
+    } catch (error) {
+        next(error);
+    }
 };

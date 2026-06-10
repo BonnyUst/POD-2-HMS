@@ -4,7 +4,7 @@ exports.createAppointment = async (req, res, next) => {
     try {
         const appointment = await appointmentService.createAppointment(
             req.body,
-            req.user?._id,
+            req.user?.userId,
             req.user?.role
         );
 
