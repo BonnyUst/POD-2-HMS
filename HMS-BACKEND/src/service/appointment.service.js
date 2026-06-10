@@ -74,6 +74,19 @@ exports.createAppointment = async (appointmentData, loggedInUserId, loggedInUser
         throw new ApiError(400, 'Selected employee is not a doctor');
     }
 
+    const appointmentDateObj = new Date(appointmentDate);
+    appointmentDateObj.setHours(0, 0, 0, 0);
+
+    const joiningDateObj = new Date(employeeRecord.joiningDate);
+    joiningDateObj.setHours(0, 0, 0, 0);
+
+    if (appointmentDateObj < joiningDateObj) {
+        throw new ApiError(
+            400,
+            `Doctor is not yet joined. Appointments can only be booked on or after ${joiningDateObj.toISOString().split('T')[0]}`
+        );
+    }
+
     const doctor = await Doctor.findOne({ employeeId: doctorId });
     if (!doctor) throw new ApiError(404, 'Doctor profile not found'); // ✅ throw if not found
 
@@ -100,7 +113,7 @@ exports.createAppointment = async (appointmentData, loggedInUserId, loggedInUser
 
     const appointment = await Appointment.create({
         patientId: finalPatientId,
-        doctorId: doctor._id, 
+        doctorId: doctor._id,
         appointmentDate,
         timeSlot,
         reason,

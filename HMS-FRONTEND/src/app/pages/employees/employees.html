@@ -283,14 +283,17 @@
 
                     <div class="form-group">
                         <label for="joiningDate">Joining Date <span>*</span></label>
-                        <input type="date" formControlName="joiningDate" />
+                        <input type="date" formControlName="joiningDate" [min]="getTodayDate()" [max]="getMaxDate()">
 
-                        @if (employeeForm.get('joiningDate')?.invalid &&
-                        employeeForm.get('joiningDate')?.touched) {
-                        <small class="error-msg">Joining date is required</small>
+                        @if (employeeForm.get('joiningDate')?.invalid && employeeForm.get('joiningDate')?.touched) {
+                        @if (employeeForm.get('joiningDate')?.errors?.['required']) {
+                        <small class="error-msg">Joining date is required.</small>
+                        }
+                        @if (employeeForm.get('joiningDate')?.errors?.['dateOutOfRange']) {
+                        <small class="error-msg">Joining date must be within 2 months before or after today.</small>
+                        }
                         }
                     </div>
-
                 </div>
 
             </form>

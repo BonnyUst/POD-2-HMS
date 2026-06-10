@@ -288,8 +288,11 @@
                 </div>
 
             </form>
-
+            @if (errorMessage) {
+            <p class="error-msg" style="margin-top: 10px;">{{ errorMessage }}</p>
+            }
         </div>
+
 
         <div class="modal-footer">
             <button class="cancel-btn" (click)="closeAddAppointmentModal()">

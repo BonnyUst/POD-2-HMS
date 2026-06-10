@@ -47,7 +47,39 @@ export class Doctors implements OnInit {
     '08:00 PM'
   ];
 
- 
+
+  joiningDateRangeValidator(control: AbstractControl): ValidationErrors | null {
+    if (!control.value) return null;
+
+    const selected = new Date(control.value);
+    const today = new Date();
+
+    const minDate = new Date();
+    minDate.setMonth(today.getMonth() - 2);
+
+    const maxDate = new Date();
+    maxDate.setMonth(today.getMonth() + 2);
+
+    if (selected < minDate || selected > maxDate) {
+      return { dateOutOfRange: true };
+    }
+
+    return null;
+  }
+
+  getTodayDate(): string {
+    const today = new Date();
+    today.setMonth(today.getMonth() - 2);
+    return today.toISOString().split('T')[0];
+  }
+
+  getMaxDate(): string {
+    const today = new Date();
+    today.setMonth(today.getMonth() + 2);
+    return today.toISOString().split('T')[0];
+  }
+
+
   doctorForm = new FormGroup({
     firstName: new FormControl('', [
       Validators.required,
@@ -61,7 +93,7 @@ export class Doctors implements OnInit {
     ]),
     email: new FormControl('', [
       Validators.required,
-      Validators.email,
+      Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
 
     ]),
     password: new FormControl('', [
@@ -79,7 +111,8 @@ export class Doctors implements OnInit {
       Validators.required
     ]),
     joiningDate: new FormControl('', [
-      Validators.required
+      Validators.required,
+      this.joiningDateRangeValidator
     ]),
     specialization: new FormControl('', [
       Validators.required
@@ -118,9 +151,9 @@ export class Doctors implements OnInit {
     this.getDoctors();
   }
 
- 
- 
- 
+
+
+
 
   availabilityTimeValidator(group: AbstractControl): ValidationErrors | null {
     const startTime = group.get('availabilityStartTime')?.value;
@@ -145,7 +178,7 @@ export class Doctors implements OnInit {
       return { invalidAvailability: true };
     }
 
-   
+
     if (end - start < 60) {
       return { minAvailability: true };
     }
@@ -153,9 +186,9 @@ export class Doctors implements OnInit {
     return null;
   }
 
- 
- 
- 
+
+
+
 
   getDoctors() {
     this.doctorService.getAllDoctors()
@@ -163,7 +196,6 @@ export class Doctors implements OnInit {
         next: (res) => {
           this.doctors = res.data;
           this.filteredDoctors = res.data;
-          console.log('Doctors:', this.doctors);
           this.cd.detectChanges();
         },
         error: (err) => {
@@ -209,9 +241,9 @@ export class Doctors implements OnInit {
       this.currentPage++;
     }
   }
- 
- 
- 
+
+
+
 
   filterDoctors() {
     const search = this.searchText.toLowerCase().trim();
@@ -235,9 +267,9 @@ export class Doctors implements OnInit {
     this.currentPage = 1;
   }
 
- 
- 
- 
+
+
+
 
   openAddDoctorModal() {
     this.isEditMode = false;
@@ -296,9 +328,9 @@ export class Doctors implements OnInit {
     this.doctorForm.get('password')?.updateValueAndValidity();
   }
 
- 
- 
- 
+
+
+
 
   saveDoctor() {
     if (this.doctorForm.invalid) {
@@ -331,7 +363,6 @@ export class Doctors implements OnInit {
         payload as any
       ).subscribe({
         next: (res) => {
-          console.log('Doctor updated successfully:', res);
           alert('Doctor updated successfully!');
           this.closeAddDoctorModal();
           this.getDoctors();
@@ -350,21 +381,15 @@ export class Doctors implements OnInit {
 
     const payload = this.doctorForm.value;
 
-    console.log('Doctor form data:', payload);
-
     this.doctorService.createDoctor(payload as any)
       .subscribe({
         next: (res) => {
-          console.log('Doctor created successfully:', res);
           alert('Doctor created successfully!');
           this.closeAddDoctorModal();
           this.getDoctors();
           this.cd.detectChanges();
         },
         error: (err) => {
-          console.log('Error creating doctor:', err);
-          console.log('Backend validation errors:', err.error?.errors);
-          console.log('Backend message:', err.error?.message);
           alert(err.error?.message || 'Something went wrong');
         }
       });

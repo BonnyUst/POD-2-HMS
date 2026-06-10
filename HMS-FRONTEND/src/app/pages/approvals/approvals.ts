@@ -1,21 +1,22 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { ApprovalsService } from '../../services/approval.service';
+import { ApprovalRequest } from '../../models/approval.model';
 
 @Component({
   selector: 'app-approvals',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './approvals.html',
   styleUrl: './approvals.css',
 })
 export class Approvals implements OnInit {
 
-  pendingRequests: any[] = [];
+  pendingRequests: ApprovalRequest[] = [];
   expandedRequestId: string | null = null;
- 
 
   constructor(
-    private http: HttpClient,
-    private cd: ChangeDetectorRef
+    readonly approvalsService: ApprovalsService,
+    readonly cd: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -23,41 +24,34 @@ export class Approvals implements OnInit {
   }
 
   getPendingRequests() {
-    this.http.get('http://localhost:5000/api/join-us/pending')
+    this.approvalsService.getPendingRequests()
       .subscribe({
-        next: (res: any) => {
+        next: (res) => {
           this.pendingRequests = res.data;
-          console.log('Pending requests:', this.pendingRequests);
           this.cd.detectChanges();
         },
-        error: (err) => {
-          console.log('Error fetching pending requests:', err);
-        }
+        error: (err) => {}
       });
   }
 
-   toggleDetails(requestId: string) {
-  if (this.expandedRequestId === requestId) {
-    this.expandedRequestId = null;
-  } else {
-    this.expandedRequestId = requestId;
+  toggleDetails(requestId: string) {
+    if (this.expandedRequestId === requestId) {
+      this.expandedRequestId = null;
+    } else {
+      this.expandedRequestId = requestId;
+    }
   }
-}
-  approveRequest(requestId: string) {
-    this.http.put(`http://localhost:5000/api/join-us/approve/${requestId}`, {})
-      .subscribe({
-        next: (res: any) => {
-          console.log('Approved:', res);
 
+  approveRequest(requestId: string) {
+    this.approvalsService.approveRequest(requestId)
+      .subscribe({
+        next: (res) => {
           this.pendingRequests = this.pendingRequests.filter(
             request => request._id !== requestId
           );
-
           this.cd.detectChanges();
         },
-        error: (err) => {
-          console.log('Approval error:', err);
-        }
+        error: (err) => {}
       });
   }
 
@@ -68,21 +62,15 @@ export class Approvals implements OnInit {
       return;
     }
 
-    this.http.put(`http://localhost:5000/api/join-us/reject/${requestId}`, {
-      rejectionReason
-    }).subscribe({
-      next: (res: any) => {
-        console.log('Rejected:', res);
-
-        this.pendingRequests = this.pendingRequests.filter(
-          request => request._id !== requestId
-        );
-
-        this.cd.detectChanges();
-      },
-      error: (err) => {
-        console.log('Reject error:', err);
-      }
-    });
+    this.approvalsService.rejectRequest(requestId, rejectionReason)
+      .subscribe({
+        next: (res) => {
+          this.pendingRequests = this.pendingRequests.filter(
+            request => request._id !== requestId
+          );
+          this.cd.detectChanges();
+        },
+        error: (err) => {}
+      });
   }
 }

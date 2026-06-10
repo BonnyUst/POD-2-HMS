@@ -25,18 +25,19 @@ export class Appointments implements OnInit {
   doctors: Doctor[] = [];
 
   userRole = '';
+  errorMessage = '';
   searchText = '';
   showAddAppointmentModal = false;
 
   todayDate = new Date().toISOString().split('T')[0];
 
- 
+
   availableSlots: string[] = [];
   loadingSlots = false;
   doctorAvailability = '';
   bookedCount = 0;
 
- 
+
   appointmentForm = new FormGroup({
     patientId: new FormControl('', [
       Validators.required
@@ -79,9 +80,9 @@ export class Appointments implements OnInit {
     return this.userRole !== 'Doctor';
   }
 
- 
- 
- 
+
+
+
 
   futureDateValidator(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
@@ -95,9 +96,9 @@ export class Appointments implements OnInit {
     return selectedDate < today ? { pastDate: true } : null;
   }
 
- 
- 
- 
+
+
+
 
   setupSlotWatcher() {
     this.appointmentForm.get('doctorId')?.valueChanges.subscribe(() => {
@@ -109,15 +110,15 @@ export class Appointments implements OnInit {
     });
   }
 
- 
- 
- 
+
+
+
 
   fetchAvailableSlots() {
     const doctorId = this.appointmentForm.get('doctorId')?.value;
     const appointmentDate = this.appointmentForm.get('appointmentDate')?.value;
 
-   
+
     this.appointmentForm.get('timeSlot')?.setValue('');
 
     if (doctorId && appointmentDate) {
@@ -131,7 +132,6 @@ export class Appointments implements OnInit {
             this.doctorAvailability =
               `${res.data.availabilityStart} - ${res.data.availabilityEnd}`;
             this.loadingSlots = false;
-            console.log('Available slots:', this.availableSlots);
             this.cd.detectChanges();
           },
           error: (err) => {
@@ -162,9 +162,9 @@ export class Appointments implements OnInit {
     }
   }
 
- 
- 
- 
+
+
+
 
   getMyAppointments() {
     this.appointmentService.getMyAppointments()
@@ -172,7 +172,6 @@ export class Appointments implements OnInit {
         next: (res) => {
           this.appointments = res.data;
           this.filteredAppointments = res.data;
-          console.log('My appointments:', this.appointments);
           this.cd.detectChanges();
         },
         error: (err) => {
@@ -182,9 +181,9 @@ export class Appointments implements OnInit {
   }
 
 
- 
- 
- 
+
+
+
 
   getAppointments() {
     this.appointmentService.getAppointments()
@@ -192,7 +191,6 @@ export class Appointments implements OnInit {
         next: (res) => {
           this.appointments = res.data;
           this.filteredAppointments = res.data;
-          console.log('Appointments:', this.appointments);
           this.cd.detectChanges();
         },
         error: (err) => {
@@ -201,9 +199,9 @@ export class Appointments implements OnInit {
       });
   }
 
- 
- 
- 
+
+
+
 
   getPatients() {
     this.appointmentService.getPatients()
@@ -218,16 +216,15 @@ export class Appointments implements OnInit {
       });
   }
 
- 
- 
- 
+
+
+
 
   getDoctors() {
     this.appointmentService.getDoctors()
       .subscribe({
         next: (res) => {
           this.doctors = res.data;
-          console.log('Doctors:', this.doctors);
           this.cd.detectChanges();
         },
         error: (err) => {
@@ -262,9 +259,9 @@ export class Appointments implements OnInit {
     );
   }
 
- 
- 
- 
+
+
+
 
   filterAppointments() {
     const search = this.searchText.toLowerCase().trim();
@@ -291,15 +288,16 @@ export class Appointments implements OnInit {
     this.currentPage = 1;
   }
 
- 
- 
- 
+
+
+
 
   openAddAppointmentModal() {
     this.appointmentForm.reset();
     this.availableSlots = [];
     this.bookedCount = 0;
     this.doctorAvailability = '';
+    this.errorMessage = '';
     this.showAddAppointmentModal = true;
   }
 
@@ -308,12 +306,11 @@ export class Appointments implements OnInit {
     this.appointmentForm.reset();
     this.availableSlots = [];
     this.bookedCount = 0;
+    this.errorMessage = '';
     this.doctorAvailability = '';
   }
 
- 
- 
- 
+
 
   saveAppointment() {
     if (this.appointmentForm.invalid) {
@@ -321,24 +318,22 @@ export class Appointments implements OnInit {
       return;
     }
 
+    this.errorMessage = '';
     const payload = this.appointmentForm.value;
-
-    console.log('Appointment form data:', payload);
 
     this.appointmentService.createAppointment(payload as any)
       .subscribe({
         next: (res) => {
-          console.log('Appointment created successfully:', res);
+          this.errorMessage = '';
           alert('Appointment created successfully!');
           this.closeAddAppointmentModal();
           this.getAppointments();
           this.cd.detectChanges();
         },
         error: (err) => {
-          console.error('Error creating appointment:', err);
-          alert(err.error?.message || 'Appointment creation failed');
+          this.errorMessage = err.error?.message || 'Appointment creation failed doctor not joined yet';
+          this.cd.detectChanges();
         }
       });
   }
-
 }

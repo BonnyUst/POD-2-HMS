@@ -1,7 +1,6 @@
 <div class="approval-section">
   <div class="section-header">
     <h2>Pending Approvals</h2>
-
   </div>
 
   @if (pendingRequests.length === 0) {
@@ -42,7 +41,10 @@
               <td>
                 <button
                   class="details-btn"
-                  (click)="toggleDetails(request._id)">
+                  (click)="toggleDetails(request._id)"
+                  (keypress)="toggleDetails(request._id)"
+                  (keydown)="toggleDetails(request._id)"
+                  (keyup)="toggleDetails(request._id)">
                   {{ expandedRequestId === request._id ? 'Hide' : 'View' }}
                 </button>
               </td>
@@ -51,15 +53,12 @@
                 <div class="action-buttons">
                   <button
                     class="approve-btn"
-                    (click)="approveRequest(request._id)">
+                    (click)="approveRequest(request._id)"
+                    (keypress)="approveRequest(request._id)"
+                    (keydown)="approveRequest(request._id)"
+                    (keyup)="approveRequest(request._id)">
                     Approve
                   </button>
-
-                  <!-- <button
-                    class="reject-btn"
-                    (click)="rejectRequest(request._id)">
-                    Reject
-                  </button> -->
                 </div>
               </td>
             </tr>
@@ -69,35 +68,47 @@
                 <td colspan="7">
                   <div class="details-box">
                     <div class="details-grid">
+
                       <div>
-                        <label>Full Name</label>
+                        <label for="FullName">Full Name</label>
                         <p>{{ request.firstName }} {{ request.lastName }}</p>
                       </div>
 
                       <div>
-                        <label>Email</label>
+                        <label for="email">Email</label>
                         <p>{{ request.email }}</p>
                       </div>
 
                       <div>
-                        <label>Phone</label>
+                        <label for="phone">Phone</label>
                         <p>{{ request.phone }}</p>
                       </div>
 
                       <div>
-                        <label>Designation</label>
+                        <label for="role">Role</label>
+                        <p>{{ request.role }}</p>
+                      </div>
+
+                      <div>
+                        <label for="department">Department</label>
+                        <p>{{ request.department }}</p>
+                      </div>
+
+                      <div>
+                        <label for="designation">Designation</label>
                         <p>{{ request.designation }}</p>
                       </div>
 
                       <div>
-                        <label>Joining Date</label>
+                        <label for="joiningDate">Joining Date</label>
                         <p>{{ request.joiningDate }}</p>
                       </div>
 
                       <div>
-                        <label>Approval Status</label>
+                        <label for="approval">Approval Status</label>
                         <p>{{ request.approvalStatus }}</p>
                       </div>
+
                     </div>
 
                     @if (request.role === 'Doctor') {
@@ -105,38 +116,41 @@
                         <h4>Doctor Details</h4>
 
                         <div class="details-grid">
+
                           <div>
-                            <label>Specialization</label>
+                            <label for="specialization">Specialization</label>
                             <p>{{ request.specialization }}</p>
                           </div>
 
                           <div>
-                            <label>Qualification</label>
+                            <label for="qualification">Qualification</label>
                             <p>{{ request.qualification }}</p>
                           </div>
 
                           <div>
-                            <label>Experience</label>
+                            <label for="experience">Experience</label>
                             <p>{{ request.experienceYears }} years</p>
                           </div>
 
                           <div>
-                            <label>Consultation Fee</label>
+                            <label for="consultationFee">Consultation Fee</label>
                             <p>₹{{ request.consultationFee }}</p>
                           </div>
 
                           <div>
-                            <label>Medical Reg. No</label>
+                            <label for="medicalRegistrationNo">Medical Reg. No</label>
                             <p>{{ request.medicalRegistrationNo }}</p>
                           </div>
 
                           <div>
-                            <label>Availability</label>
+                            <label for="Availability">Availability</label>
                             <p>{{ request.availabilityStartTime }} - {{ request.availabilityEndTime }}</p>
                           </div>
+
                         </div>
                       </div>
                     }
+
                   </div>
                 </td>
               </tr>
@@ -146,4 +160,5 @@
       </table>
     </div>
   }
+
 </div>

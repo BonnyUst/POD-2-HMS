@@ -183,9 +183,9 @@
                         doctorForm.get('email')?.touched) {
                         <small class="error-msg">Email is required</small>
                         }
-                        @if (doctorForm.get('email')?.hasError('email') &&
+                        @if (doctorForm.get('email')?.hasError('pattern') &&
                         doctorForm.get('email')?.touched) {
-                        <small class="error-msg">Enter a valid email</small>
+                        <small class="error-msg">Enter a valid email (eg: name@example.com)</small>
                         }
                     </div>
 
@@ -254,11 +254,15 @@
 
                     <div class="form-group">
                         <label for="joiningDate">Joining Date <span>*</span></label>
-                        <input type="date" formControlName="joiningDate" />
+                        <input type="date" formControlName="joiningDate" [min]="getTodayDate()" [max]="getMaxDate()">
 
-                        @if (doctorForm.get('joiningDate')?.invalid &&
-                        doctorForm.get('joiningDate')?.touched) {
-                        <small class="error-msg">Joining date is required</small>
+                        @if (doctorForm.get('joiningDate')?.invalid && doctorForm.get('joiningDate')?.touched) {
+                        @if (doctorForm.get('joiningDate')?.errors?.['required']) {
+                        <small class="error-msg">Joining date is required.</small>
+                        }
+                        @if (doctorForm.get('joiningDate')?.errors?.['dateOutOfRange']) {
+                        <small class="error-msg">Joining date must be within 2 months before or after today.</small>
+                        }
                         }
                     </div>
 
