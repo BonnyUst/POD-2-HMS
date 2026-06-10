@@ -87,8 +87,6 @@ exports.createAppointment = async (appointmentData, loggedInUserId, loggedInUser
             `Doctor is only available from ${doctor.availabilityStartTime} to ${doctor.availabilityEndTime}`
         );
     }
-
-    // ✅ doctor._id not doctor_.id
     const existingAppointment = await Appointment.findOne({
         doctorId: doctor._id,
         appointmentDate,
@@ -102,7 +100,7 @@ exports.createAppointment = async (appointmentData, loggedInUserId, loggedInUser
 
     const appointment = await Appointment.create({
         patientId: finalPatientId,
-        doctorId: doctor._id, // ✅ Doctor._id
+        doctorId: doctor._id, 
         appointmentDate,
         timeSlot,
         reason,
@@ -189,8 +187,6 @@ exports.getAvailableSlots = async (doctorId, appointmentDate) => {
         doctor.availabilityStartTime,
         doctor.availabilityEndTime
     );
-
-    // ✅ Fix: use doctor._id, not the raw doctorId (employeeId) param
     const bookedAppointments = await Appointment.find({
         doctorId: doctor._id,
         appointmentDate,

@@ -1,5 +1,3 @@
-//adminroute
-
 const express = require('express');
 const router = express.Router();
 
@@ -12,14 +10,6 @@ router.get("/dashboard",
     authMiddleware, 
     authRoles(permissions.DASHBOARD),
     adminController.getDashboardStats
-
-    // (req, res) => {
-    //     res.json({
-    //         success: true,
-    //         message: "Welcome Admin"
-
-    //     });
-    // }
 );
 
 

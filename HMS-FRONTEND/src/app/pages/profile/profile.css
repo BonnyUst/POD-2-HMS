@@ -124,9 +124,7 @@
   padding-left: 10px;
 }
 
-/* ===========================
-   BACK BUTTON
-=========================== */
+
 
 .floating-back-btn {
   position: fixed;
@@ -159,9 +157,7 @@
   transform: translateY(-1px);
 }
 
-/* ===========================
-   RESPONSIVE
-=========================== */
+
 
 @media (max-width: 768px) {
   .profile-container {

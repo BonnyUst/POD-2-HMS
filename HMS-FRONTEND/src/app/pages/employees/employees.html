@@ -97,15 +97,16 @@
         </p>
 
         <div class="pagination">
-            <i class="bi bi-chevron-left" [class.disabled]="currentPage === 1" (click)="goToPreviousPage()">
+            <i class="bi bi-chevron-left" [class.disabled]="currentPage === 1" (click)="goToPreviousPage()"
+                (keypress)="goToPreviousPage()" (keydown)="goToPreviousPage()" (keyup)="goToPreviousPage()">
             </i>
-
             <span class="page-info">
                 Page {{ currentPage }} of {{ totalPages }}
             </span>
 
             <i class="bi bi-chevron-right" [class.disabled]="currentPage === totalPages || totalPages === 0"
-                (click)="goToNextPage()">
+                (click)="goToNextPage()" (keypress)="goToNextPage()" (keydown)="goToNextPage()"
+                (keyup)="goToNextPage()">
             </i>
         </div>
     </div>
@@ -118,7 +119,7 @@
     <div class="modal-box">
 
         <div class="modal-header">
-          <h2>{{ isEditMode ? 'Edit Employee' : 'Add Employee' }}</h2>
+            <h2>{{ isEditMode ? 'Edit Employee' : 'Add Employee' }}</h2>
 
             <button class="close-btn" (click)="closeAddEmployeeModal()">
                 <i class="bi bi-x-lg"></i>

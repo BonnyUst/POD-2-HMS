@@ -1,6 +1,4 @@
-/* ===========================
-   ADMIN DASHBOARD
-=========================== */
+
 
 .card-section {
   display: flex;
@@ -8,7 +6,7 @@
   margin-bottom: 18px;
 }
 
-/* Stat Cards */
+
 .card {
   flex: 1;
   background: #ffffff;
@@ -45,9 +43,7 @@
   margin: 0;
 }
 
-/* ===========================
-   TABLE SECTION
-=========================== */
+
 
 .table-section {
   background: #ffffff;
@@ -96,17 +92,13 @@
   background-color: #f8fafc;
 }
 
-/* ===========================
-   STATUS STYLE
-=========================== */
+
 
 .table-section td:last-child {
   font-weight: 600;
 }
 
-/* ===========================
-   SCROLLBAR
-=========================== */
+
 
 .table-section::-webkit-scrollbar {
   width: 6px;
@@ -126,9 +118,7 @@
   background: #64748b;
 }
 
-/* ===========================
-   RESPONSIVE
-=========================== */
+
 
 @media (max-width: 768px) {
   .card-section {

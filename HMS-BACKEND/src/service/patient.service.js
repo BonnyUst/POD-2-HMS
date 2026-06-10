@@ -1,5 +1,3 @@
-// services/patient.service.js
-
 const Patient = require('../models/Patient.model');
 const ApiError = require('../utils/ApiError');
 

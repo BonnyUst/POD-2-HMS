@@ -1,4 +1,4 @@
-// GET response
+
 export interface Patient {
   patientId: string;
   UHID: string;
@@ -19,8 +19,7 @@ export interface Patient {
   createdByRoleCode?: string;
   createdAt: string;
 }
-
-// POST request (current backend)
+
 export interface CreatePatientPayload {
   firstName: string;
   lastName: string;

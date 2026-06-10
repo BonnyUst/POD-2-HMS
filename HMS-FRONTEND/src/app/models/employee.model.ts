@@ -1,4 +1,4 @@
-// For GET response (list of employees)
+
 export interface Employee {
   employeeId: string;
   userId: string;
@@ -15,8 +15,7 @@ export interface Employee {
   isVerified: boolean;
   status: string;
 }
-
-// For POST request (create employee)
+
 export interface CreateEmployeePayload {
   firstName: string;
   lastName: string;

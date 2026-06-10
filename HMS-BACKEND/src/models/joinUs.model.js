@@ -54,8 +54,6 @@ const joinUsSchema = new mongoose.Schema(
             type: Date,
             required: true
         },
-
-        // Doctor-only fields
         specialization: {
             type: String
         },

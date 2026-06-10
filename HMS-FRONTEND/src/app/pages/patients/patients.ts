@@ -10,8 +10,7 @@ import {
 import { DatePipe } from '@angular/common';
 import { Patient, CreatePatientPayload } from '../../models/patients.model';
 import { PatientService } from '../../services/patient.service';
-
-// Custom validator: DOB cannot be in the future
+
 function futureDateValidator(control: AbstractControl): ValidationErrors | null {
   if (!control.value) return null;
 
@@ -40,9 +39,9 @@ export class Patients implements OnInit {
   searchText = '';
   showAddPatientModal = false;
 
-  // ========================
-  // REACTIVE FORM
-  // ========================
+ 
+ 
+ 
 
   patientForm = new FormGroup({
     firstName: new FormControl('', [
@@ -95,9 +94,9 @@ export class Patients implements OnInit {
     this.getPatients();
   }
 
-  // ========================
-  // GET ALL PATIENTS
-  // ========================
+ 
+ 
+ 
 
   getPatients() {
     this.patientService.getAllPatients()
@@ -133,10 +132,10 @@ export class Patients implements OnInit {
     return (this.currentPage - 1) * this.itemsPerPage + 1;
   }
 
-  get endRecord(): number {
-    const end = this.currentPage * this.itemsPerPage;
-    return end > this.filteredPatients.length ? this.filteredPatients.length : end;
-  }
+get endRecord(): number {
+  const end = this.currentPage * this.itemsPerPage;
+  return Math.min(end, this.filteredPatients.length);
+}
 
   goToPreviousPage(): void {
     if (this.currentPage > 1) {
@@ -150,9 +149,9 @@ export class Patients implements OnInit {
     }
   }
 
-  // ========================
-  // FILTER / SEARCH
-  // ========================
+ 
+ 
+ 
 
   filterPatients() {
     const search = this.searchText.toLowerCase().trim();
@@ -176,9 +175,9 @@ export class Patients implements OnInit {
     this.currentPage = 1;
   }
 
-  // ========================
-  // MODAL CONTROLS
-  // ========================
+ 
+ 
+ 
 
   openAddPatientModal() {
     this.patientForm.reset();
@@ -192,9 +191,9 @@ export class Patients implements OnInit {
     document.body.classList.remove('modal-open');
   }
 
-  // ========================
-  // SAVE PATIENT
-  // ========================
+ 
+ 
+ 
 
   savePatient() {
     if (this.patientForm.invalid) {

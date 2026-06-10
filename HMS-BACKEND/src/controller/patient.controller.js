@@ -1,13 +1,9 @@
-// controllers/patient.controller.js
-
 const patientService = require('../service/patient.service');
 
 exports.createPatient = async (req, res, next) => {
   try {
     console.log("Logged in user:", req.user);
     const userId = req.user.userId; 
-    // or req.user.id depending on your JWT payload
-
     const patient = await patientService.createPatient(req.body, userId);
 
     return res.status(201).json({

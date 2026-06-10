@@ -6,7 +6,7 @@
   overflow: hidden;
 }
 
-/* Address Grid */
+
 .form-grid-address {
   grid-column: 1 / -1;
   display: grid;
@@ -15,9 +15,7 @@
   row-gap: 16px;
 }
 
-/* ===========================
-   HEADER
-=========================== */
+
 
 .page-header {
   background: var(--card-bg);
@@ -65,9 +63,7 @@
   background-color: var(--primary-dark);
 }
 
-/* ===========================
-   TOOLBAR
-=========================== */
+
 
 .table-toolbar {
   background: var(--card-bg);
@@ -125,9 +121,7 @@
   transform: scale(1.1);
 }
 
-/* ===========================
-   TABLE
-=========================== */
+
 
 .patient-table-section {
   background: var(--card-bg);
@@ -173,9 +167,7 @@
   background-color: #F8F8F5;
 }
 
-/* ===========================
-   EMPTY STATE
-=========================== */
+
 
 .empty-state {
   text-align: center;
@@ -214,9 +206,7 @@
   font-weight: 600;
 }
 
-/* ===========================
-   FOOTER
-=========================== */
+
 
 .table-footer {
   background: var(--card-bg);
@@ -256,9 +246,7 @@
   transform: scale(1.15);
 }
 
-/* ===========================
-   MODAL
-=========================== */
+
 
 .modal-overlay {
   position: fixed;
@@ -320,9 +308,7 @@
   overflow-y: auto;
 }
 
-/* ===========================
-   FORM
-=========================== */
+
 
 .form-grid {
   display: grid;
@@ -417,9 +403,7 @@
   background-color: var(--primary-dark);
 }
 
-/* ===========================
-   ERROR & VALIDATION
-=========================== */
+
 
 .error-msg {
   color: var(--danger-text);
@@ -440,9 +424,7 @@
   cursor: not-allowed;
 }
 
-/* ===========================
-   RESPONSIVE
-=========================== */
+
 
 @media (max-width: 768px) {
   .page-header {

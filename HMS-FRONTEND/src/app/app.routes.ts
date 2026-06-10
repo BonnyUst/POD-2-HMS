@@ -53,7 +53,7 @@ export const routes: Routes = [
         ]
     },
 
-    //receptionist
+   
 
     {
         path:"receptionist", component:DashboardLayout,
@@ -68,7 +68,7 @@ export const routes: Routes = [
         ]
     },
 
-    //doctor
+   
     {
         path:"doctor", component:DashboardLayout,
         canActivate:[authGuard],

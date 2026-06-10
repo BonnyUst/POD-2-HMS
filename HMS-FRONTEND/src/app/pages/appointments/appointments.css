@@ -1,6 +1,4 @@
-/* ===========================
-   APPOINTMENT PAGE
-=========================== */
+
 
 .appointment-page {
   background: var(--page-bg);
@@ -10,9 +8,7 @@
   overflow: hidden;
 }
 
-/* ===========================
-   HEADER
-=========================== */
+
 
 .page-header {
   background: var(--card-bg);
@@ -57,9 +53,7 @@
   background-color: var(--primary-dark);
 }
 
-/* ===========================
-   TOOLBAR
-=========================== */
+
 
 .table-toolbar {
   background: var(--card-bg);
@@ -92,9 +86,7 @@
   border-bottom-color: var(--primary);
 }
 
-/* ===========================
-   TABLE SECTION
-=========================== */
+
 
 .appointment-table-section {
   background: var(--card-bg);
@@ -146,9 +138,7 @@
   background-color: #F8F8F5;
 }
 
-/* ===========================
-   STATUS BADGES
-=========================== */
+
 
 .status-badge {
   display: inline-block;
@@ -174,9 +164,7 @@
   color: var(--danger-text);
 }
 
-/* ===========================
-   EMPTY STATE
-=========================== */
+
 
 .empty-state {
   text-align: center;
@@ -203,9 +191,7 @@
   font-weight: 600;
 }
 
-/* ===========================
-   FOOTER
-=========================== */
+
 
 .table-footer {
   background: var(--card-bg);
@@ -255,9 +241,7 @@
   font-weight: 600;
 }
 
-/* ===========================
-   SCROLLBAR
-=========================== */
+
 
 .appointment-table-section::-webkit-scrollbar {
   width: 6px;
@@ -277,9 +261,7 @@
   background: var(--text-placeholder);
 }
 
-/* ===========================
-   MODAL
-=========================== */
+
 
 .modal-overlay {
   position: fixed;
@@ -343,9 +325,7 @@
   flex: 1;
 }
 
-/* ===========================
-   FORM
-=========================== */
+
 
 .form-grid {
   display: grid;
@@ -455,9 +435,7 @@
   background-color: var(--primary-dark);
 }
 
-/* ===========================
-   VALIDATION / INFO
-=========================== */
+
 
 .error-msg {
   color: var(--danger-text);
@@ -504,9 +482,7 @@
   cursor: not-allowed;
 }
 
-/* ===========================
-   RESPONSIVE
-=========================== */
+
 
 @media (max-width: 768px) {
   .page-header {
@@ -536,4 +512,18 @@
   .form-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.pagination-icon-button {
+  border: none;
+  background: transparent;
+  padding: 4px 8px;
+  cursor: pointer;
+  color: inherit;
+}
+
+.pagination-icon-button:disabled,
+.pagination-icon-button.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }

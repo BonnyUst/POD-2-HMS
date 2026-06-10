@@ -19,8 +19,8 @@ export class ChangePassword {
   errorMessage = '';
 
   constructor(
-    private http: HttpClient,
-    private router: Router
+    readonly http: HttpClient,
+    readonly router: Router
   ) {}
 
   changePassword() {

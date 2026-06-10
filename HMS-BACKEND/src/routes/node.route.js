@@ -11,8 +11,6 @@ const role=req.user.role;
 console.log(role);
 
 
-
-
 //fetch the nodes from the db s
 res.set('Cache-Control', 'no-store');//to not to store on the database 
 const nodes=await Node.find({role:role}).sort({order:1});

@@ -8,10 +8,6 @@ const authMiddleware=(req,res,next)=>
 
         const authHeader=req.headers.authorization;
 
-
-        //check whethe token exists 
-        // !authHeader||
-        // !authHeader.startsWith("Bearer ") for better understanding 
         if(
             !authHeader?.startsWith("Bearer ")
         )

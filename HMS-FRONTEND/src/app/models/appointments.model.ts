@@ -1,4 +1,4 @@
-// appointments.model.ts
+
 
 export interface Appointment {
   _id: string;

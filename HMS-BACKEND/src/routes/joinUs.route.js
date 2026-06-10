@@ -8,9 +8,6 @@ const authMiddleware=require('../middleware/authMiddleware')
 const authRoles=require('../middleware/authRoles')
 
 const permissions = require('../utils/permissions');
-
-// Use your actual validation error middleware if you have one
-// const validateRequest = require('../middlewares/validateRequest.middleware');
 router.post(
     '/check-email',
     joinUsController.checkJoinUsEmail

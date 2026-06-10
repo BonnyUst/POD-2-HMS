@@ -23,9 +23,7 @@ background-color: aliceblue;
 .signup-box form {
     display: flex;
     flex-direction: column;
-    justify-content: center;/*
-    based on the justify content if the height is
-    too high then the effect of this tag will be shown */
+    justify-content: center;
 
     gap:20px;
 }

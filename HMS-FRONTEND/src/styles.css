@@ -1,49 +1,29 @@
-/* Global font and icon imports */
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 @import "bootstrap-icons/font/bootstrap-icons.css";
 
-/* HMS Global Theme Variables */
 :root {
-  /* Font */
   --font-main: 'DM Sans', sans-serif;
-
-  /* Background */
   --page-bg: #F1EFE8;
   --card-bg: #FFFFFF;
-
-  /* Primary Colors */
   --primary: #185FA5;
   --primary-dark: #0C447C;
   --primary-light: #E6F1FB;
-
-  /* Text Colors */
   --text-primary: #2C2C2A;
   --text-secondary: #5F5E5A;
   --text-label: #444441;
   --text-placeholder: #888780;
-
-  /* Border */
   --border-color: #D3D1C7;
-
-  /* Status Colors */
   --success-bg: #EAF3DE;
   --success-text: #27500A;
-
   --danger-bg: #FCEBEB;
   --danger-text: #A32D2D;
-
   --warning-bg: #FAEEDA;
   --warning-text: #854F0B;
-
-  /* Radius */
   --radius-sm: 8px;
   --radius-md: 12px;
-
-  /* Focus */
   --focus-shadow: 0 0 0 3px rgba(24, 95, 165, 0.2);
 }
 
-/* Global Reset */
 * {
   box-sizing: border-box;
   font-family: var(--font-main);

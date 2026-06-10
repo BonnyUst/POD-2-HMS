@@ -25,9 +25,7 @@
     color: var(--text-secondary);
 }
 
-/* ===========================
-   PROFILE WRAPPER
-=========================== */
+
 
 .navbar-profile-wrapper {
     position: relative;
@@ -56,9 +54,7 @@
     color: var(--primary);
 }
 
-/* ===========================
-   DROPDOWN
-=========================== */
+
 
 .navbar-profile-dropdown {
     position: absolute;

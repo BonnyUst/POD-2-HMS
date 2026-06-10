@@ -2,9 +2,7 @@
   display: block;
 }
 
-/* ===========================
-   PAGE
-=========================== */
+
 
 .login-page {
   height: 100vh;
@@ -18,9 +16,7 @@
   overflow: hidden;
 }
 
-/* ===========================
-   CONTAINER
-=========================== */
+
 
 .login-container {
   width: 100%;
@@ -38,9 +34,7 @@
   overflow: hidden;
 }
 
-/* ===========================
-   BRANDING
-=========================== */
+
 
 .login-branding {
   background: var(--card-bg);
@@ -119,9 +113,7 @@
   line-height: 1.6;
 }
 
-/* ===========================
-   PANEL
-=========================== */
+
 
 .login-panel {
   display: flex;
@@ -136,9 +128,7 @@
   max-width: 360px;
 }
 
-/* ===========================
-   HEADER
-=========================== */
+
 
 .login-header {
   margin-bottom: 24px;
@@ -161,9 +151,7 @@
   color: var(--text-secondary);
 }
 
-/* ===========================
-   FORM
-=========================== */
+
 
 .login-form-content {
   display: flex;
@@ -194,9 +182,7 @@
   justify-content: space-between;
 }
 
-/* ===========================
-   INPUTS
-=========================== */
+
 
 .enterprise-input {
   width: 100%;
@@ -234,9 +220,7 @@
   border-color: var(--danger-text);
 }
 
-/* ===========================
-   VALIDATION
-=========================== */
+
 
 .field-error {
   color: var(--danger-text);
@@ -257,9 +241,7 @@
   font-size: 13px;
 }
 
-/* ===========================
-   FORGOT PASSWORD
-=========================== */
+
 
 .forgot-password-link {
   text-decoration: none;
@@ -274,9 +256,7 @@
   text-decoration: underline;
 }
 
-/* ===========================
-   LOGIN BUTTON
-=========================== */
+
 
 .login-button {
   height: 44px;
@@ -308,9 +288,7 @@
   cursor: not-allowed;
 }
 
-/* ===========================
-   FOOTER
-=========================== */
+
 
 .login-footer {
   margin-top: 20px;
@@ -342,9 +320,7 @@
   text-decoration: underline;
 }
 
-/* ===========================
-   RESPONSIVE
-=========================== */
+
 
 @media (max-width: 992px) {
   .login-container {

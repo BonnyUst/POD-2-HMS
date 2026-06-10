@@ -21,7 +21,6 @@ const nodeSchema =new mongoose.Schema({
         type:String,
         required:true
     },
-//the order is given to sort the menu items to be shown dynmaically in the backend 
     order:{
         type:Number,
         default:0

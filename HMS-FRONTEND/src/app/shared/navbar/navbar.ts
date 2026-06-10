@@ -33,13 +33,13 @@ export class Navbar {
     localStorage.removeItem('role');
     localStorage.removeItem('email');
 
-    // Or clear everything at once
+   
     localStorage.clear();
 
-    // Clear sessionStorage
+   
     sessionStorage.clear();
 
-    // Clear any cookies (optional)
+   
     document.cookie.split(";").forEach((c) => {
       document.cookie = c
         .replace(/^ +/, "")

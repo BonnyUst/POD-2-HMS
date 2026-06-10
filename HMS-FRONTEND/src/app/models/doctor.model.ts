@@ -1,4 +1,4 @@
-// GET response - from getAllDoctors
+
 export interface Doctor {
   doctorId: string;
   employeeId: string;
@@ -21,8 +21,7 @@ export interface Doctor {
   status: string;
   isVerified: boolean;
 }
-
-// POST request - for createDoctorByAdmin
+
 export interface CreateDoctorPayload {
   firstName: string;
   lastName: string;

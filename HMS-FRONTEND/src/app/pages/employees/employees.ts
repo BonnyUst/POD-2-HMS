@@ -23,7 +23,7 @@ export class Employees implements OnInit {
   selectedEmployee: Employee | null = null;
   loggedInUserId: string | null = null;
 
-  // Reactive Form
+ 
   employeeForm = new FormGroup({
     firstName: new FormControl('', [
       Validators.required,
@@ -96,9 +96,9 @@ export class Employees implements OnInit {
       this.filteredEmployees.length
     );
   }
-  // ========================
-  // GET ALL EMPLOYEES
-  // ========================
+ 
+ 
+ 
 
   getEmployees() {
     this.employeeService.getAllEmployees()
@@ -127,9 +127,9 @@ export class Employees implements OnInit {
     }
   }
 
-  // ========================
-  // FILTER / SEARCH
-  // ========================
+ 
+ 
+ 
 
   filterEmployees() {
     const search = this.searchText.toLowerCase().trim();
@@ -152,9 +152,9 @@ export class Employees implements OnInit {
     this.currentPage = 1;
   }
 
-  // ========================
-  // MODAL CONTROLS
-  // ========================
+ 
+ 
+ 
   openAddEmployeeModal() {
     this.isEditMode = false;
     this.selectedEmployee = null;
@@ -212,9 +212,9 @@ export class Employees implements OnInit {
     this.employeeForm.get('password')?.updateValueAndValidity();
   }
 
-  // ========================
-  // SAVE EMPLOYEE
-  // ========================
+ 
+ 
+ 
 
  saveEmployee() {
   if (this.employeeForm.invalid) {

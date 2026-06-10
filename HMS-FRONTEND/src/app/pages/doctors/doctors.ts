@@ -47,7 +47,7 @@ export class Doctors implements OnInit {
     '08:00 PM'
   ];
 
-  // Reactive Form
+ 
   doctorForm = new FormGroup({
     firstName: new FormControl('', [
       Validators.required,
@@ -118,9 +118,9 @@ export class Doctors implements OnInit {
     this.getDoctors();
   }
 
-  // ========================
-  // AVAILABILITY TIME VALIDATOR
-  // ========================
+ 
+ 
+ 
 
   availabilityTimeValidator(group: AbstractControl): ValidationErrors | null {
     const startTime = group.get('availabilityStartTime')?.value;
@@ -145,7 +145,7 @@ export class Doctors implements OnInit {
       return { invalidAvailability: true };
     }
 
-    // Minimum 1 hour difference
+   
     if (end - start < 60) {
       return { minAvailability: true };
     }
@@ -153,9 +153,9 @@ export class Doctors implements OnInit {
     return null;
   }
 
-  // ========================
-  // GET ALL DOCTORS
-  // ========================
+ 
+ 
+ 
 
   getDoctors() {
     this.doctorService.getAllDoctors()
@@ -209,9 +209,9 @@ export class Doctors implements OnInit {
       this.currentPage++;
     }
   }
-  // ========================
-  // FILTER / SEARCH
-  // ========================
+ 
+ 
+ 
 
   filterDoctors() {
     const search = this.searchText.toLowerCase().trim();
@@ -235,9 +235,9 @@ export class Doctors implements OnInit {
     this.currentPage = 1;
   }
 
-  // ========================
-  // MODAL CONTROLS
-  // ========================
+ 
+ 
+ 
 
   openAddDoctorModal() {
     this.isEditMode = false;
@@ -296,9 +296,9 @@ export class Doctors implements OnInit {
     this.doctorForm.get('password')?.updateValueAndValidity();
   }
 
-  // ========================
-  // SAVE DOCTOR
-  // ========================
+ 
+ 
+ 
 
   saveDoctor() {
     if (this.doctorForm.invalid) {

@@ -1,5 +1,3 @@
-// auth route
-
 const express = require('express');
 
 const router = express.Router();
@@ -31,5 +29,3 @@ router.get('/verify-email/:token',
      authController.verifyEmail);
 
 module.exports = router;
-
-//auth.route

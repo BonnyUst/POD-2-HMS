@@ -30,13 +30,13 @@ export class Appointments implements OnInit {
 
   todayDate = new Date().toISOString().split('T')[0];
 
-  // Slot data from backend
+ 
   availableSlots: string[] = [];
   loadingSlots = false;
   doctorAvailability = '';
   bookedCount = 0;
 
-  // Reactive Form
+ 
   appointmentForm = new FormGroup({
     patientId: new FormControl('', [
       Validators.required
@@ -79,9 +79,9 @@ export class Appointments implements OnInit {
     return this.userRole !== 'Doctor';
   }
 
-  // ========================
-  // CUSTOM VALIDATOR
-  // ========================
+ 
+ 
+ 
 
   futureDateValidator(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
@@ -95,9 +95,9 @@ export class Appointments implements OnInit {
     return selectedDate < today ? { pastDate: true } : null;
   }
 
-  // ========================
-  // WATCH DOCTOR + DATE CHANGES
-  // ========================
+ 
+ 
+ 
 
   setupSlotWatcher() {
     this.appointmentForm.get('doctorId')?.valueChanges.subscribe(() => {
@@ -109,15 +109,15 @@ export class Appointments implements OnInit {
     });
   }
 
-  // ========================
-  // FETCH AVAILABLE SLOTS FROM BACKEND
-  // ========================
+ 
+ 
+ 
 
   fetchAvailableSlots() {
     const doctorId = this.appointmentForm.get('doctorId')?.value;
     const appointmentDate = this.appointmentForm.get('appointmentDate')?.value;
 
-    // Reset time slot
+   
     this.appointmentForm.get('timeSlot')?.setValue('');
 
     if (doctorId && appointmentDate) {
@@ -162,9 +162,9 @@ export class Appointments implements OnInit {
     }
   }
 
-  // ========================
-  // GET LOGGED-IN DOCTOR APPOINTMENTS
-  // ========================
+ 
+ 
+ 
 
   getMyAppointments() {
     this.appointmentService.getMyAppointments()
@@ -182,9 +182,9 @@ export class Appointments implements OnInit {
   }
 
 
-  // ========================
-  // GET ALL APPOINTMENTS
-  // ========================
+ 
+ 
+ 
 
   getAppointments() {
     this.appointmentService.getAppointments()
@@ -201,9 +201,9 @@ export class Appointments implements OnInit {
       });
   }
 
-  // ========================
-  // GET PATIENTS
-  // ========================
+ 
+ 
+ 
 
   getPatients() {
     this.appointmentService.getPatients()
@@ -218,9 +218,9 @@ export class Appointments implements OnInit {
       });
   }
 
-  // ========================
-  // GET DOCTORS
-  // ========================
+ 
+ 
+ 
 
   getDoctors() {
     this.appointmentService.getDoctors()
@@ -262,9 +262,9 @@ export class Appointments implements OnInit {
     );
   }
 
-  // ========================
-  // FILTER / SEARCH
-  // ========================
+ 
+ 
+ 
 
   filterAppointments() {
     const search = this.searchText.toLowerCase().trim();
@@ -291,9 +291,9 @@ export class Appointments implements OnInit {
     this.currentPage = 1;
   }
 
-  // ========================
-  // MODAL CONTROLS
-  // ========================
+ 
+ 
+ 
 
   openAddAppointmentModal() {
     this.appointmentForm.reset();
@@ -311,9 +311,9 @@ export class Appointments implements OnInit {
     this.doctorAvailability = '';
   }
 
-  // ========================
-  // SAVE APPOINTMENT
-  // ========================
+ 
+ 
+ 
 
   saveAppointment() {
     if (this.appointmentForm.invalid) {
