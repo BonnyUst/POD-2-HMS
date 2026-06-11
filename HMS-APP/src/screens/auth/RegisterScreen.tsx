@@ -13,6 +13,8 @@ import { router } from 'expo-router';
 import AppInput from '@/components/common/AppInput';
 import PrimaryButton from '@/components/common/PrimaryButton';
 import { registerStyles as styles } from '@/styles/auth/register.style';
+import { registerPatient } from '@/services/register.service';
+import { RegisterPatientPayload } from '@/types/register.types';
 
 import {
   validateRegisterEmail,
@@ -181,56 +183,69 @@ export default function RegisterScreen() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleRegister = () => {
-    setTouched({
-      firstName: true,
-      lastName: true,
-      email: true,
-      password: true,
-      confirmPassword: true,
-      phone: true,
-      gender: true,
-      dob: true,
-      bloodGroup: true,
-      city: true,
-      stateName: true,
-      pincode: true,
-      emergencyContactName: true,
-      emergencyContactPhone: true,
-    });
+  
+const handleRegister = async () => {
+  setTouched({
+    firstName: true,
+    lastName: true,
+    email: true,
+    password: true,
+    confirmPassword: true,
+    phone: true,
+    gender: true,
+    dob: true,
+    bloodGroup: true,
+    city: true,
+    stateName: true,
+    pincode: true,
+    emergencyContactName: true,
+    emergencyContactPhone: true,
+  });
 
-    if (!validateForm()) {
-      return;
-    }
+  if (!validateForm()) {
+    return;
+  }
 
-    const registerData = {
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      email: email.trim().toLowerCase(),
-      password,
-      phone: phone.trim(),
-      gender: gender.trim().toUpperCase(),
-      dob: dob.trim(),
-      bloodGroup: bloodGroup.trim().toUpperCase(),
+  const registerData: RegisterPatientPayload = {
+    firstName: firstName.trim(),
+    lastName: lastName.trim(),
+    email: email.trim().toLowerCase(),
+    password,
+    phone: phone.trim(),
+    gender: gender.trim().toUpperCase(),
+    dob: dob.trim(),
+    bloodGroup: bloodGroup.trim().toUpperCase(),
+    address: {
       city: city.trim(),
       state: stateName.trim(),
       pincode: pincode.trim(),
-      emergencyContactName: emergencyContactName.trim(),
-      emergencyContactPhone: emergencyContactPhone.trim(),
-    };
+    },
+    emergencyContactName: emergencyContactName.trim(),
+    emergencyContactPhone: emergencyContactPhone.trim(),
+  };
 
+  try {
     setLoading(true);
 
-    console.log('Patient register data:', registerData);
+    await registerPatient(registerData);
 
-    setTimeout(() => {
-      setLoading(false);
-      Alert.alert(
-        'Register UI Ready',
-        'Backend patient registration integration will be added next.'
-      );
-    }, 800);
-  };
+    Alert.alert('Success', 'Patient registered successfully', [
+      {
+        text: 'OK',
+        onPress: () => router.back(),
+      },
+    ]);
+  } catch (error: any) {
+    console.log('Patient register error:', error?.response?.data || error);
+
+    Alert.alert(
+      'Registration Failed',
+      error?.response?.data?.message || 'Unable to register patient'
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <KeyboardAvoidingView
