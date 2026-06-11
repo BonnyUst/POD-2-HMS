@@ -108,6 +108,7 @@ exports.registerPatient = async (body) => {
     isVerified: true,//will later implement the email verification
     status: "ACTIVE",
     mustChangePassword:true
+    
   });
 
   if(!user)
