@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { tokenStorage } from '@/utils/storage/tokenStorage';
+import { tokenStorage } from '@/storage/tokenStorage';
 
 const BASE_URL = 'http://localhost:5000/api';
 

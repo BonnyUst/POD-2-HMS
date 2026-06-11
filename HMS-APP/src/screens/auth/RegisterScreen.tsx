@@ -24,7 +24,7 @@ import {
   validateDateOfBirth,
   validateGender,
   validatePincode,
-} from '@/utils/validations/register.validation';
+} from '@/validations/register.validation';
 
 export default function RegisterScreen() {
   const [firstName, setFirstName] = useState('');

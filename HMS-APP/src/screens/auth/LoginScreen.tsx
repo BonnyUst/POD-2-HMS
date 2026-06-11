@@ -16,7 +16,7 @@ import PrimaryButton from '@/components/common/PrimaryButton';
 import { loginStyles as styles } from '@/styles/auth/login.style';
 
 
-import { validateLoginEmail,validateLoginPassword,validateEmailFormat } from '@/utils/validations/auth.validation';
+import { validateLoginEmail,validateLoginPassword,validateEmailFormat } from '@/validations/auth.validation';
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -29,12 +29,13 @@ export default function LoginScreen() {
 
   const validateForm = () => {
   const emailValidationError = validateLoginEmail(email);
+  const emailValidationFormat=validateLoginEmail(email);
   const passwordValidationError = validateLoginPassword(password);
 
   setEmailError(emailValidationError);
   setPasswordError(passwordValidationError);
 
-  return !emailValidationError && !passwordValidationError;
+  return !emailValidationError && !emailValidationFormat && !passwordValidationError ;
 };
 
   const handleLogin = async () => {

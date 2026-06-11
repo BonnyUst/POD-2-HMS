@@ -4,7 +4,7 @@ import { Appointment } from '../../../types/appointment.types';
 import { styles } from '../../../styles/patient/appointments/appointmentCard.style';
 
 type Props = {
-  appointment: Appointment;
+  readonly appointment: Appointment;
 };
 
 export default function AppointmentCard({ appointment }: Props) {

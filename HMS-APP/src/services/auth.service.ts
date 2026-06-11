@@ -1,5 +1,5 @@
 import apiClient from '../config/appClient'
-import { tokenStorage } from '../utils/storage/tokenStorage';
+import { tokenStorage } from '../storage/tokenStorage';
 
 export const login = async (email: string, password: string) => {
   const response = await apiClient.post('/auth/login', {
