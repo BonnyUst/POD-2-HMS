@@ -31,4 +31,10 @@ router.get("/profile",
     authMiddleware,
     patientController.getPatientProfile);
 
+router.put(
+    '/profile',
+    authMiddleware,
+    patientController.updatePatientProfile
+);
+
 module.exports = router;

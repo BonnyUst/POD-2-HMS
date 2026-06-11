@@ -115,4 +115,93 @@ export const profileStyles = StyleSheet.create({
     fontWeight: '700',
     fontSize: 15,
   },
+
+  nameEditRow: {
+  flexDirection: 'row',
+  gap: 10,
+  marginTop: 12,
+  paddingHorizontal: 16,
+},
+
+nameInput: {
+  flex: 1,
+  backgroundColor: '#FFFFFF',
+  borderWidth: 1,
+  borderColor: '#D3D1C7',
+  borderRadius: 10,
+  paddingHorizontal: 12,
+  paddingVertical: 10,
+  fontSize: 14,
+  color: '#2C2C2A',
+},
+
+editRow: {
+  marginBottom: 14,
+},
+
+editLabel: {
+  fontSize: 13,
+  fontWeight: '600',
+  color: '#5F5E5A',
+  marginBottom: 6,
+},
+
+editInput: {
+  borderWidth: 1,
+  borderColor: '#D3D1C7',
+  borderRadius: 10,
+  paddingHorizontal: 12,
+  paddingVertical: 10,
+  fontSize: 14,
+  color: '#2C2C2A',
+  backgroundColor: '#FFFFFF',
+},
+
+editActionRow: {
+  flexDirection: 'row',
+  gap: 12,
+  marginTop: 10,
+  marginBottom: 12,
+},
+
+cancelEditButton: {
+  flex: 1,
+  borderWidth: 1,
+  borderColor: '#D3D1C7',
+  paddingVertical: 13,
+  borderRadius: 12,
+  alignItems: 'center',
+  backgroundColor: '#FFFFFF',
+},
+
+cancelEditButtonText: {
+  color: '#2C2C2A',
+  fontSize: 14,
+  fontWeight: '700',
+},
+
+saveButton: {
+  flex: 1,
+  backgroundColor: '#185FA5',
+  paddingVertical: 13,
+  borderRadius: 12,
+  alignItems: 'center',
+},
+
+saveButtonText: {
+  color: '#FFFFFF',
+  fontSize: 14,
+  fontWeight: '700',
+},
+
+editInputError: {
+  borderColor: '#A32D2D',
+},
+
+errorText: {
+  color: '#A32D2D',
+  fontSize: 12,
+  marginTop: 4,
+},
 });
+

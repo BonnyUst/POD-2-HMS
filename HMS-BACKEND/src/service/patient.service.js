@@ -167,3 +167,53 @@ exports.getPatientProfile = async (userId) => {
         emergencyContactPhone: patientProfile.emergencyContactPhone
     };
 };
+
+exports.updatePatientProfile = async (userId, updateData) => {
+    const patient = await Patient.findOne({ userId });
+
+    if (!patient) {
+        throw new ApiError(404, 'Patient profile not found');
+    }
+
+    const patientAllowedFields = [
+        'phone',
+        'gender',
+        'dob',
+        'bloodGroup',
+        'address',
+        'emergencyContactName',
+        'emergencyContactPhone'
+    ];
+
+    patientAllowedFields.forEach((field) => {
+        if (updateData[field] !== undefined) {
+            patient[field] = updateData[field];
+        }
+    });
+
+    if (updateData.firstName !== undefined || updateData.lastName !== undefined) {
+        await User.findByIdAndUpdate(userId, {
+            ...(updateData.firstName !== undefined && {
+                firstName: updateData.firstName
+            }),
+            ...(updateData.lastName !== undefined && {
+                lastName: updateData.lastName
+            })
+        });
+    }
+
+    if (updateData.firstName !== undefined) {
+        patient.firstName = updateData.firstName;
+    }
+
+    if (updateData.lastName !== undefined) {
+        patient.lastName = updateData.lastName;
+    }
+
+    await patient.save();
+
+    return await Patient.findById(patient._id).populate(
+        'userId',
+        'firstName lastName email'
+    );
+};
