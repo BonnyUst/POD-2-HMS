@@ -229,6 +229,8 @@ exports.getAllDoctors = async () => {
         availabilityEndTime: doctor.availabilityEndTime,
         experienceYears: doctor.experienceYears,
 
+        joiningDate: doctor.employeeId?.joiningDate,
+
         status: doctor.employeeId?.userId?.status,
         isVerified: doctor.employeeId?.userId?.isVerified
     }));
