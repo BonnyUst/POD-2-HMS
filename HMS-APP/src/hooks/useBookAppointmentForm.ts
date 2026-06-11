@@ -80,9 +80,8 @@ export function useBookAppointmentForm(
 
     // ─── Data loading ─────────────────────────────────────────────────────────
 
-    useEffect(() => { loadInitialData(); }, []);
-
-    useEffect(() => {
+    useEffect(() => { 
+        loadInitialData(); 
         if (selectedDoctorId && appointmentDate) loadAvailableSlots();
         else { setAvailableSlots([]); setTimeSlot(''); }
     }, [selectedDoctorId, appointmentDate]);
