@@ -16,7 +16,7 @@ export class Sidebar implements OnInit {
 
   constructor(readonly http: HttpClient,
     readonly cd:ChangeDetectorRef
-  ) { 
+  ) {}
 
   ngOnInit(): void {
 

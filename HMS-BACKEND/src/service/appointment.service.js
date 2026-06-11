@@ -217,3 +217,34 @@ exports.getAvailableSlots = async (doctorId, appointmentDate) => {
         availableSlots
     };
 };
+
+exports.cancelAppointment = async (appointmentId) => {
+    const appointment = await Appointment.findById(appointmentId);
+
+    if (!appointment) {
+        throw new ApiError(404, 'Appointment not found');
+    }
+
+    if (appointment.status === 'CANCELLED') {
+        throw new ApiError(400, 'Appointment is already cancelled');
+    }
+
+    if (appointment.status === 'COMPLETED') {
+        throw new ApiError(400, 'Completed appointment cannot be cancelled');
+    }
+
+    const appointmentDate = new Date(appointment.appointmentDate);
+    appointmentDate.setHours(0, 0, 0, 0);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (appointmentDate < today) {
+        throw new ApiError(400, 'Past appointments cannot be cancelled');
+    }
+
+    appointment.status = 'CANCELLED';
+    await appointment.save();
+
+    return appointment;
+};

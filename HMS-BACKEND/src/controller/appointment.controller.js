@@ -73,3 +73,19 @@ exports.getMyAppointments = async (req, res, next) => {
         next(error);
     }
 };
+
+exports.cancelAppointment = async (req, res, next) => {
+    try {
+        const appointment = await appointmentService.cancelAppointment(
+            req.params.appointmentId
+        );
+
+        res.status(200).json({
+            success: true,
+            message: 'Appointment cancelled successfully',
+            data: appointment
+        });
+    } catch (error) {
+        next(error);
+    }
+};

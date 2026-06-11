@@ -39,3 +39,13 @@ export const getAvailableSlots = async (
 
     return response.data.data.availableSlots;
 };
+
+export const cancelAppointment = async (
+  appointmentId: string
+): Promise<Appointment> => {
+  const response = await apiClient.put(
+    `/appointments/cancel/${appointmentId}`
+  );
+
+  return response.data.data;
+};

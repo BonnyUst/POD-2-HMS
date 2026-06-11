@@ -1,15 +1,19 @@
 import { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator, Alert } from 'react-native';
 
-import { getMyAppointments } from '../../../services/appointment.service';
-import { Appointment } from '../../../types/appointment.types';
-import AppointmentCard from '../appointments/AppointmentCard'
-import { styles } from '../../../styles/patient/appointments/myAppointmentsList.style'
+import {
+  getMyAppointments,
+  cancelAppointment,
+} from '../../../services/appointment.service';
 
+import { Appointment } from '../../../types/appointment.types';
+import AppointmentCard from '../appointments/AppointmentCard';
+import { styles } from '../../../styles/patient/appointments/myAppointmentsList.style';
 
 export default function MyAppointmentsList() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   useEffect(() => {
     loadAppointments();
@@ -26,6 +30,43 @@ export default function MyAppointmentsList() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCancelAppointment = (appointmentId: string) => {
+    Alert.alert(
+      'Cancel Appointment',
+      'Are you sure you want to cancel this appointment?',
+      [
+        {
+          text: 'No',
+          style: 'cancel',
+        },
+        {
+          text: 'Yes, Cancel',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setCancellingId(appointmentId);
+
+              await cancelAppointment(appointmentId);
+
+              Alert.alert('Success', 'Appointment cancelled successfully');
+
+              await loadAppointments();
+            } catch (error: any) {
+              console.log('Cancel appointment error:', error?.response?.data || error);
+
+              Alert.alert(
+                'Error',
+                error?.response?.data?.message || 'Unable to cancel appointment'
+              );
+            } finally {
+              setCancellingId(null);
+            }
+          },
+        },
+      ]
+    );
   };
 
   if (loading) {
@@ -54,8 +95,10 @@ export default function MyAppointmentsList() {
       ) : (
         appointments.map((appointment) => (
           <AppointmentCard
-           key={appointment._id || appointment.appointmentCode}
+            key={appointment._id || appointment.appointmentCode}
             appointment={appointment}
+            onCancel={handleCancelAppointment}
+            cancelling={cancellingId === appointment._id}
           />
         ))
       )}
