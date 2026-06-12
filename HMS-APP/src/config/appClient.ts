@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { tokenStorage } from '@/storage/tokenStorage';
+import { tokenStorage } from '../storage/tokenStorage';
 
-const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = 'http://10.0.2.2:5000/api';
 
 const apiClient = axios.create({
     baseURL: BASE_URL,
@@ -19,7 +19,6 @@ apiClient.interceptors.request.use(async (config) => {
     }
     return config;
 });
-
 
 
 export default apiClient;
