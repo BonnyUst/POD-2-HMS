@@ -64,6 +64,7 @@ export default function BookAppointmentForm({
                 availableSlots={availableSlots}
                 selectedSlot={timeSlot}
                 loading={slotsLoading}
+                appointmentDate={appointmentDate}
                 onSelectSlot={setTimeSlot}
             />
 

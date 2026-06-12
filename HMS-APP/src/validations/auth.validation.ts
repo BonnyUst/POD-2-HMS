@@ -84,10 +84,18 @@ export const validateLoginEmail = (email: string) => {
 
   const providerName = domainParts[0];
   const extension = domainParts[domainParts.length - 1];
-
-  if (providerName === 'gmail' && domain !== 'gmail.com') {
+ 
+  if (providerName === 'gmail') {
+  if (domain !== 'gmail.com') {
     return 'Please check your email domain. Did you mean gmail.com?';
   }
+ 
+  const gmailRegex = /^(?!\.)(?!.*\.\.)(?!.*\.$)[a-z0-9.]{6,30}$/;
+ 
+  if (!gmailRegex.test(localPart)) {
+    return 'Email is invalid';
+  }
+}
 
   if (providerName === 'yahoo' && domain !== 'yahoo.com') {
     return 'Please check your email domain. Did you mean yahoo.com?';
