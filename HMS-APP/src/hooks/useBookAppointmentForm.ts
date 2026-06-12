@@ -29,10 +29,10 @@ export function useBookAppointmentForm(
     const [submitting, setSubmitting] = useState(false);
 
     // ─── Helpers ─────────────────────────────────────────────────────────────
-   const getDoctorId = (doctor: AppointmentDoctor) => {
-  if (typeof doctor.employeeId === 'string') return doctor.employeeId;
-  return doctor.employeeId?._id || doctor._id || doctor.doctorId || '';
-};
+    const getDoctorId = (doctor: AppointmentDoctor) => {
+        if (typeof doctor.employeeId === 'string') return doctor.employeeId;
+        return doctor.employeeId?._id || doctor._id || doctor.doctorId || '';
+    };
 
     const getDoctorName = (doctor?: AppointmentDoctor) => {
         if (!doctor) return 'Doctor';
@@ -80,7 +80,7 @@ export function useBookAppointmentForm(
 
     // ─── Data loading ─────────────────────────────────────────────────────────
 
-     useEffect(() => {
+    useEffect(() => {
         loadInitialData();
     }, []);
 
@@ -236,7 +236,17 @@ export function useBookAppointmentForm(
             setAvailableSlots([]);
             onAppointmentCreated();
         } catch (error: any) {
-            Alert.alert('Error', error.response?.data?.message || 'Doctor not yet joined');
+            console.log('Create appointment error:', error?.response?.data || error);
+            console.log('FULL ERROR:', error);
+            console.log('ERROR STATUS:', error?.response?.status);
+            console.log('ERROR DATA:', error?.response?.data);
+            console.log('ERROR MESSAGE:', error?.response?.data?.message);
+            const errorMessage =
+                error?.response?.data?.message ||
+                error?.response?.data?.error ||
+                'Unable to book appointment. Please try again.';
+
+            Alert.alert('Booking Failed', errorMessage);
         } finally {
             setSubmitting(false);
         }

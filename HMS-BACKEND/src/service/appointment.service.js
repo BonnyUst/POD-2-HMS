@@ -5,15 +5,15 @@ const ApiError = require('../utils/ApiError');
 const Doctor = require('../models/Doctor.model')
 
 
-    const parseTime = (timeStr) => {
-        const [time, period] = timeStr.split(' ');
-        let [hours, minutes] = time.split(':').map(Number);
+const parseTime = (timeStr) => {
+    const [time, period] = timeStr.split(' ');
+    let [hours, minutes] = time.split(':').map(Number);
 
-        if (period === 'PM' && hours !== 12) hours += 12;
-        if (period === 'AM' && hours === 12) hours = 0;
+    if (period === 'PM' && hours !== 12) hours += 12;
+    if (period === 'AM' && hours === 12) hours = 0;
 
-        return hours * 60 + minutes;
-    };
+    return hours * 60 + minutes;
+};
 
 
 const generateTimeSlots = (startTime, endTime) => {
@@ -129,14 +129,14 @@ exports.createAppointment = async (appointmentData, loggedInUserId, loggedInUser
         );
     }
     if (isToday(appointmentDate)) {
-    const now = new Date();
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
-    const selectedSlotMinutes = parseTime(timeSlot);
+        const now = new Date();
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+        const selectedSlotMinutes = parseTime(timeSlot);
 
-    if (selectedSlotMinutes <= currentMinutes) {
-        throw new ApiError(400, 'Cannot book a past time slot for today');
+        if (selectedSlotMinutes <= currentMinutes) {
+            throw new ApiError(400, 'Cannot book a past time slot for today');
+        }
     }
-}
     const existingAppointment = await Appointment.findOne({
         doctorId: doctor._id,
         appointmentDate,
@@ -148,6 +148,19 @@ exports.createAppointment = async (appointmentData, loggedInUserId, loggedInUser
         throw new ApiError(409, 'Doctor already has an appointment in this time slot');
     }
 
+    const patientExistingAppointment = await Appointment.findOne({
+        patientId: finalPatientId,
+        appointmentDate,
+        timeSlot,
+        status: 'BOOKED'
+    });
+
+    if (patientExistingAppointment) {
+        throw new ApiError(
+            409,
+            'Patient already has an appointment at this time slot'
+        );
+    }
     const appointment = await Appointment.create({
         patientId: finalPatientId,
         doctorId: doctor._id,
