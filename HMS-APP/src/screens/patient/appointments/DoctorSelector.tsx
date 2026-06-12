@@ -83,7 +83,10 @@ export default function DoctorSelector({
             <View style={styles.doctorGrid}>
                 {visibleDoctors.map((doctor) => {
                     const doctorId = getDoctorId(doctor);
-                    const isSelected = selectedDoctorId === doctorId;
+                    const isSelected =
+                        selectedDoctorId === doctorId ||
+                        selectedDoctorId === doctor.doctorId ||
+                        selectedDoctorId === doctor._id;
                     return (
                         <TouchableOpacity
                             key={doctorId}

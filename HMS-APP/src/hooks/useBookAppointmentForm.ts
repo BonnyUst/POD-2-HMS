@@ -12,6 +12,7 @@ import { AppointmentDoctor } from '../types/appointment.types';
 export function useBookAppointmentForm(
     routeDoctorId: string,
     routeDoctorName: string,
+    routeKey: string,
     onAppointmentCreated: () => void
 ) {
     const [patientId, setPatientId] = useState('');
@@ -28,11 +29,10 @@ export function useBookAppointmentForm(
     const [submitting, setSubmitting] = useState(false);
 
     // ─── Helpers ─────────────────────────────────────────────────────────────
-
-    const getDoctorId = (doctor: AppointmentDoctor) => {
-        if (typeof doctor.employeeId === 'string') return doctor.employeeId;
-        return doctor.employeeId?._id || doctor._id || doctor.doctorId || '';
-    };
+   const getDoctorId = (doctor: AppointmentDoctor) => {
+  if (typeof doctor.employeeId === 'string') return doctor.employeeId;
+  return doctor.employeeId?._id || doctor._id || doctor.doctorId || '';
+};
 
     const getDoctorName = (doctor?: AppointmentDoctor) => {
         if (!doctor) return 'Doctor';
@@ -80,10 +80,17 @@ export function useBookAppointmentForm(
 
     // ─── Data loading ─────────────────────────────────────────────────────────
 
-    useEffect(() => { 
-        loadInitialData(); 
-        if (selectedDoctorId && appointmentDate) loadAvailableSlots();
-        else { setAvailableSlots([]); setTimeSlot(''); }
+     useEffect(() => {
+        loadInitialData();
+    }, []);
+
+    useEffect(() => {
+        if (selectedDoctorId && appointmentDate) {
+            loadAvailableSlots();
+        } else {
+            setAvailableSlots([]);
+            setTimeSlot('');
+        }
     }, [selectedDoctorId, appointmentDate]);
 
     const loadInitialData = async () => {
@@ -96,12 +103,32 @@ export function useBookAppointmentForm(
 
             setPatientId(profileData?.patientId || '');
             setDoctors(doctorsData || []);
+            console.log('Route doctor id received in hook:', routeDoctorId);
+            console.log(
+                'Doctor ids from API:',
+                doctorsData.map((d) => ({
+                    _id: d._id,
+                    doctorId: d.doctorId,
+                    employeeId:
+                        typeof d.employeeId === 'string'
+                            ? d.employeeId
+                            : d.employeeId?._id,
+                    getDoctorId: getDoctorId(d),
+                    name: getDoctorName(d),
+                }))
+            );
 
             if (routeDoctorId && doctorsData?.length) {
                 const match = doctorsData.find(
                     (d) => d._id === routeDoctorId || d.doctorId === routeDoctorId
                 );
+
+                console.log('PREFILL MATCH:', match ? getDoctorName(match) : 'NO MATCH');
+
                 if (match) {
+                    console.log('Setting selectedDoctorId:', getDoctorId(match));
+                    console.log('Setting selectedDoctorName:', getDoctorName(match));
+
                     setSelectedDoctorId(getDoctorId(match));
                     setSelectedDoctorName(getDoctorName(match));
                 } else {
@@ -116,7 +143,42 @@ export function useBookAppointmentForm(
             setLoadingDoctors(false);
         }
     };
+    useEffect(() => {
+        if (!doctors.length) return;
 
+        if (!routeDoctorId) {
+            setSelectedDoctorId('');
+            setSelectedDoctorName('');
+            setAppointmentDate('');
+            setSelectedDateObject(new Date());
+            setAvailableSlots([]);
+            setTimeSlot('');
+            return;
+        }
+
+        const match = doctors.find((d) => {
+            const employeeId =
+                typeof d.employeeId === 'string'
+                    ? d.employeeId
+                    : d.employeeId?._id;
+
+            return (
+                d._id === routeDoctorId ||
+                d.doctorId === routeDoctorId ||
+                employeeId === routeDoctorId ||
+                getDoctorId(d) === routeDoctorId
+            );
+        });
+
+        if (match) {
+            setSelectedDoctorId(getDoctorId(match));
+            setSelectedDoctorName(getDoctorName(match));
+            setAppointmentDate('');
+            setSelectedDateObject(new Date());
+            setAvailableSlots([]);
+            setTimeSlot('');
+        }
+    }, [routeDoctorId, routeDoctorName, routeKey, doctors]);
     const loadAvailableSlots = async () => {
         try {
             setSlotsLoading(true);
