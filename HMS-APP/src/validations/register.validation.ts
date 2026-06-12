@@ -8,6 +8,20 @@ export const validateRequiredField = (value: string, fieldName: string) => {
   return '';
 };
 
+export const validateNameField = (value: string, fieldName: string) => {
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return `${fieldName} is required`;
+  }
+
+  if (!/^[A-Za-z\s'-]+$/.test(trimmed)) {
+    return `${fieldName} must contain letters only`;
+  }
+
+  return '';
+};
+
 export const validateRegisterEmail = (email: string) => {
   return validateLoginEmail(email);
 };
