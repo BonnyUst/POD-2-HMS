@@ -121,9 +121,7 @@ export default function LoginScreen() {
               }
             />
 
-            <TouchableOpacity style={styles.forgotContainer}>
-              <Text style={styles.forgotText}>Forgot Password?</Text>
-            </TouchableOpacity>
+         
 
             <PrimaryButton
               title="Login"
