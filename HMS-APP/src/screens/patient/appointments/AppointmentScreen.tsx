@@ -51,7 +51,6 @@ console.log('doctorIdParam:', doctorIdParam);
 
 <View style={{ backgroundColor: '#FFF3CD', padding: 10, marginTop: 10 }}>
   <Text>DEBUG VIEW: {viewParam}</Text>
-  <Text>DEBUG DOCTOR ID: {doctorIdParam}</Text>
   <Text>ACTIVE TAB: {activeTab}</Text>
 </View>
       <View style={styles.segmentContainer}>
