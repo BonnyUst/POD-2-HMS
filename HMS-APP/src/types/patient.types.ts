@@ -16,22 +16,8 @@ export interface PatientProfile {
     state?: string;
     pincode?: string;
   };
-}
-
-export interface PatientProfileFormData {
-  firstName: string;
-  lastName: string;
-  phone: string;
-  gender: string;
-  dob: string;
-  bloodGroup: string;
-  address: {
-    city: string;
-    state: string;
-    pincode: string;
-  };
-  emergencyContactName: string;
-  emergencyContactPhone: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
 }
 
 export interface PatientProfileFormData {

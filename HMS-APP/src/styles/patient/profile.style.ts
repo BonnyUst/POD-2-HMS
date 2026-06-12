@@ -43,12 +43,31 @@ export const profileStyles = StyleSheet.create({
     marginTop: 4,
   },
 
+  nameEditRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 12,
+    paddingHorizontal: 16,
+    width: '100%',
+  },
+
+  nameInput: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: '#0F172A',
+  },
+
   card: {
     backgroundColor: '#FFFFFF',
     margin: 12,
     borderRadius: 22,
     padding: 20,
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOpacity: 0.12,
     shadowRadius: 16,
     shadowOffset: {
@@ -70,7 +89,7 @@ export const profileStyles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#F4F7FB',
+    borderBottomColor: '#F1F5F9',
   },
 
   infoLabel: {
@@ -87,10 +106,46 @@ export const profileStyles = StyleSheet.create({
     fontWeight: '500',
   },
 
+  editRow: {
+    marginVertical: 6,
+  },
+
+  editLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#64748B',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+
+  editInput: {
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 15,
+    color: '#0F172A',
+    backgroundColor: '#F8FAFC',
+  },
+
+  editInputError: {
+    borderColor: '#EF4444',
+  },
+
+  errorText: {
+    fontSize: 12,
+    color: '#EF4444',
+    marginTop: 4,
+  },
+
   editButton: {
-    margin: 12,
+    marginHorizontal: 12,
+    marginTop: 10,
+    marginBottom: 12,
     backgroundColor: '#0F172A',
-    padding: 16,
+    paddingVertical: 16,
     borderRadius: 22,
     alignItems: 'center',
   },
@@ -101,11 +156,51 @@ export const profileStyles = StyleSheet.create({
     fontSize: 15,
   },
 
+  editActionRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginHorizontal: 12,
+    marginTop: 10,
+    marginBottom: 12,
+  },
+
+  cancelEditButton: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    paddingVertical: 13,
+    borderRadius: 12,
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+
+  cancelEditButtonText: {
+    color: '#0F172A',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+
+  saveButton: {
+    flex: 1,
+    backgroundColor: '#185FA5',
+    paddingVertical: 13,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  saveButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+
   logoutButton: {
-    margin: 12,
+    marginHorizontal: 12,
     marginTop: 0,
+    marginBottom: 24,
     backgroundColor: '#FEE2E2',
-    padding: 16,
+    paddingVertical: 16,
     borderRadius: 22,
     alignItems: 'center',
   },
@@ -116,92 +211,132 @@ export const profileStyles = StyleSheet.create({
     fontSize: 15,
   },
 
-  nameEditRow: {
-  flexDirection: 'row',
-  gap: 10,
-  marginTop: 12,
-  paddingHorizontal: 16,
-},
+  dropdownButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: '#F8FAFC',
+    minHeight: 44,
+  },
 
-nameInput: {
-  flex: 1,
-  backgroundColor: '#FFFFFF',
-  borderWidth: 1,
-  borderColor: '#D3D1C7',
-  borderRadius: 10,
-  paddingHorizontal: 12,
-  paddingVertical: 10,
-  fontSize: 14,
-  color: '#2C2C2A',
-},
+  dropdownButtonError: {
+    borderColor: '#EF4444',
+  },
 
-editRow: {
-  marginBottom: 14,
-},
+  dropdownValueText: {
+    flex: 1,
+    fontSize: 15,
+    color: '#0F172A',
+  },
 
-editLabel: {
-  fontSize: 13,
-  fontWeight: '600',
-  color: '#5F5E5A',
-  marginBottom: 6,
-},
+  dropdownPlaceholderText: {
+    flex: 1,
+    fontSize: 15,
+    color: '#94A3B8',
+  },
 
-editInput: {
-  borderWidth: 1,
-  borderColor: '#D3D1C7',
-  borderRadius: 10,
-  paddingHorizontal: 12,
-  paddingVertical: 10,
-  fontSize: 14,
-  color: '#2C2C2A',
-  backgroundColor: '#FFFFFF',
-},
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    justifyContent: 'flex-end',
+  },
 
-editActionRow: {
-  flexDirection: 'row',
-  gap: 12,
-  marginTop: 10,
-  marginBottom: 12,
-},
+  sheet: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '70%',
+    paddingBottom: 24,
+  },
 
-cancelEditButton: {
-  flex: 1,
-  borderWidth: 1,
-  borderColor: '#D3D1C7',
-  paddingVertical: 13,
-  borderRadius: 12,
-  alignItems: 'center',
-  backgroundColor: '#FFFFFF',
-},
+  datePickerSheet: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: 24,
+  },
 
-cancelEditButtonText: {
-  color: '#2C2C2A',
-  fontSize: 14,
-  fontWeight: '700',
-},
+  sheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
 
-saveButton: {
-  flex: 1,
-  backgroundColor: '#185FA5',
-  paddingVertical: 13,
-  borderRadius: 12,
-  alignItems: 'center',
-},
+  sheetTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
 
-saveButtonText: {
-  color: '#FFFFFF',
-  fontSize: 14,
-  fontWeight: '700',
-},
+  // Used for the iOS date picker modal "Done" button
+  sheetDoneText: {
+    color: '#2563EB',
+    fontWeight: '600',
+    fontSize: 15,
+  },
 
-editInputError: {
-  borderColor: '#A32D2D',
-},
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginTop: 12,
+    marginBottom: 4,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    backgroundColor: '#F8FAFC',
+  },
 
-errorText: {
-  color: '#A32D2D',
-  fontSize: 12,
-  marginTop: 4,
-},
+  searchInput: {
+    flex: 1,
+    paddingVertical: 8,
+    fontSize: 14,
+    color: '#0F172A',
+  },
+
+  optionList: {
+    paddingHorizontal: 8,
+    marginTop: 4,
+  },
+
+  optionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 13,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginVertical: 1,
+  },
+
+  optionItemSelected: {
+    backgroundColor: '#EFF6FF',
+  },
+
+  optionText: {
+    fontSize: 15,
+    color: '#334155',
+  },
+
+  optionTextSelected: {
+    color: '#2563EB',
+    fontWeight: '600',
+  },
+
+  emptyText: {
+    textAlign: 'center',
+    color: '#94A3B8',
+    fontSize: 14,
+    paddingVertical: 24,
+  },
 });
-
