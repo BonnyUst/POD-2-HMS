@@ -88,23 +88,39 @@ export default function HomeScreen() {
       return matchesSpecialization && matchesSearch;
     });
   }, [doctors, selectedSpecialization, searchText]);
-
-  const handleBookAppointment = (doctor?: Doctor) => {
+  const handleBookAppointment = () => {
     router.push({
       pathname: '/(tabs)/appointments',
-      params: doctor
-        ? {
-            doctorId: doctor.doctorId || doctor._id,
-            doctorName: getDoctorName(doctor),
-            specialization: doctor.specialization,
-          }
-        : {},
+      params: {
+        view: 'book',
+        screenKey: Date.now().toString(),
+      },
     });
   };
 
-  const patientName = `${profile?.firstName || ''} ${
-    profile?.lastName || ''
-  }`.trim();
+  const handleMyAppointments = () => {
+    router.push({
+      pathname: '/(tabs)/appointments',
+      params: {
+        view: 'my',
+        screenKey: Date.now().toString(),
+      },
+    });
+  };
+
+  const handleDoctorBookAppointment = (doctor: Doctor) => {
+    router.push({
+      pathname: '/(tabs)/appointments',
+      params: {
+        view: 'book',
+        doctorId: doctor._id || doctor.doctorId,
+        screenKey: Date.now().toString(),
+      },
+    });
+  };
+
+  const patientName = `${profile?.firstName || ''} ${profile?.lastName || ''
+    }`.trim();
 
   const patientUHID = profile?.UHID || profile?.uhid || 'Not available';
 
@@ -150,7 +166,7 @@ export default function HomeScreen() {
       <View style={styles.quickActionRow}>
         <TouchableOpacity
           style={styles.quickActionCard}
-          onPress={() => handleBookAppointment()}
+          onPress={handleBookAppointment}
         >
           <Text style={styles.quickActionIcon}>＋</Text>
           <Text style={styles.quickActionTitle}>Book</Text>
@@ -159,7 +175,7 @@ export default function HomeScreen() {
 
         <TouchableOpacity
           style={styles.quickActionCard}
-          onPress={() => router.push('/(tabs)/appointments')}
+          onPress={handleMyAppointments}
         >
           <Text style={styles.quickActionIcon}>📋</Text>
           <Text style={styles.quickActionTitle}>My</Text>
@@ -270,7 +286,7 @@ export default function HomeScreen() {
 
               <TouchableOpacity
                 style={styles.bookButton}
-                onPress={() => handleBookAppointment(doctor)}
+                onPress={() => handleDoctorBookAppointment(doctor)}
               >
                 <Text style={styles.bookButtonText}>Book Appointment</Text>
               </TouchableOpacity>

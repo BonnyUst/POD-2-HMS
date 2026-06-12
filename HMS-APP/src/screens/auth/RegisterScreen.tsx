@@ -268,7 +268,27 @@ export default function RegisterScreen() {
     if (!validateForm()) {
       return;
     }
+    if (!validateForm()) {
+      return;
+    }
 
+    const registerData: RegisterPatientPayload = {
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: email.trim().toLowerCase(),
+      password,
+      phone: phone.trim(),
+      gender: gender.trim().toUpperCase(),
+      dob: dob.trim(),
+      bloodGroup: bloodGroup.trim().toUpperCase(),
+      address: {
+        city: city.trim(),
+        state: stateName.trim(),
+        pincode: pincode.trim(),
+      },
+      emergencyContactName: emergencyContactName.trim(),
+      emergencyContactPhone: emergencyContactPhone.trim(),
+    };
     const registerData: RegisterPatientPayload = {
       firstName: firstName.trim(),
       lastName: lastName.trim(),
@@ -289,7 +309,10 @@ export default function RegisterScreen() {
 
     try {
       setLoading(true);
+    try {
+      setLoading(true);
 
+      await registerPatient(registerData);
       await registerPatient(registerData);
 
       Alert.alert("Success", "Patient registered successfully", [

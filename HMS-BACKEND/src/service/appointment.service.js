@@ -3,18 +3,22 @@ const Patient = require('../models/Patient.model');
 const Employee = require('../models/Employee.model');
 const ApiError = require('../utils/ApiError');
 const Doctor = require('../models/Doctor.model')
+
+
+const parseTime = (timeStr) => {
+    const [time, period] = timeStr.split(' ');
+    let [hours, minutes] = time.split(':').map(Number);
+
+    if (period === 'PM' && hours !== 12) hours += 12;
+    if (period === 'AM' && hours === 12) hours = 0;
+
+    return hours * 60 + minutes;
+};
+
+
 const generateTimeSlots = (startTime, endTime) => {
     const slots = [];
 
-    const parseTime = (timeStr) => {
-        const [time, period] = timeStr.split(' ');
-        let [hours, minutes] = time.split(':').map(Number);
-
-        if (period === 'PM' && hours !== 12) hours += 12;
-        if (period === 'AM' && hours === 12) hours = 0;
-
-        return hours * 60 + minutes;
-    };
 
     const formatTime = (totalMinutes) => {
         let hours = Math.floor(totalMinutes / 60);
@@ -38,6 +42,30 @@ const generateTimeSlots = (startTime, endTime) => {
     }
 
     return slots;
+};
+
+const isToday = (appointmentDate) => {
+    const today = new Date();
+    const selectedDate = new Date(appointmentDate);
+
+    today.setHours(0, 0, 0, 0);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    return today.getTime() === selectedDate.getTime();
+};
+
+const removePastSlotsForToday = (slots, appointmentDate) => {
+    if (!isToday(appointmentDate)) {
+        return slots;
+    }
+
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    return slots.filter((slot) => {
+        const slotMinutes = parseTime(slot);
+        return slotMinutes > currentMinutes;
+    });
 };
 
 
@@ -100,6 +128,15 @@ exports.createAppointment = async (appointmentData, loggedInUserId, loggedInUser
             `Doctor is only available from ${doctor.availabilityStartTime} to ${doctor.availabilityEndTime}`
         );
     }
+    if (isToday(appointmentDate)) {
+        const now = new Date();
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+        const selectedSlotMinutes = parseTime(timeSlot);
+
+        if (selectedSlotMinutes <= currentMinutes) {
+            throw new ApiError(400, 'Cannot book a past time slot for today');
+        }
+    }
     const existingAppointment = await Appointment.findOne({
         doctorId: doctor._id,
         appointmentDate,
@@ -111,6 +148,19 @@ exports.createAppointment = async (appointmentData, loggedInUserId, loggedInUser
         throw new ApiError(409, 'Doctor already has an appointment in this time slot');
     }
 
+    const patientExistingAppointment = await Appointment.findOne({
+        patientId: finalPatientId,
+        appointmentDate,
+        timeSlot,
+        status: 'BOOKED'
+    });
+
+    if (patientExistingAppointment) {
+        throw new ApiError(
+            409,
+            'Patient already has an appointment at this time slot'
+        );
+    }
     const appointment = await Appointment.create({
         patientId: finalPatientId,
         doctorId: doctor._id,
@@ -196,10 +246,11 @@ exports.getAvailableSlots = async (doctorId, appointmentDate) => {
     const doctor = await Doctor.findOne({ employeeId: doctorId });
     if (!doctor) throw new ApiError(404, 'Doctor not found');
 
-    const allSlots = generateTimeSlots(
+    let allSlots = generateTimeSlots(
         doctor.availabilityStartTime,
         doctor.availabilityEndTime
     );
+    allSlots = removePastSlotsForToday(allSlots, appointmentDate);
     const bookedAppointments = await Appointment.find({
         doctorId: doctor._id,
         appointmentDate,

@@ -9,12 +9,14 @@ import { styles } from '../../../styles/patient/appointments/bookAppointmentForm
 type Props =Readonly< {
     routeDoctorId?: string;
     routeDoctorName?: string;
+      routeKey?: string;
     onAppointmentCreated: () => void;
 }>;
 
 export default function BookAppointmentForm({
     routeDoctorId = '',
     routeDoctorName = '',
+     routeKey = '',
     onAppointmentCreated,
 }: Props) {
     const {
@@ -25,7 +27,7 @@ export default function BookAppointmentForm({
         setReason, setTimeSlot,
         getDoctorId, getDoctorName,
         handleSelectDoctor, handleDateChange, handleSubmit,
-    } = useBookAppointmentForm(routeDoctorId, routeDoctorName, onAppointmentCreated);
+    } = useBookAppointmentForm(routeDoctorId, routeDoctorName, routeKey,onAppointmentCreated);
 
     if (loadingDoctors) {
         return (
@@ -62,6 +64,7 @@ export default function BookAppointmentForm({
                 availableSlots={availableSlots}
                 selectedSlot={timeSlot}
                 loading={slotsLoading}
+                appointmentDate={appointmentDate}
                 onSelectSlot={setTimeSlot}
             />
 
