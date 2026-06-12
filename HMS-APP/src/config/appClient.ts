@@ -1,25 +1,23 @@
-import axios from 'axios';
-import { tokenStorage } from '@/storage/tokenStorage';
+import axios from "axios";
+import { tokenStorage } from "@/storage/tokenStorage";
 
-const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = "http://10.11.74.6:5000/api";
 
 const apiClient = axios.create({
-    baseURL: BASE_URL,
-    timeout: 15000,
-    headers: {
-        'Content-Type': 'application/json',
-    },
+  baseURL: BASE_URL,
+  timeout: 15000,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-//interceptors 
+//interceptors
 apiClient.interceptors.request.use(async (config) => {
-    const token = await tokenStorage.getToken(); // reads from AsyncStorage
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`; // attaches to header
-    }
-    return config;
+  const token = await tokenStorage.getToken(); // reads from AsyncStorage
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`; // attaches to header
+  }
+  return config;
 });
-
-
 
 export default apiClient;
