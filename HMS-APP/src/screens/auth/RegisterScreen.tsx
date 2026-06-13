@@ -10,11 +10,11 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 
-import AppInput from '../../components/common/AppInput';
-import PrimaryButton from '../../components/common/PrimaryButton';
-import { registerStyles as styles } from '../../styles/auth/register.style';
-import { registerPatient } from '../../services/register.service';
-import { RegisterPatientPayload } from '../../types/register.types';
+import AppInput from '@/components/common/AppInput';
+import PrimaryButton from '@/components/common/PrimaryButton';
+import { registerStyles as styles } from '@/styles/auth/register.style';
+import { registerPatient } from '@/services/register.service';
+import { RegisterPatientPayload } from '@/types/register.types';
 
 import {
   validateRegisterEmail,
@@ -26,7 +26,7 @@ import {
   validateDateOfBirth,
   validateGender,
   validatePincode,
-} from '../../validations/register.validation';
+}  from '@/validations/register.validation';
 
 export default function RegisterScreen() {
   const [firstName, setFirstName] = useState('');
