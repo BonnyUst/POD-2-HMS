@@ -3,86 +3,208 @@ import {
   ProfileValidationErrors,
 } from '@/types/patient.types';
 
+const nameRegex = /^[A-Za-z ]{2,30}$/;
+const phoneRegex = /^[6-9]\d{9}$/;
+const pincodeRegex = /^\d{6}$/;
+
+const validateName = (
+  value: string,
+  requiredMessage: string,
+  invalidMessage: string
+) => {
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue) {
+    return requiredMessage;
+  }
+
+  if (!nameRegex.test(trimmedValue)) {
+    return invalidMessage;
+  }
+
+  return '';
+};
+
+const validatePhone = (
+  value: string,
+  requiredMessage: string,
+  invalidMessage: string
+) => {
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue) {
+    return requiredMessage;
+  }
+
+  if (!phoneRegex.test(trimmedValue)) {
+    return invalidMessage;
+  }
+
+  return '';
+};
+
+const validateRequired = (value: string, message: string) => {
+  if (!value.trim()) {
+    return message;
+  }
+
+  return '';
+};
+
+const validateDob = (dob: string) => {
+  const trimmedDob = dob.trim();
+
+  if (!trimmedDob) {
+    return 'Date of birth is required';
+  }
+
+  const dobDate = new Date(trimmedDob);
+  const today = new Date();
+
+  if (Number.isNaN(dobDate.getTime()) || dobDate >= today) {
+    return 'Enter a valid date of birth';
+  }
+
+  return '';
+};
+
+const validatePincode = (pincode: string) => {
+  const trimmedPincode = pincode.trim();
+
+  if (!trimmedPincode) {
+    return 'Pincode is required';
+  }
+
+  if (!pincodeRegex.test(trimmedPincode)) {
+    return 'Enter a valid 6-digit pincode';
+  }
+
+  return '';
+};
+
+const validateEmergencyPhoneDifferent = (
+  phone: string,
+  emergencyPhone: string
+) => {
+  const trimmedPhone = phone.trim();
+  const trimmedEmergencyPhone = emergencyPhone.trim();
+
+  if (
+    trimmedPhone &&
+    trimmedEmergencyPhone &&
+    trimmedPhone === trimmedEmergencyPhone
+  ) {
+    return 'Emergency contact number should be different';
+  }
+
+  return '';
+};
+
+const addErrorIfExists = (
+  errors: ProfileValidationErrors,
+  field: keyof ProfileValidationErrors,
+  errorMessage: string
+) => {
+  if (errorMessage) {
+    errors[field] = errorMessage;
+  }
+};
+
 export const validateProfileForm = (
   formData: PatientProfileFormData
 ): ProfileValidationErrors => {
   const errors: ProfileValidationErrors = {};
 
-  const nameRegex = /^[A-Za-z ]{2,30}$/;
-  const phoneRegex = /^[6-9][0-9]{9}$/;
-  const pincodeRegex = /^[0-9]{6}$/;
+  addErrorIfExists(
+    errors,
+    'firstName',
+    validateName(
+      formData.firstName,
+      'First name is required',
+      'Enter a valid first name'
+    )
+  );
 
-  if (!formData.firstName.trim()) {
-    errors.firstName = 'First name is required';
-  } else if (!nameRegex.test(formData.firstName.trim())) {
-    errors.firstName = 'Enter a valid first name';
-  }
+  addErrorIfExists(
+    errors,
+    'lastName',
+    validateName(
+      formData.lastName,
+      'Last name is required',
+      'Enter a valid last name'
+    )
+  );
 
-  if (!formData.lastName.trim()) {
-    errors.lastName = 'Last name is required';
-  } else if (!nameRegex.test(formData.lastName.trim())) {
-    errors.lastName = 'Enter a valid last name';
-  }
+  addErrorIfExists(
+    errors,
+    'phone',
+    validatePhone(
+      formData.phone,
+      'Phone number is required',
+      'Enter a valid 10-digit mobile number'
+    )
+  );
 
-  if (!formData.phone.trim()) {
-    errors.phone = 'Phone number is required';
-  } else if (!phoneRegex.test(formData.phone.trim())) {
-    errors.phone = 'Enter a valid 10-digit mobile number';
-  }
+  addErrorIfExists(
+    errors,
+    'gender',
+    validateRequired(formData.gender, 'Gender is required')
+  );
 
-  if (!formData.gender.trim()) {
-    errors.gender = 'Gender is required';
-  }
+  addErrorIfExists(errors, 'dob', validateDob(formData.dob));
 
-  if (!formData.dob.trim()) {
-    errors.dob = 'Date of birth is required';
-  } else {
-    const dobDate = new Date(formData.dob);
-    const today = new Date();
+  addErrorIfExists(
+    errors,
+    'bloodGroup',
+    validateRequired(formData.bloodGroup, 'Blood group is required')
+  );
 
-    if (Number.isNaN(dobDate.getTime()) || dobDate >= today) {
-      errors.dob = 'Enter a valid date of birth';
-    }
-  }
+  addErrorIfExists(
+    errors,
+    'city',
+    validateRequired(formData.address.city, 'City is required')
+  );
 
-  if (!formData.bloodGroup.trim()) {
-    errors.bloodGroup = 'Blood group is required';
-  }
+  addErrorIfExists(
+    errors,
+    'state',
+    validateRequired(formData.address.state, 'State is required')
+  );
 
-  if (!formData.address.city.trim()) {
-    errors.city = 'City is required';
-  }
+  addErrorIfExists(
+    errors,
+    'pincode',
+    validatePincode(formData.address.pincode)
+  );
 
-  if (!formData.address.state.trim()) {
-    errors.state = 'State is required';
-  }
+  addErrorIfExists(
+    errors,
+    'emergencyContactName',
+    validateName(
+      formData.emergencyContactName,
+      'Emergency contact name is required',
+      'Enter a valid emergency contact name'
+    )
+  );
 
-  if (!formData.address.pincode.trim()) {
-    errors.pincode = 'Pincode is required';
-  } else if (!pincodeRegex.test(formData.address.pincode.trim())) {
-    errors.pincode = 'Enter a valid 6-digit pincode';
-  }
+  addErrorIfExists(
+    errors,
+    'emergencyContactPhone',
+    validatePhone(
+      formData.emergencyContactPhone,
+      'Emergency contact phone is required',
+      'Enter a valid emergency contact number'
+    )
+  );
 
-  if (!formData.emergencyContactName.trim()) {
-    errors.emergencyContactName = 'Emergency contact name is required';
-  } else if (!nameRegex.test(formData.emergencyContactName.trim())) {
-    errors.emergencyContactName = 'Enter a valid emergency contact name';
-  }
-
-  if (!formData.emergencyContactPhone.trim()) {
-    errors.emergencyContactPhone = 'Emergency contact phone is required';
-  } else if (!phoneRegex.test(formData.emergencyContactPhone.trim())) {
-    errors.emergencyContactPhone = 'Enter a valid emergency contact number';
-  }
-
-  if (
-    formData.phone.trim() &&
-    formData.emergencyContactPhone.trim() &&
-    formData.phone.trim() === formData.emergencyContactPhone.trim()
-  ) {
-    errors.emergencyContactPhone =
-      'Emergency contact number should be different';
-  }
+  addErrorIfExists(
+    errors,
+    'emergencyContactPhone',
+    validateEmergencyPhoneDifferent(
+      formData.phone,
+      formData.emergencyContactPhone
+    )
+  );
 
   return errors;
 };

@@ -166,6 +166,43 @@ export default function ProfileScreen() {
     router.replace('/');
   };
 
+  const renderProfileActions = () => {
+    if (isEditing) {
+      return (
+        <View style={styles.editActionRow}>
+          <TouchableOpacity
+            style={styles.cancelEditButton}
+            onPress={handleCancelEdit}
+            disabled={saving}
+          >
+            <Text style={styles.cancelEditButtonText}>Cancel</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.saveButton}
+            onPress={handleSaveProfile}
+            disabled={saving}
+          >
+            {saving ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Text style={styles.saveButtonText}>Save Changes</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return (
+      <TouchableOpacity
+        style={styles.editButton}
+        onPress={() => setIsEditing(true)}
+      >
+        <Text style={styles.editButtonText}>Edit Profile</Text>
+      </TouchableOpacity>
+    );
+  };
+
   if (loading) {
     return (
       <View style={styles.centered}>
@@ -362,38 +399,7 @@ export default function ProfileScreen() {
           </>
         )}
       </View>
-
-      {isEditing ? (
-        <View style={styles.editActionRow}>
-          <TouchableOpacity
-            style={styles.cancelEditButton}
-            onPress={handleCancelEdit}
-            disabled={saving}
-          >
-            <Text style={styles.cancelEditButtonText}>Cancel</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.saveButton}
-            onPress={handleSaveProfile}
-            disabled={saving}
-          >
-            {saving ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
-            ) : (
-              <Text style={styles.saveButtonText}>Save Changes</Text>
-            )}
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={() => setIsEditing(true)}
-        >
-          <Text style={styles.editButtonText}>Edit Profile</Text>
-        </TouchableOpacity>
-      )}
-
+      {renderProfileActions()}
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>

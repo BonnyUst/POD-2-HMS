@@ -69,7 +69,7 @@ export function useBookAppointmentForm(
 
         const joiningDate = new Date(joiningDateStr);
         joiningDate.setHours(0, 0, 0, 0);
-        return joiningDate > today ? joiningDate : today;
+   return new Date(Math.max(joiningDate.getTime(), today.getTime()));
     }, [selectedDoctor]);
 
     const maximumDate = useMemo(() => {

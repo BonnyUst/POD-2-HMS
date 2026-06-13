@@ -7,15 +7,15 @@ import {
 } from 'react-native';
 import { COLORS } from '@/constants/theme';
 
-type PrimaryButtonProps = {
+type PrimaryButtonProps =Readonly< {
   title: string;
   onPress: () => void;
   loading?: boolean;
   disabled?: boolean;
-};
+}>;
 
 export default function PrimaryButton({
-  title,
+   title,
   onPress,
   loading = false,
   disabled = false,

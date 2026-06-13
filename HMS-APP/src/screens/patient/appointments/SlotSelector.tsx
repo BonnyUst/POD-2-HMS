@@ -43,48 +43,62 @@ export default function SlotSelector({
         return 'No available slots for the selected date.';
     };
 
-    return (
-        <>
-            <Text style={styles.label}>Available Time Slots</Text>
+    const renderSlotButton = (slot: string) => {
+        const isSelected = selectedSlot === slot;
 
-            {loading ? (
+        return (
+            <TouchableOpacity
+                key={slot}
+                style={[
+                    styles.slotButton,
+                    isSelected && styles.activeSlotButton,
+                ]}
+                onPress={() => onSelectSlot(slot)}
+            >
+                <Text
+                    style={[
+                        styles.slotText,
+                        isSelected && styles.activeSlotText,
+                    ]}
+                >
+                    {slot}
+                </Text>
+            </TouchableOpacity>
+        );
+    };
+
+    const renderSlotsContent = () => {
+        if (loading) {
+            return (
                 <View style={styles.slotLoadingBox}>
                     <ActivityIndicator />
                     <Text style={styles.slotLoadingText}>Loading slots...</Text>
                 </View>
-            ) : availableSlots.length === 0 ? (
+            );
+        }
+
+        if (availableSlots.length === 0) {
+            return (
                 <View style={styles.emptySlotBox}>
                     <Text style={styles.emptySlotText}>
                         {getEmptySlotMessage()}
                     </Text>
                 </View>
-            ) : (
-                <View style={styles.slotGrid}>
-                    {availableSlots.map((slot) => {
-                        const isSelected = selectedSlot === slot;
+            );
+        }
 
-                        return (
-                            <TouchableOpacity
-                                key={slot}
-                                style={[
-                                    styles.slotButton,
-                                    isSelected && styles.activeSlotButton,
-                                ]}
-                                onPress={() => onSelectSlot(slot)}
-                            >
-                                <Text
-                                    style={[
-                                        styles.slotText,
-                                        isSelected && styles.activeSlotText,
-                                    ]}
-                                >
-                                    {slot}
-                                </Text>
-                            </TouchableOpacity>
-                        );
-                    })}
-                </View>
-            )}
+        return (
+            <View style={styles.slotGrid}>
+                {availableSlots.map(renderSlotButton)}
+            </View>
+        );
+    };
+
+    return (
+        <>
+            <Text style={styles.label}>Available Time Slots</Text>
+
+            {renderSlotsContent()}
         </>
     );
 }

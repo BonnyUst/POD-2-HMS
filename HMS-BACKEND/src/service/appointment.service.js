@@ -69,6 +69,34 @@ const removePastSlotsForToday = (slots, appointmentDate) => {
 };
 
 
+const getFinalPatientId = async (patientId, loggedInUserId, loggedInUserRole) => {
+    if (patientId || loggedInUserRole !== 'Patient') {
+        return patientId;
+    }
+
+    const loggedInPatient = await Patient.findOne({ userId: loggedInUserId });
+
+    if (!loggedInPatient) {
+        throw new ApiError(404, 'Patient profile not found');
+    }
+
+    return loggedInPatient._id;
+};
+
+const validateTodaySlot = (appointmentDate, timeSlot) => {
+    if (!isToday(appointmentDate)) {
+        return;
+    }
+
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const selectedSlotMinutes = parseTime(timeSlot);
+
+    if (selectedSlotMinutes <= currentMinutes) {
+        throw new ApiError(400, 'Cannot book a past time slot for today');
+    }
+};
+
 exports.createAppointment = async (appointmentData, loggedInUserId, loggedInUserRole) => {
     const {
         patientId,
@@ -78,13 +106,11 @@ exports.createAppointment = async (appointmentData, loggedInUserId, loggedInUser
         reason
     } = appointmentData;
 
-    let finalPatientId = patientId;
-
-    if (!finalPatientId && loggedInUserRole === 'Patient') {
-        const loggedInPatient = await Patient.findOne({ userId: loggedInUserId });
-        if (!loggedInPatient) throw new ApiError(404, 'Patient profile not found');
-        finalPatientId = loggedInPatient._id;
-    }
+    const finalPatientId = await getFinalPatientId(
+        patientId,
+        loggedInUserId,
+        loggedInUserRole
+    );
 
     if (!finalPatientId) throw new ApiError(400, 'Patient is required');
 
@@ -128,15 +154,7 @@ exports.createAppointment = async (appointmentData, loggedInUserId, loggedInUser
             `Doctor is only available from ${doctor.availabilityStartTime} to ${doctor.availabilityEndTime}`
         );
     }
-    if (isToday(appointmentDate)) {
-        const now = new Date();
-        const currentMinutes = now.getHours() * 60 + now.getMinutes();
-        const selectedSlotMinutes = parseTime(timeSlot);
-
-        if (selectedSlotMinutes <= currentMinutes) {
-            throw new ApiError(400, 'Cannot book a past time slot for today');
-        }
-    }
+    validateTodaySlot(appointmentDate, timeSlot);
     const existingAppointment = await Appointment.findOne({
         doctorId: doctor._id,
         appointmentDate,

@@ -1,9 +1,9 @@
 // services/patient.service.js
 
-const User = require('../models/User.model');
+const User = require("../models/User.model");
 
-const Role = require('../models/Role.model');
-const bcrypt = require('bcrypt');
+const Role = require("../models/Role.model");
+const bcrypt = require("bcrypt");
 
 const Patient = require('../models/Patient.model');
 const ApiError = require('../utils/ApiError');
@@ -23,7 +23,7 @@ exports.createPatient = async (patientData, employeeId) => {
     bloodGroup,
     address,
     emergencyContactName,
-    emergencyContactPhone
+    emergencyContactPhone,
   } = patientData;
 
   const patient = await Patient.create({
@@ -36,13 +36,11 @@ exports.createPatient = async (patientData, employeeId) => {
     address,
     emergencyContactName,
     emergencyContactPhone,
-    createdBy: employeeId
+    createdBy: employeeId,
   });
 
   return patient;
 };
-
-
 
 exports.getAllPatients = async () => {
   const patients = await Patient.find()
@@ -51,8 +49,8 @@ exports.getAllPatients = async () => {
       select: "firstName lastName email roleId",
       populate: {
         path: "roleId",
-        select: "name roleCode"
-      }
+        select: "name roleCode",
+      },
     })
     .sort({ createdAt: -1 });
 
@@ -76,26 +74,31 @@ exports.getAllPatients = async () => {
     emergencyContactPhone: patient.emergencyContactPhone,
 
     createdByName:
-      (
-        `${patient.createdBy?.firstName || ""} ${patient.createdBy?.lastName || ""}`.trim()
-        || patient.createdBy?.email
-        || "Unknown User"
-      ),
+      `${patient.createdBy?.firstName || ""} ${patient.createdBy?.lastName || ""}`.trim() ||
+      patient.createdBy?.email ||
+      "Unknown User",
 
     createdByEmail: patient.createdBy?.email,
     createdByRole: patient.createdBy?.roleId?.name,
     createdByRoleCode: patient.createdBy?.roleId?.roleCode,
 
-    createdAt: patient.createdAt
+    createdAt: patient.createdAt,
   }));
 };
 
-
 exports.registerPatient = async (body) => {
   const {
-    firstName, lastName, email, password,
-    phone, gender, dob, bloodGroup, address,
-    emergencyContactName, emergencyContactPhone
+    firstName,
+    lastName,
+    email,
+    password,
+    phone,
+    gender,
+    dob,
+    bloodGroup,
+    address,
+    emergencyContactName,
+    emergencyContactPhone,
   } = body;
 
   const existing = await User.findOne({ email });
@@ -107,7 +110,9 @@ exports.registerPatient = async (body) => {
   const passwordHash = await bcrypt.hash(password, 10);
 
   const user = await User.create({
-    firstName, lastName, email,
+    firstName,
+    lastName,
+    email,
     passwordHash,
     roleId: patientRole._id,
     isVerified: false,//will later implement the email verification
@@ -115,6 +120,10 @@ exports.registerPatient = async (body) => {
     mustChangePassword: true
 
   });
+  if(!user)
+  {
+    throw new ApiError(404,"User not Found");
+  }
   const userId = user._id;
   const token = await generateToken({ userId });
   const verifyLink = `http://localhost:5000/api/auth/verify-email/${token}`
@@ -145,10 +154,16 @@ exports.registerPatient = async (body) => {
   }
   const patient = await Patient.create({
     userId: user._id,
-    firstName, lastName, phone, gender,
-    dob, bloodGroup, address,
-    emergencyContactName, emergencyContactPhone,
-    createdBy: user._id
+    firstName,
+    lastName,
+    phone,
+    gender,
+    dob,
+    bloodGroup,
+    address,
+    emergencyContactName,
+    emergencyContactPhone,
+    createdBy: user._id,
   });
 
   return { message: "Registration successful", patientId: patient._id };

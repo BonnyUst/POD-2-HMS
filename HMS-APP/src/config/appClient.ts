@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { tokenStorage } from '@/storage/tokenStorage'
+import { tokenStorage } from '@/storage/tokenStorage';
 
 const BASE_URL = 'http://localhost:5000/api';
 
@@ -19,6 +19,7 @@ apiClient.interceptors.request.use(async (config) => {
     }
     return config;
 });
+
 
 
 export default apiClient;

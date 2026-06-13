@@ -32,6 +32,27 @@ export default function MyAppointmentsList() {
     }
   };
 
+  const cancelSelectedAppointment = async (appointmentId: string) => {
+    try {
+      setCancellingId(appointmentId);
+
+      await cancelAppointment(appointmentId);
+
+      Alert.alert('Success', 'Appointment cancelled successfully');
+
+      await loadAppointments();
+    } catch (error: any) {
+      console.log('Cancel appointment error:', error?.response?.data || error);
+
+      Alert.alert(
+        'Error',
+        error?.response?.data?.message || 'Unable to cancel appointment'
+      );
+    } finally {
+      setCancellingId(null);
+    }
+  };
+
   const handleCancelAppointment = (appointmentId: string) => {
     Alert.alert(
       'Cancel Appointment',
@@ -44,25 +65,8 @@ export default function MyAppointmentsList() {
         {
           text: 'Yes, Cancel',
           style: 'destructive',
-          onPress: async () => {
-            try {
-              setCancellingId(appointmentId);
-
-              await cancelAppointment(appointmentId);
-
-              Alert.alert('Success', 'Appointment cancelled successfully');
-
-              await loadAppointments();
-            } catch (error: any) {
-              console.log('Cancel appointment error:', error?.response?.data || error);
-
-              Alert.alert(
-                'Error',
-                error?.response?.data?.message || 'Unable to cancel appointment'
-              );
-            } finally {
-              setCancellingId(null);
-            }
+          onPress: () => {
+            void cancelSelectedAppointment(appointmentId);
           },
         },
       ]

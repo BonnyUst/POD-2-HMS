@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { router } from 'expo-router';
-import { login } from '@/services/auth.service';
+import React, { useState } from "react";
+import { router } from "expo-router";
+import { login } from "@/services/auth.service";
 import {
   View,
   Text,
@@ -9,34 +9,44 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
-} from 'react-native';
+} from "react-native";
 
-import AppInput from '@/components/common/AppInput';
-import PrimaryButton from '@/components/common/PrimaryButton';
-import { loginStyles as styles } from '@/styles/auth/login.style';
+import AppInput from "@/components/common/AppInput";
+import PrimaryButton from "@/components/common/PrimaryButton";
+import { loginStyles as styles } from "@/styles/auth/login.style";
 
-
-import { validateLoginEmail,validateLoginPassword,validateEmailFormat } from '@/validations/auth.validation';
+import {
+  validateLoginEmail,
+  validateLoginPassword,
+  validateEmailFormat,
+} from "@/validations/auth.validation";
 export default function LoginScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const validateForm = () => {
-  const emailValidationError = validateLoginEmail(email);
-  const emailValidationFormat=validateLoginEmail(email);
-  const passwordValidationError = validateLoginPassword(password);
+    const emailValidationError = validateLoginEmail(email);
+    const passwordValidationError = validateLoginPassword(password);
 
-  setEmailError(emailValidationError);
-  setPasswordError(passwordValidationError);
+    let finalEmailError = emailValidationError;
 
-  return !emailValidationError && !emailValidationFormat && !passwordValidationError ;
-};
+    if (!finalEmailError && !validateEmailFormat(email)) {
+      finalEmailError = "Please enter a valid email address";
+    }
+
+
+
+    setEmailError(finalEmailError);
+    setPasswordError(passwordValidationError);
+
+    return !finalEmailError && !passwordValidationError;
+  };
 
   const handleLogin = async () => {
     if (!validateForm()) return;
@@ -45,21 +55,12 @@ export default function LoginScreen() {
 
     try {
       const user = await login(email, password);
-      console.log('Logged in user:', user);
+      console.log("Logged in user:", user);
 
-      
-      Alert.alert('Login Success', `Welcome ${user.firstName}!`);
-       if (!user.mustChangePassword) {
-        // router.replace('/change-password');
-        router.replace('/(tabs)/home');  
-      } else {
-        router.replace('/(tabs)/home');  
-      }
-
-    
-
+      Alert.alert("Login Success", `Welcome ${user.firstName}!`);
+      router.replace("/(tabs)/home");
     } catch (error: any) {
-      Alert.alert('Login Failed', error.message);
+      Alert.alert("Login Failed", error.message);
     } finally {
       setLoading(false);
     }
@@ -67,7 +68,7 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       style={styles.keyboardView}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
@@ -92,7 +93,7 @@ export default function LoginScreen() {
               value={email}
               onChangeText={(value) => {
                 setEmail(value);
-                if (emailError) setEmailError('');
+                if (emailError) setEmailError("");
               }}
               keyboardType="email-address"
               autoCapitalize="none"
@@ -106,7 +107,7 @@ export default function LoginScreen() {
               value={password}
               onChangeText={(value) => {
                 setPassword(value);
-                if (passwordError) setPasswordError('');
+                if (passwordError) setPasswordError("");
               }}
               secureTextEntry={!showPassword}
               error={passwordError}
@@ -115,13 +116,13 @@ export default function LoginScreen() {
                   onPress={() => setShowPassword(!showPassword)}
                 >
                   <Text style={styles.showPasswordText}>
-                    {showPassword ? 'Hide' : 'Show'}
+                    {showPassword ? "Hide" : "Show"}
                   </Text>
                 </TouchableOpacity>
               }
             />
 
-         
+
 
             <PrimaryButton
               title="Login"
@@ -133,9 +134,9 @@ export default function LoginScreen() {
           <View style={styles.registerContainer}>
             <Text style={styles.registerText}>New patient?</Text>
 
-           <TouchableOpacity onPress={() => router.push('/register')}>
-  <Text style={styles.registerLink}> Register here</Text>
-</TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push("/register")}>
+              <Text style={styles.registerLink}> Register here</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>

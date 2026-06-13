@@ -8,6 +8,20 @@ export const validateRequiredField = (value: string, fieldName: string) => {
   return '';
 };
 
+export const validateNameField = (value: string, fieldName: string) => {
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return `${fieldName} is required`;
+  }
+
+  if (!/^[A-Za-z\s'-]+$/.test(trimmed)) {
+    return `${fieldName} must contain letters only`;
+  }
+
+  return '';
+};
+
 export const validateRegisterEmail = (email: string) => {
   return validateLoginEmail(email);
 };
@@ -19,7 +33,7 @@ export const validatePhoneNumber = (phone: string, fieldName: string) => {
     return `${fieldName} is required`;
   }
 
-  if (!/^[0-9]{10}$/.test(trimmedPhone)) {
+  if (!/^\d{10}$/.test(trimmedPhone)) {
     return `${fieldName} must be 10 digits`;
   }
 
@@ -33,7 +47,7 @@ export const validatePincode = (pincode: string) => {
     return 'Pincode is required';
   }
 
-  if (!/^[0-9]{6}$/.test(trimmedPincode)) {
+  if (!/^\d{6}$/.test(trimmedPincode)) {
     return 'Pincode must be 6 digits';
   }
 
@@ -131,7 +145,7 @@ export const validateRegisterPassword = (password: string) => {
     return 'Password must contain at least one lowercase letter';
   }
 
-  if (!/[0-9]/.test(password)) {
+  if (!/\d/.test(password)) {
     return 'Password must contain at least one number';
   }
 

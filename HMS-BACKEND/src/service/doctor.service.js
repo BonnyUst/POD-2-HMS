@@ -86,26 +86,9 @@ exports.createDoctorByAdmin = async (doctorData) => {
     };
 
 };
-exports.updateDoctor = async (doctorId, data) => {
-    const {
-        firstName,
-        lastName,
-        email,
-        phone,
-        department,
-        designation,
-        joiningDate,
-        status,
 
-        specialization,
-        qualification,
-        consultationFee,
-        medicalRegistrationNo,
-        availabilityStartTime,
-        availabilityEndTime,
-        experienceYears
-    } = data;
-
+//update helper functions
+const findDoctorRecords = async (doctorId) => {
     const doctor = await Doctor.findById(doctorId);
 
     if (!doctor) {
@@ -124,53 +107,78 @@ exports.updateDoctor = async (doctorId, data) => {
         throw new ApiError(404, "User record not found for this doctor");
     }
 
-    if (email && email !== user.email) {
-        const existingUser = await User.findOne({ email });
+    return { doctor, employee, user };
+};
 
-        if (existingUser) {
-            throw new ApiError(409, "Email already exists");
-        }
-
-        user.email = email;
+const updateEmailIfChanged = async (user, email) => {
+    if (!email || email === user.email) {
+        return;
     }
 
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+        throw new ApiError(409, "Email already exists");
+    }
+
+    user.email = email;
+};
+
+const updateMedicalRegistrationIfChanged = async (
+    doctor,
+    medicalRegistrationNo
+) => {
     if (
-        medicalRegistrationNo &&
-        medicalRegistrationNo !== doctor.medicalRegistrationNo
+        !medicalRegistrationNo ||
+        medicalRegistrationNo === doctor.medicalRegistrationNo
     ) {
-        const existingDoctor = await Doctor.findOne({ medicalRegistrationNo });
-
-        if (existingDoctor) {
-            throw new ApiError(409, "Medical registration number already exists");
-        }
-
-        doctor.medicalRegistrationNo = medicalRegistrationNo;
+        return;
     }
 
-    if (firstName !== undefined) user.firstName = firstName;
-    if (lastName !== undefined) user.lastName = lastName;
+    const existingDoctor = await Doctor.findOne({ medicalRegistrationNo });
 
+    if (existingDoctor) {
+        throw new ApiError(409, "Medical registration number already exists");
+    }
+
+    doctor.medicalRegistrationNo = medicalRegistrationNo;
+};
+
+const assignIfDefined = (target, field, value) => {
+    if (value !== undefined) {
+        target[field] = value;
+    }
+};
+
+const updateUserFields = (user, data) => {
+    assignIfDefined(user, "firstName", data.firstName);
+    assignIfDefined(user, "lastName", data.lastName);
+};
+
+const updateEmployeeFields = (employee, data) => {
+    assignIfDefined(employee, "phone", data.phone);
+    assignIfDefined(employee, "department", data.department);
+    assignIfDefined(employee, "designation", data.designation);
+    assignIfDefined(employee, "joiningDate", data.joiningDate);
+};
+
+const updateDoctorFields = (doctor, data) => {
+    assignIfDefined(doctor, "specialization", data.specialization);
+    assignIfDefined(doctor, "qualification", data.qualification);
+    assignIfDefined(doctor, "consultationFee", data.consultationFee);
+    assignIfDefined(doctor, "availabilityStartTime", data.availabilityStartTime);
+    assignIfDefined(doctor, "availabilityEndTime", data.availabilityEndTime);
+    assignIfDefined(doctor, "experienceYears", data.experienceYears);
+};
+
+const updateStatusIfDefined = (user, employee, status) => {
     if (status !== undefined) {
         user.status = status;
         employee.status = status;
     }
+};
 
-    if (phone !== undefined) employee.phone = phone;
-    if (department !== undefined) employee.department = department;
-    if (designation !== undefined) employee.designation = designation;
-    if (joiningDate !== undefined) employee.joiningDate = joiningDate;
-
-    if (specialization !== undefined) doctor.specialization = specialization;
-    if (qualification !== undefined) doctor.qualification = qualification;
-    if (consultationFee !== undefined) doctor.consultationFee = consultationFee;
-    if (availabilityStartTime !== undefined) doctor.availabilityStartTime = availabilityStartTime;
-    if (availabilityEndTime !== undefined) doctor.availabilityEndTime = availabilityEndTime;
-    if (experienceYears !== undefined) doctor.experienceYears = experienceYears;
-
-    await user.save();
-    await employee.save();
-    await doctor.save();
-
+const buildDoctorResponse = (doctor, employee, user) => {
     return {
         doctorId: doctor._id,
 
@@ -197,6 +205,28 @@ exports.updateDoctor = async (doctorId, data) => {
         status: user.status,
         isVerified: user.isVerified
     };
+};
+
+exports.updateDoctor = async (doctorId, data) => {
+    const { doctor, employee, user } = await findDoctorRecords(doctorId);
+
+    await updateEmailIfChanged(user, data.email);
+
+    await updateMedicalRegistrationIfChanged(
+        doctor,
+        data.medicalRegistrationNo
+    );
+
+    updateUserFields(user, data);
+    updateStatusIfDefined(user, employee, data.status);
+    updateEmployeeFields(employee, data);
+    updateDoctorFields(doctor, data);
+
+    await user.save();
+    await employee.save();
+    await doctor.save();
+
+    return buildDoctorResponse(doctor, employee, user);
 };
 
 exports.getAllDoctors = async () => {

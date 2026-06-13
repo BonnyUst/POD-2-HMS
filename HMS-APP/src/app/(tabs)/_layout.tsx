@@ -1,5 +1,24 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { ColorValue } from 'react-native';
+
+
+type TabIconProps = Readonly<{
+  color: ColorValue;
+  size: number;
+}>;
+
+const HomeTabIcon = ({ color, size }: TabIconProps) => {
+  return <Ionicons name="home" color={color} size={size} />;
+};
+
+const ProfileTabIcon = ({ color, size }: TabIconProps) => {
+  return <Ionicons name="person" color={color} size={size} />;
+};
+
+const AppointmentsTabIcon = ({ color, size }: TabIconProps) => {
+  return <Ionicons name="calendar" color={color} size={size} />;
+};
 
 export default function TabLayout() {
   return (
@@ -21,27 +40,23 @@ export default function TabLayout() {
         name="home"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" color={color} size={size} />
-          ),
+          tabBarIcon: HomeTabIcon,
         }}
       />
+
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" color={color} size={size} />
-          ),
+          tabBarIcon: ProfileTabIcon,
         }}
       />
+
       <Tabs.Screen
         name="appointments"
         options={{
           title: 'Appointments',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar" color={color} size={size} />
-          ),
+          tabBarIcon: AppointmentsTabIcon,
         }}
       />
     </Tabs>

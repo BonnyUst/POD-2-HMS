@@ -124,6 +124,7 @@ export default function HomeScreen() {
 
   const patientUHID = profile?.UHID || profile?.uhid || 'Not available';
 
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -241,6 +242,21 @@ export default function HomeScreen() {
         filteredDoctors.map((doctor) => {
           const doctorId = doctor.doctorId || doctor._id;
 
+          const renderConsultationFee = () => {
+            if (doctor.consultationFee === undefined) {
+              return null;
+            }
+
+            return (
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Fee</Text>
+                <Text style={styles.detailValue}>
+                  ₹{doctor.consultationFee}
+                </Text>
+              </View>
+            );
+          };
+
           return (
             <View style={styles.doctorCard} key={doctorId}>
               <View style={styles.doctorTopRow}>
@@ -274,15 +290,9 @@ export default function HomeScreen() {
                   </Text>
                 </View>
 
-                {doctor.consultationFee !== undefined ? (
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Fee</Text>
-                    <Text style={styles.detailValue}>
-                      ₹{doctor.consultationFee}
-                    </Text>
-                  </View>
-                ) : null}
+                {renderConsultationFee()}
               </View>
+
 
               <TouchableOpacity
                 style={styles.bookButton}
