@@ -67,4 +67,5 @@ appointmentSchema.pre('save', async function () {
     }
 });
 
-module.exports = mongoose.model("Appointment", appointmentSchema);
+module.exports =
+  mongoose.models.Appointment || mongoose.model('Appointment', appointmentSchema);

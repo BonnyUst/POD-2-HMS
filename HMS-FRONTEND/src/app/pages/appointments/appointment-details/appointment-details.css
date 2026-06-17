@@ -1,0 +1,129 @@
+.details-page {
+  padding: 24px;
+}
+
+.page-header,
+.section-header,
+.modal-header,
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.details-card,
+.health-record-card,
+.modal-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.health-record-card {
+  margin-top: 20px;
+}
+
+.back-btn,
+.save-btn,
+.finalize-btn,
+.cancel-btn,
+.add-medicine-btn,
+.remove-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 9px 14px;
+  cursor: pointer;
+}
+
+.back-btn,
+.cancel-btn {
+  background: #e5e7eb;
+}
+
+.save-btn {
+  background: #2563eb;
+  color: white;
+}
+
+.finalize-btn {
+  background: #16a34a;
+  color: white;
+}
+
+.remove-btn {
+  background: #dc2626;
+  color: white;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-box {
+  width: 850px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.form-group input,
+.form-group textarea {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.medicine-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+  margin-bottom: 12px;
+}
+
+.error-msg {
+  color: #dc2626;
+}
+
+.success-msg {
+  color: #16a34a;
+}
+
+.empty-text {
+  color: #6b7280;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+th,
+td {
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+}

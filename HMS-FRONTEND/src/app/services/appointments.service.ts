@@ -7,7 +7,7 @@ import { Appointment, CreateAppointmentPayload,SlotResponse } from '../models/ap
 import { Patient } from '../models/patients.model';
 import { ApiResponse } from '../models/api-response.model';
 import { Doctor } from '../models/doctor.model';
-
+import { AppointmentDetailsResponse } from '../models/appointment-details.model';
 @Injectable({
   providedIn: 'root'
 })
@@ -51,5 +51,9 @@ export class AppointmentService {
     {}
   );
 }
-
+getAppointmentDetails(id: string): Observable<AppointmentDetailsResponse> {
+  return this.http.get<AppointmentDetailsResponse>(
+    `${this.baseUrl}/appointments/details/${id}`
+  );
+}
 }

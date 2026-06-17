@@ -4,7 +4,7 @@ const permissions = {
 
     ADD_PATIENT: ["Admin", "Receptionist"],
     VIEW_PATIENT: ["Admin", "Receptionist", "Doctor"],
-    UPDATE_PATIENT: ["Admin","Receptionist"],
+    UPDATE_PATIENT: ["Admin", "Receptionist"],
     DELETE_PATIENT: ["Admin"],
 
     ADD_EMPLOYEE: ["Admin"],
@@ -13,18 +13,23 @@ const permissions = {
     DELETE_EMPLOYEE: ["Admin"],
 
     ADD_DOCTOR: ["Admin"],
-    VIEW_DOCTOR: ["Admin","Receptionist","Doctor","Patient"],
+    VIEW_DOCTOR: ["Admin", "Receptionist", "Doctor", "Patient"],
     UPDATE_DOCTOR: ["Admin"],
     DELETE_DOCTOR: ["Admin"],
 
-    ADD_APPOINTMENT:["Admin","Receptionist","Patient"],
-    VIEW_APPOINTMENT:["Admin","Receptionist","Doctor","Patient"],
-    CANCEL_APPOINTMENT:["Admin","Receptionist","Patient"],
+    ADD_APPOINTMENT: ["Admin", "Receptionist", "Patient"],
+    VIEW_APPOINTMENT: ["Admin", "Receptionist", "Doctor", "Patient"],
+    CANCEL_APPOINTMENT: ["Admin", "Receptionist", "Patient"],
 
 
+    ADD_HEALTH_RECORD: ['Admin', 'Receptionist', 'Doctor'],
+    VIEW_HEALTH_RECORD: ['Admin', 'Receptionist', 'Doctor'],
+    UPDATE_HEALTH_RECORD: ['Admin', 'Receptionist', 'Doctor'],
+    FINALIZE_HEALTH_RECORD: ['Doctor'],
+    DELETE_HEALTH_RECORD: ['Admin', 'Doctor'],
 
-    APPROVE_EMPLOYEE:["Admin"],
-    PENDING_APPROVE_EMPLOYEE:["Admin"]
+    APPROVE_EMPLOYEE: ["Admin"],
+    PENDING_APPROVE_EMPLOYEE: ["Admin"]
 }
 
 module.exports = permissions;

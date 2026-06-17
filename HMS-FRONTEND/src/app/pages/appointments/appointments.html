@@ -17,12 +17,8 @@
     <!-- Search -->
     <div class="table-toolbar">
         <div class="search-box">
-            <input
-                type="text"
-                placeholder="Search appointments..."
-                [value]="searchText"
-                (input)="searchText = $any($event.target).value; filterAppointments()"
-            />
+            <input type="text" placeholder="Search appointments..." [value]="searchText"
+                (input)="searchText = $any($event.target).value; filterAppointments()" />
         </div>
     </div>
 
@@ -70,33 +66,29 @@
                     <td>{{ appointment.timeSlot }}</td>
 
                     <td>
-                        <span
-                            class="status-badge"
-                            [ngClass]="{
+                        <span class="status-badge" [ngClass]="{
                                 'status-booked': appointment.status === 'BOOKED',
                                 'status-completed': appointment.status === 'COMPLETED',
                                 'status-cancelled': appointment.status === 'CANCELLED'
-                            }"
-                        >
+                            }">
                             {{ appointment.status }}
                         </span>
                     </td>
 
                     <td>{{ appointment.reason }}</td>
 
-                    @if (canCreateAppointment) {
                     <td class="appointment-actions-cell">
+                        <button type="button" class="appointment-view-btn" (click)="viewDetails(appointment._id)">
+                            View Details
+                        </button>
+
                         @if (canCancelAppointment(appointment)) {
-                        <button
-                            type="button"
-                            class="appointment-cancel-btn"
-                            (click)="cancelAppointment(appointment._id)"
-                        >
+                        <button type="button" class="appointment-cancel-btn"
+                            (click)="cancelAppointment(appointment._id)">
                             Cancel
                         </button>
                         }
                     </td>
-                    }
                 </tr>
                 }
             </tbody>
@@ -125,14 +117,8 @@
         </p>
 
         <div class="pagination">
-            <button
-                type="button"
-                class="pagination-icon-button"
-                [class.disabled]="currentPage === 1"
-                [disabled]="currentPage === 1"
-                aria-label="Go to previous page"
-                (click)="goToPreviousPage()"
-            >
+            <button type="button" class="pagination-icon-button" [class.disabled]="currentPage === 1"
+                [disabled]="currentPage === 1" aria-label="Go to previous page" (click)="goToPreviousPage()">
                 <i class="bi bi-chevron-left" aria-hidden="true"></i>
             </button>
 
@@ -140,14 +126,10 @@
                 Page {{ currentPage }} of {{ totalPages }}
             </span>
 
-            <button
-                type="button"
-                class="pagination-icon-button"
+            <button type="button" class="pagination-icon-button"
                 [class.disabled]="currentPage === totalPages || totalPages === 0"
-                [disabled]="currentPage === totalPages || totalPages === 0"
-                aria-label="Go to next page"
-                (click)="goToNextPage()"
-            >
+                [disabled]="currentPage === totalPages || totalPages === 0" aria-label="Go to next page"
+                (click)="goToNextPage()">
                 <i class="bi bi-chevron-right" aria-hidden="true"></i>
             </button>
         </div>
@@ -180,23 +162,16 @@
 
                     <!-- Patient -->
                     <div class="form-group search-select-wrapper">
-                        <label>Patient <span>*</span></label>
+                        <label for="patientText">Patient <span>*</span></label>
 
-                        <input
-                            type="text"
-                            placeholder="Search or select patient"
-                            [value]="patientSearch"
+                        <input type="text" placeholder="Search or select patient" [value]="patientSearch"
                             (focus)="showPatientDropdown()"
-                            (input)="patientSearch = $any($event.target).value; filterPatients()"
-                        />
+                            (input)="patientSearch = $any($event.target).value; filterPatients()" />
 
                         @if (showPatientSuggestions && filteredPatients.length > 0) {
                         <div class="suggestion-list">
                             @for (patient of filteredPatients; track patient.patientId) {
-                            <div
-                                class="suggestion-item"
-                                (click)="selectPatient(patient)"
-                            >
+                            <div class="suggestion-item" (click)="selectPatient(patient)">
                                 {{ patient.firstName }} {{ patient.lastName }} - {{ patient.UHID }}
                             </div>
                             }
@@ -219,23 +194,16 @@
 
                     <!-- Doctor -->
                     <div class="form-group search-select-wrapper">
-                        <label>Doctor <span>*</span></label>
+                        <label for="doctorText">Doctor <span>*</span></label>
 
-                        <input
-                            type="text"
-                            placeholder="Search or select doctor"
-                            [value]="doctorSearch"
+                        <input type="text" placeholder="Search or select doctor" [value]="doctorSearch"
                             (focus)="showDoctorDropdown()"
-                            (input)="doctorSearch = $any($event.target).value; filterDoctorsSearch()"
-                        />
+                            (input)="doctorSearch = $any($event.target).value; filterDoctorsSearch()" />
 
                         @if (showDoctorSuggestions && filteredDoctors.length > 0) {
                         <div class="suggestion-list">
                             @for (doctor of filteredDoctors; track doctor.doctorId) {
-                            <div
-                                class="suggestion-item"
-                                (click)="selectDoctor(doctor)"
-                            >
+                            <div class="suggestion-item" (click)="selectDoctor(doctor)">
                                 Dr. {{ doctor.firstName }} {{ doctor.lastName }} - {{ doctor.specialization }}
                             </div>
                             }
@@ -260,11 +228,7 @@
                     <div class="form-group">
                         <label for="appointmentDate">Appointment Date <span>*</span></label>
 
-                        <input
-                            type="date"
-                            formControlName="appointmentDate"
-                            [min]="todayDate"
-                        />
+                        <input type="date" formControlName="appointmentDate" [min]="todayDate" />
 
                         @if (appointmentForm.get('appointmentDate')?.hasError('required') &&
                         appointmentForm.get('appointmentDate')?.touched) {
@@ -311,15 +275,9 @@
                         @if (allSlots.length > 0) {
                         <div class="slot-grid">
                             @for (slot of allSlots; track slot) {
-                            <button
-                                type="button"
-                                class="slot-btn"
-                                [class.slot-available]="!isBookedSlot(slot)"
-                                [class.slot-booked]="isBookedSlot(slot)"
-                                [class.slot-selected]="isSelectedSlot(slot)"
-                                [disabled]="isBookedSlot(slot)"
-                                (click)="selectSlot(slot)"
-                            >
+                            <button type="button" class="slot-btn" [class.slot-available]="!isBookedSlot(slot)"
+                                [class.slot-booked]="isBookedSlot(slot)" [class.slot-selected]="isSelectedSlot(slot)"
+                                [disabled]="isBookedSlot(slot)" (click)="selectSlot(slot)">
                                 {{ slot }}
                             </button>
                             }
@@ -355,11 +313,8 @@
                     <div class="form-group full-width">
                         <label for="reason">Reason <span>*</span></label>
 
-                        <textarea
-                            rows="3"
-                            placeholder="Enter reason for appointment"
-                            formControlName="reason"
-                        ></textarea>
+                        <textarea rows="3" placeholder="Enter reason for appointment"
+                            formControlName="reason"></textarea>
 
                         @if (appointmentForm.get('reason')?.hasError('required') &&
                         appointmentForm.get('reason')?.touched) {
@@ -391,11 +346,8 @@
                 Cancel
             </button>
 
-            <button
-                class="save-btn"
-                (click)="saveAppointment()"
-                [disabled]="appointmentForm.invalid || availableSlots.length === 0"
-            >
+            <button class="save-btn" (click)="saveAppointment()"
+                [disabled]="appointmentForm.invalid || availableSlots.length === 0">
                 Save
             </button>
         </div>

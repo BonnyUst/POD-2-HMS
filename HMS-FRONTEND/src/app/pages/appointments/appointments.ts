@@ -13,6 +13,7 @@ import { Appointment } from '../../models/appointments.model';
 import { Patient } from '../../models/patients.model';
 import { Doctor } from '../../models/doctor.model';
 
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-appointments',
   standalone: true,
@@ -78,7 +79,8 @@ export class Appointments implements OnInit {
 
   constructor(
     readonly appointmentService: AppointmentService,
-    readonly cd: ChangeDetectorRef
+    readonly cd: ChangeDetectorRef,
+    readonly router: Router
   ) { }
 
   ngOnInit(): void {
@@ -97,6 +99,12 @@ export class Appointments implements OnInit {
 
   get canCreateAppointment(): boolean {
     return this.userRole !== 'Doctor';
+  }
+
+  viewDetails(appointmentId: string): void {
+    const basePath = localStorage.getItem('basePath') || '/admin';
+
+    this.router.navigate([`${basePath}/appointments/details`, appointmentId]);
   }
 
   canCancelAppointment(appointment: any): boolean {

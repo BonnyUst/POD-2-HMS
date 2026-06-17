@@ -5,6 +5,8 @@ const ApiError = require('../utils/ApiError');
 const Doctor = require('../models/Doctor.model');
 const sendMail = require('./mail.service');
 
+const HealthRecord = require('../models/healthRecord.model');
+
 const parseTime = (timeStr) => {
   const [time, period] = timeStr.split(' ');
   let [hours, minutes] = time.split(':').map(Number);
@@ -558,4 +560,34 @@ exports.cancelAppointment = async (appointmentId) => {
   }
 
   return appointment;
+};
+
+exports.getAppointmentDetails = async (id) => {
+  const appointment = await Appointment.findById(id)
+    .populate('patientId', 'UHID firstName lastName phone gender dob')
+    .populate({
+      path: 'doctorId',
+      populate: {
+        path: 'employeeId',
+        select: 'employeeCode department designation userId',
+        populate: {
+          path: 'userId',
+          select: 'firstName lastName email'
+        }
+      }
+    });
+
+  if (!appointment) {
+    throw new ApiError(404, 'Appointment not found');
+  }
+
+  const healthRecord = await HealthRecord.findOne({
+    appointmentId: appointment._id,
+    isDeleted: false
+  });
+
+  return {
+    appointment,
+    healthRecord
+  };
 };

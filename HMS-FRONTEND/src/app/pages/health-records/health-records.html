@@ -1,0 +1,105 @@
+<div class="health-record-page">
+
+  <div class="page-header">
+    <div>
+      <h2>Health Records</h2>
+      <p>View draft and finalized health records.</p>
+    </div>
+  </div>
+
+  <div class="table-toolbar">
+    <div class="search-box">
+      <input
+        type="text"
+        placeholder="Search by medical record, patient, doctor, UHID, status..."
+        [value]="searchText()"
+        (input)="onSearch($event)"
+      />
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-box">
+      Loading health records...
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="error-box">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (!loading() && filteredHealthRecords().length > 0) {
+    <div class="health-record-table-section">
+      <table>
+        <thead>
+          <tr>
+            <th>Medical Record ID</th>
+            <th>Appointment Code</th>
+            <th>Patient</th>
+            <th>UHID</th>
+            <th>Doctor</th>
+            <th>Diagnosis</th>
+            <th>Status</th>
+            <th>Created Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (record of filteredHealthRecords(); track record._id) {
+            <tr>
+              <td>{{ record.medicalRecordId }}</td>
+
+              <td>{{ getAppointmentCode(record) }}</td>
+
+              <td>{{ getPatientName(record) }}</td>
+
+              <td>{{ record.patientId?.UHID || '-' }}</td>
+
+              <td>{{ getDoctorName(record) }}</td>
+
+              <td class="diagnosis-cell">
+                {{ record.diagnosis }}
+              </td>
+
+              <td>
+                <span
+                  class="status-badge"
+                  [ngClass]="{
+                    'status-draft': record.status === 'DRAFT',
+                    'status-finalized': record.status === 'FINALIZED'
+                  }"
+                >
+                  {{ record.status }}
+                </span>
+              </td>
+
+              <td>{{ record.createdAt | date:'dd-MM-yyyy' }}</td>
+
+              <td>
+                <button
+                  type="button"
+                  class="view-btn"
+                  (click)="viewAppointmentDetails(record)"
+                >
+                  View Details
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (!loading() && filteredHealthRecords().length === 0) {
+    <div class="empty-state">
+      <i class="bi bi-file-medical"></i>
+      <h3>No health records found</h3>
+      <p>Health records will appear here after draft creation.</p>
+    </div>
+  }
+
+</div>
