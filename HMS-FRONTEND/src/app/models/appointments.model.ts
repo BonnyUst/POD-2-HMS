@@ -60,7 +60,11 @@ export interface CreateAppointmentPayload {
 export interface SlotResponse {
   availabilityStart: string;
   availabilityEnd: string;
+
   totalSlots: number;
   bookedCount: number;
+
+  allSlots: string[];
+  bookedSlots: string[];
   availableSlots: string[];
 }

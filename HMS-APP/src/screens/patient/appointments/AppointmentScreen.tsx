@@ -48,11 +48,6 @@ console.log('doctorIdParam:', doctorIdParam);
           Book and view your hospital appointmets
         </Text>
       </View>
-
-<View style={{ backgroundColor: '#FFF3CD', padding: 10, marginTop: 10 }}>
-  <Text>DEBUG VIEW: {viewParam}</Text>
-  <Text>ACTIVE TAB: {activeTab}</Text>
-</View>
       <View style={styles.segmentContainer}>
         <TouchableOpacity
           style={[

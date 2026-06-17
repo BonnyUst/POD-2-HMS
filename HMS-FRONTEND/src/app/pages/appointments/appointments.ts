@@ -1,5 +1,12 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { FormGroup, FormControl, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
+import {
+  FormGroup,
+  FormControl,
+  Validators,
+  ReactiveFormsModule,
+  AbstractControl,
+  ValidationErrors
+} from '@angular/forms';
 import { DatePipe, NgClass } from '@angular/common';
 import { AppointmentService } from '../../services/appointments.service';
 import { Appointment } from '../../models/appointments.model';
@@ -24,6 +31,19 @@ export class Appointments implements OnInit {
   patients: Patient[] = [];
   doctors: Doctor[] = [];
 
+  patientSearch = '';
+  doctorSearch = '';
+
+  filteredPatients: Patient[] = [];
+  filteredDoctors: Doctor[] = [];
+
+  showPatientSuggestions = false;
+  showDoctorSuggestions = false;
+
+  allSlots: string[] = [];
+  availableSlots: string[] = [];
+  bookedSlots: string[] = [];
+
   userRole = '';
   errorMessage = '';
   searchText = '';
@@ -31,12 +51,9 @@ export class Appointments implements OnInit {
 
   todayDate = new Date().toISOString().split('T')[0];
 
-
-  availableSlots: string[] = [];
   loadingSlots = false;
   doctorAvailability = '';
   bookedCount = 0;
-
 
   appointmentForm = new FormGroup({
     patientId: new FormControl('', [
@@ -63,6 +80,7 @@ export class Appointments implements OnInit {
     readonly appointmentService: AppointmentService,
     readonly cd: ChangeDetectorRef
   ) { }
+
   ngOnInit(): void {
     const role = localStorage.getItem('role');
     this.userRole = role || '';
@@ -76,36 +94,33 @@ export class Appointments implements OnInit {
       this.setupSlotWatcher();
     }
   }
+
   get canCreateAppointment(): boolean {
     return this.userRole !== 'Doctor';
   }
 
-
-
-canCancelAppointment(appointment: any): boolean {
-  return (
-    appointment.status === 'BOOKED' &&
-    this.userRole !== 'Doctor'
-  );
-}
-
-
+  canCancelAppointment(appointment: any): boolean {
+    return (
+      appointment.status === 'BOOKED' &&
+      this.userRole !== 'Doctor'
+    );
+  }
 
   futureDateValidator(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
-    if (!value) return null;
+
+    if (!value) {
+      return null;
+    }
 
     const selectedDate = new Date(value);
     const today = new Date();
+
     selectedDate.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
 
     return selectedDate < today ? { pastDate: true } : null;
   }
-
-
-
-
 
   setupSlotWatcher() {
     this.appointmentForm.get('doctorId')?.valueChanges.subscribe(() => {
@@ -117,14 +132,9 @@ canCancelAppointment(appointment: any): boolean {
     });
   }
 
-
-
-
-
   fetchAvailableSlots() {
     const doctorId = this.appointmentForm.get('doctorId')?.value;
     const appointmentDate = this.appointmentForm.get('appointmentDate')?.value;
-
 
     this.appointmentForm.get('timeSlot')?.setValue('');
 
@@ -134,44 +144,38 @@ canCancelAppointment(appointment: any): boolean {
       this.appointmentService.getAvailableSlots(doctorId, appointmentDate)
         .subscribe({
           next: (res) => {
-            this.availableSlots = res.data.availableSlots;
-            this.bookedCount = res.data.bookedCount;
+            this.allSlots = res.data.allSlots || res.data.availableSlots || [];
+            this.availableSlots = res.data.availableSlots || [];
+            this.bookedSlots = res.data.bookedSlots || [];
+            this.bookedCount = res.data.bookedCount || 0;
+
             this.doctorAvailability =
               `${res.data.availabilityStart} - ${res.data.availabilityEnd}`;
+
             this.loadingSlots = false;
             this.cd.detectChanges();
           },
           error: (err) => {
             console.error('Error fetching slots:', err);
+
+            this.allSlots = [];
             this.availableSlots = [];
+            this.bookedSlots = [];
             this.bookedCount = 0;
             this.doctorAvailability = '';
             this.loadingSlots = false;
+
             this.cd.detectChanges();
           }
         });
     } else {
+      this.allSlots = [];
       this.availableSlots = [];
+      this.bookedSlots = [];
       this.bookedCount = 0;
       this.doctorAvailability = '';
     }
   }
-
-  goToPreviousPage() {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-    }
-  }
-
-  goToNextPage() {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-    }
-  }
-
-
-
-
 
   getMyAppointments() {
     this.appointmentService.getMyAppointments()
@@ -187,11 +191,6 @@ canCancelAppointment(appointment: any): boolean {
       });
   }
 
-
-
-
-
-
   getAppointments() {
     this.appointmentService.getAppointments()
       .subscribe({
@@ -206,10 +205,6 @@ canCancelAppointment(appointment: any): boolean {
       });
   }
 
-
-
-
-
   getPatients() {
     this.appointmentService.getPatients()
       .subscribe({
@@ -222,10 +217,6 @@ canCancelAppointment(appointment: any): boolean {
         }
       });
   }
-
-
-
-
 
   getDoctors() {
     this.appointmentService.getDoctors()
@@ -266,9 +257,17 @@ canCancelAppointment(appointment: any): boolean {
     );
   }
 
+  goToPreviousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
 
-
-
+  goToNextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
 
   filterAppointments() {
     const search = this.searchText.toLowerCase().trim();
@@ -284,7 +283,6 @@ canCancelAppointment(appointment: any): boolean {
       appointment.patientId?.firstName?.toLowerCase().includes(search) ||
       appointment.patientId?.lastName?.toLowerCase().includes(search) ||
       appointment.patientId?.UHID?.toLowerCase().includes(search) ||
-
       appointment.doctorId?.employeeId?.userId?.firstName?.toLowerCase().includes(search) ||
       appointment.doctorId?.employeeId?.userId?.lastName?.toLowerCase().includes(search) ||
       appointment.doctorId?.employeeId?.department?.toLowerCase().includes(search) ||
@@ -292,32 +290,159 @@ canCancelAppointment(appointment: any): boolean {
       appointment.status?.toLowerCase().includes(search) ||
       appointment.reason?.toLowerCase().includes(search)
     );
+
     this.currentPage = 1;
   }
 
+  showPatientDropdown() {
+    this.filteredPatients = [...this.patients].slice(0, 6);
+    this.showPatientSuggestions = true;
+  }
 
+  filterPatients() {
+    const search = this.patientSearch.toLowerCase().trim();
 
+    this.appointmentForm.patchValue({
+      patientId: ''
+    });
 
+    if (!search) {
+      this.filteredPatients = [...this.patients].slice(0, 6);
+      this.showPatientSuggestions = true;
+      return;
+    }
+
+    this.filteredPatients = this.patients
+      .filter(patient =>
+        `${patient.firstName} ${patient.lastName}`.toLowerCase().includes(search) ||
+        patient.UHID?.toLowerCase().includes(search)
+      )
+      .slice(0, 6);
+
+    this.showPatientSuggestions = true;
+  }
+
+  selectPatient(patient: Patient) {
+    this.patientSearch =
+      `${patient.firstName} ${patient.lastName} - ${patient.UHID}`;
+
+    this.appointmentForm.patchValue({
+      patientId: patient.patientId
+    });
+
+    this.showPatientSuggestions = false;
+  }
+
+  showDoctorDropdown() {
+    this.filteredDoctors = [...this.doctors].slice(0, 6);
+    this.showDoctorSuggestions = true;
+  }
+
+  filterDoctorsSearch() {
+    const search = this.doctorSearch.toLowerCase().trim();
+
+    this.appointmentForm.patchValue({
+      doctorId: '',
+      timeSlot: ''
+    });
+
+    this.allSlots = [];
+    this.availableSlots = [];
+    this.bookedSlots = [];
+    this.bookedCount = 0;
+    this.doctorAvailability = '';
+
+    if (!search) {
+      this.filteredDoctors = [...this.doctors].slice(0, 6);
+      this.showDoctorSuggestions = true;
+      return;
+    }
+
+    this.filteredDoctors = this.doctors
+      .filter(doctor =>
+        `${doctor.firstName} ${doctor.lastName}`.toLowerCase().includes(search) ||
+        doctor.specialization?.toLowerCase().includes(search)
+      )
+      .slice(0, 6);
+
+    this.showDoctorSuggestions = true;
+  }
+
+  selectDoctor(doctor: Doctor) {
+    this.doctorSearch =
+      `Dr. ${doctor.firstName} ${doctor.lastName} - ${doctor.specialization}`;
+
+    this.appointmentForm.patchValue({
+      doctorId: doctor.employeeId,
+      timeSlot: ''
+    });
+
+    this.showDoctorSuggestions = false;
+  }
+
+  selectSlot(slot: string): void {
+    if (this.isBookedSlot(slot)) {
+      return;
+    }
+
+    this.appointmentForm.patchValue({
+      timeSlot: slot
+    });
+  }
+
+  isBookedSlot(slot: string): boolean {
+    return this.bookedSlots.includes(slot);
+  }
+
+  isSelectedSlot(slot: string): boolean {
+    return this.appointmentForm.get('timeSlot')?.value === slot;
+  }
 
   openAddAppointmentModal() {
     this.appointmentForm.reset();
+
+    this.patientSearch = '';
+    this.doctorSearch = '';
+
+    this.filteredPatients = [];
+    this.filteredDoctors = [];
+
+    this.showPatientSuggestions = false;
+    this.showDoctorSuggestions = false;
+
+    this.allSlots = [];
     this.availableSlots = [];
+    this.bookedSlots = [];
+
     this.bookedCount = 0;
     this.doctorAvailability = '';
     this.errorMessage = '';
+
     this.showAddAppointmentModal = true;
   }
 
   closeAddAppointmentModal() {
     this.showAddAppointmentModal = false;
+
     this.appointmentForm.reset();
+
+    this.patientSearch = '';
+    this.doctorSearch = '';
+
+    this.filteredPatients = [];
+    this.filteredDoctors = [];
+
+    this.showPatientSuggestions = false;
+    this.showDoctorSuggestions = false;
+
+    this.allSlots = [];
     this.availableSlots = [];
+    this.bookedSlots = [];
+
     this.bookedCount = 0;
     this.errorMessage = '';
     this.doctorAvailability = '';
   }
-
-
 
   saveAppointment() {
     if (this.appointmentForm.invalid) {
@@ -330,7 +455,7 @@ canCancelAppointment(appointment: any): boolean {
 
     this.appointmentService.createAppointment(payload as any)
       .subscribe({
-        next: (res) => {
+        next: () => {
           this.errorMessage = '';
           alert('Appointment created successfully!');
           this.closeAddAppointmentModal();
@@ -338,30 +463,29 @@ canCancelAppointment(appointment: any): boolean {
           this.cd.detectChanges();
         },
         error: (err) => {
-          this.errorMessage = err.error?.message || 'Appointment creation failed doctor not joined yet';
+          this.errorMessage =
+            err.error?.message || 'Appointment creation failed doctor not joined yet';
           this.cd.detectChanges();
         }
       });
   }
 
   cancelAppointment(appointmentId: string): void {
-  const confirmed = confirm('Are you sure you want to cancel this appointment?');
+    const confirmed = confirm('Are you sure you want to cancel this appointment?');
 
-  if (!confirmed) {
-    return;
-  }
-
-  this.appointmentService.cancelAppointment(appointmentId).subscribe({
-    next: (response: any) => {
-      alert(response.message || 'Appointment cancelled successfully');
-      this.getAppointments();
-    },
-    error: (error) => {
-      console.log('Cancel appointment error:', error);
-      alert(error.error?.message || 'Unable to cancel appointment');
+    if (!confirmed) {
+      return;
     }
-  });
-}
-}
 
-
+    this.appointmentService.cancelAppointment(appointmentId).subscribe({
+      next: (response: any) => {
+        alert(response.message || 'Appointment cancelled successfully');
+        this.getAppointments();
+      },
+      error: (error) => {
+        console.log('Cancel appointment error:', error);
+        alert(error.error?.message || 'Unable to cancel appointment');
+      }
+    });
+  }
+}
