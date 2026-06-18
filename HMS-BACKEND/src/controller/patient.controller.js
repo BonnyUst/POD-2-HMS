@@ -22,12 +22,13 @@ exports.createPatient = async (req, res, next) => {
 
 exports.getAllPatients = async (req, res, next) => {
   try {
-    const patients = await patientService.getAllPatients();
+    const result = await patientService.getAllPatients(req.query);
 
     return res.status(200).json({
       success: true,
-      message: "Patients fetched successfully",
-      data: patients
+      message: 'Patients fetched successfully',
+      data: result.patients,
+      pagination: result.pagination
     });
   } catch (error) {
     next(error);

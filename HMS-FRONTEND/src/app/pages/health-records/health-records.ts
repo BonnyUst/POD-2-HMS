@@ -61,8 +61,8 @@ export class HealthRecords implements OnInit {
   });
 
   constructor(
-    private healthRecordService: HealthRecordService,
-    private router: Router
+    readonly healthRecordService: HealthRecordService,
+    readonly router: Router
   ) {}
 
   ngOnInit(): void {

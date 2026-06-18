@@ -8,11 +8,13 @@ import {
   HealthRecordSingleResponse,
   UpdateHealthRecordRequest
 } from '../models/health-record.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HealthRecordService {
+    
   private apiUrl = 'http://localhost:5000/api/health-records';
 
   constructor(private http: HttpClient) {}

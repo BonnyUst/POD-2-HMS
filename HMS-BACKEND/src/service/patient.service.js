@@ -41,20 +41,51 @@ exports.createPatient = async (patientData, employeeId) => {
 
   return patient;
 };
+exports.getAllPatients = async (query = {}) => {
+  const page = Number(query.page) || 1;
+  const limit = Number(query.limit) || 5;
+  const search = query.search ? query.search.trim() : '';
+  const skip = (page - 1) * limit;
 
-exports.getAllPatients = async () => {
-  const patients = await Patient.find()
+  const allowedSortFields = ['createdAt', 'firstName', 'lastName', 'UHID'];
+  const sortBy = allowedSortFields.includes(query.sortBy)
+    ? query.sortBy
+    : 'createdAt';
+
+  const sortOrder = query.sortOrder === 'asc' ? 1 : -1;
+
+  const filter = {};
+
+  if (search) {
+    filter.$or = [
+      { UHID: { $regex: search, $options: 'i' } },
+      { firstName: { $regex: search, $options: 'i' } },
+      { lastName: { $regex: search, $options: 'i' } },
+      { phone: { $regex: search, $options: 'i' } },
+      { gender: { $regex: search, $options: 'i' } },
+      { bloodGroup: { $regex: search, $options: 'i' } },
+      { 'address.city': { $regex: search, $options: 'i' } },
+      { 'address.state': { $regex: search, $options: 'i' } },
+      { 'address.pincode': { $regex: search, $options: 'i' } }
+    ];
+  }
+
+  const totalRecords = await Patient.countDocuments(filter);
+
+  const patients = await Patient.find(filter)
     .populate({
-      path: "createdBy",
-      select: "firstName lastName email roleId",
+      path: 'createdBy',
+      select: 'firstName lastName email roleId',
       populate: {
-        path: "roleId",
-        select: "name roleCode",
+        path: 'roleId',
+        select: 'name roleCode',
       },
     })
-    .sort({ createdAt: -1 });
+    .sort({ [sortBy]: sortOrder })
+    .skip(skip)
+    .limit(limit);
 
-  return patients.map((patient) => ({
+  const formattedPatients = patients.map((patient) => ({
     patientId: patient._id,
     UHID: patient.UHID,
 
@@ -74,9 +105,9 @@ exports.getAllPatients = async () => {
     emergencyContactPhone: patient.emergencyContactPhone,
 
     createdByName:
-      `${patient.createdBy?.firstName || ""} ${patient.createdBy?.lastName || ""}`.trim() ||
+      `${patient.createdBy?.firstName || ''} ${patient.createdBy?.lastName || ''}`.trim() ||
       patient.createdBy?.email ||
-      "Unknown User",
+      'Unknown User',
 
     createdByEmail: patient.createdBy?.email,
     createdByRole: patient.createdBy?.roleId?.name,
@@ -84,6 +115,18 @@ exports.getAllPatients = async () => {
 
     createdAt: patient.createdAt,
   }));
+
+  return {
+    patients: formattedPatients,
+    pagination: {
+      totalRecords,
+      currentPage: page,
+      totalPages: Math.ceil(totalRecords / limit),
+      limit,
+      sortBy,
+      sortOrder: sortOrder === 1 ? 'asc' : 'desc'
+    }
+  };
 };
 
 exports.registerPatient = async (body) => {

@@ -299,7 +299,7 @@
         <form [formGroup]="healthRecordForm">
 
           <div class="form-group">
-            <label>
+            <label for="diagnosis">
               Diagnosis <span>*</span>
             </label>
 
@@ -335,7 +335,7 @@
               <div class="medicine-row" [formGroupName]="$index">
 
                 <div class="form-group">
-                  <label>
+                  <label for="medicineName">
                     Medicine Name <span>*</span>
                   </label>
 
@@ -353,7 +353,7 @@
                 </div>
 
                 <div class="form-group">
-                  <label>
+                  <label for="dosage">
                     Dosage <span>*</span>
                   </label>
 
@@ -389,7 +389,7 @@
                 </div>
 
                 <div class="form-group">
-                  <label>Medicine Notes</label>
+                  <label for="medicineNotes">Medicine Notes</label>
 
                   <input
                     type="text"
@@ -413,7 +413,7 @@
           </div>
 
           <div class="form-group">
-            <label>General Notes</label>
+            <label for="generalNotes">General Notes</label>
 
             <textarea
               rows="3"
