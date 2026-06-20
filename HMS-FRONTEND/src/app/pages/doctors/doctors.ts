@@ -1,6 +1,14 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { FormGroup, FormControl, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
+import { Component, OnInit, signal } from '@angular/core';
+import {
+  FormGroup,
+  FormControl,
+  Validators,
+  ReactiveFormsModule,
+  AbstractControl,
+  ValidationErrors
+} from '@angular/forms';
 import { DatePipe, NgClass } from '@angular/common';
+
 import { DoctorService } from '../../services/doctor.service';
 import { Doctor } from '../../models/doctor.model';
 
@@ -12,18 +20,20 @@ import { Doctor } from '../../models/doctor.model';
   styleUrl: './doctors.css'
 })
 export class Doctors implements OnInit {
+  doctors = signal<Doctor[]>([]);
 
-  doctors: Doctor[] = [];
-  filteredDoctors: Doctor[] = [];
-
-
-  currentPage = 1;
+  currentPage = signal(1);
   pageSize = 10;
-  searchText = '';
-  showAddDoctorModal = false;
+  searchText = signal('');
+  totalRecords = signal(0);
+  totalPages = signal(0);
 
-  isEditMode = false;
-  selectedDoctor: Doctor | null = null;
+  showAddDoctorModal = signal(false);
+  isEditMode = signal(false);
+  selectedDoctor = signal<Doctor | null>(null);
+
+  private searchTimer: ReturnType<typeof setTimeout> | null = null;
+
   departments = [
     'OPD', 'IPD', 'Lab',
     'Pharmacy', 'Admin', 'Front Office'
@@ -47,9 +57,82 @@ export class Doctors implements OnInit {
     '08:00 PM'
   ];
 
+  doctorForm = new FormGroup(
+    {
+      firstName: new FormControl('', [
+        Validators.required,
+        Validators.minLength(2),
+        Validators.pattern(/^(?!\s+$)[A-Za-z\s]+$/)
+      ]),
+      lastName: new FormControl('', [
+        Validators.required,
+        Validators.minLength(2),
+        Validators.pattern(/^(?!\s+$)[A-Za-z\s]+$/)
+      ]),
+      email: new FormControl('', [
+        Validators.required,
+        Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
+      ]),
+      password: new FormControl('', [
+        Validators.required,
+        Validators.minLength(6)
+      ]),
+      phone: new FormControl('', [
+        Validators.required,
+        Validators.pattern('^[0-9]{10}$')
+      ]),
+      department: new FormControl('', [
+        Validators.required
+      ]),
+      designation: new FormControl('Jr Doctor', [
+        Validators.required
+      ]),
+      joiningDate: new FormControl('', [
+        Validators.required,
+        this.joiningDateRangeValidator
+      ]),
+      specialization: new FormControl('', [
+        Validators.required
+      ]),
+      qualification: new FormControl('', [
+        Validators.required
+      ]),
+      consultationFee: new FormControl<number | null>(null, [
+        Validators.required,
+        Validators.min(1)
+      ]),
+      medicalRegistrationNo: new FormControl('', [
+        Validators.required
+      ]),
+      availabilityStartTime: new FormControl('', [
+        Validators.required
+      ]),
+      availabilityEndTime: new FormControl('', [
+        Validators.required
+      ]),
+      experienceYears: new FormControl<number | null>(null, [
+        Validators.required,
+        Validators.min(0),
+        Validators.max(60)
+      ])
+    },
+    {
+      validators: this.availabilityTimeValidator
+    }
+  );
+
+  constructor(
+    readonly doctorService: DoctorService
+  ) {}
+
+  ngOnInit(): void {
+    this.getDoctors();
+  }
 
   joiningDateRangeValidator(control: AbstractControl): ValidationErrors | null {
-    if (!control.value) return null;
+    if (!control.value) {
+      return null;
+    }
 
     const selected = new Date(control.value);
     const today = new Date();
@@ -70,103 +153,36 @@ export class Doctors implements OnInit {
   getTodayDate(): string {
     const today = new Date();
     today.setMonth(today.getMonth() - 2);
+
     return today.toISOString().split('T')[0];
   }
 
   getMaxDate(): string {
     const today = new Date();
     today.setMonth(today.getMonth() + 2);
+
     return today.toISOString().split('T')[0];
   }
-
-
-  doctorForm = new FormGroup({
-    firstName: new FormControl('', [
-      Validators.required,
-      Validators.minLength(2),
-      Validators.pattern(/^(?!\s+$)[A-Za-z\s]+$/)
-    ]),
-    lastName: new FormControl('', [
-      Validators.required,
-      Validators.minLength(2),
-      Validators.pattern(/^(?!\s+$)[A-Za-z\s]+$/)
-    ]),
-    email: new FormControl('', [
-      Validators.required,
-      Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
-
-    ]),
-    password: new FormControl('', [
-      Validators.required,
-      Validators.minLength(6)
-    ]),
-    phone: new FormControl('', [
-      Validators.required,
-      Validators.pattern('^[0-9]{10}$')
-    ]),
-    department: new FormControl('', [
-      Validators.required
-    ]),
-    designation: new FormControl('Jr Doctor', [
-      Validators.required
-    ]),
-    joiningDate: new FormControl('', [
-      Validators.required,
-      this.joiningDateRangeValidator
-    ]),
-    specialization: new FormControl('', [
-      Validators.required
-    ]),
-    qualification: new FormControl('', [
-      Validators.required
-    ]),
-    consultationFee: new FormControl(null, [
-      Validators.required,
-      Validators.min(1)
-    ]),
-    medicalRegistrationNo: new FormControl('', [
-      Validators.required
-    ]),
-    availabilityStartTime: new FormControl('', [
-      Validators.required
-    ]),
-    availabilityEndTime: new FormControl('', [
-      Validators.required
-    ]),
-    experienceYears: new FormControl(null, [
-      Validators.required,
-      Validators.min(0),
-      Validators.max(60)
-    ])
-  }, {
-    validators: this.availabilityTimeValidator
-  });
-
-  constructor(
-    readonly doctorService: DoctorService,
-    readonly cd: ChangeDetectorRef
-  ) { }
-
-  ngOnInit(): void {
-    this.getDoctors();
-  }
-
-
-
-
 
   availabilityTimeValidator(group: AbstractControl): ValidationErrors | null {
     const startTime = group.get('availabilityStartTime')?.value;
     const endTime = group.get('availabilityEndTime')?.value;
 
-    if (!startTime || !endTime) return null;
+    if (!startTime || !endTime) {
+      return null;
+    }
 
     const parseTime = (timeStr: string): number => {
       const [time, period] = timeStr.split(' ');
       let [hours, minutes] = time.split(':').map(Number);
 
-      if (period === 'PM' && hours !== 12) hours += 12;
-      if (period === 'AM' && hours === 12) hours = 0;
+      if (period === 'PM' && hours !== 12) {
+        hours += 12;
+      }
+
+      if (period === 'AM' && hours === 12) {
+        hours = 0;
+      }
 
       return hours * 60 + minutes;
     };
@@ -178,7 +194,6 @@ export class Doctors implements OnInit {
       return { invalidAvailability: true };
     }
 
-
     if (end - start < 60) {
       return { minAvailability: true };
     }
@@ -186,17 +201,20 @@ export class Doctors implements OnInit {
     return null;
   }
 
-
-
-
-
-  getDoctors() {
-    this.doctorService.getAllDoctors()
+  getDoctors(): void {
+    this.doctorService
+      .getAllDoctors(
+        this.currentPage(),
+        this.pageSize,
+        this.searchText().trim()
+      )
       .subscribe({
         next: (res) => {
-          this.doctors = res.data;
-          this.filteredDoctors = res.data;
-          this.cd.detectChanges();
+          this.doctors.set(res.data);
+
+          this.totalRecords.set(res.pagination.totalRecords);
+          this.totalPages.set(res.pagination.totalPages);
+          this.currentPage.set(res.pagination.page);
         },
         error: (err) => {
           console.error('Error fetching doctors:', err);
@@ -205,89 +223,74 @@ export class Doctors implements OnInit {
   }
 
   get paginatedDoctors(): Doctor[] {
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-
-    return this.filteredDoctors.slice(startIndex, endIndex);
-  }
-
-  get totalPages(): number {
-    return Math.ceil(this.filteredDoctors.length / this.pageSize);
+    return this.doctors();
   }
 
   get startRecord(): number {
-    if (this.filteredDoctors.length === 0) {
+    if (this.totalRecords() === 0) {
       return 0;
     }
 
-    return (this.currentPage - 1) * this.pageSize + 1;
+    return (this.currentPage() - 1) * this.pageSize + 1;
   }
 
   get endRecord(): number {
     return Math.min(
-      this.currentPage * this.pageSize,
-      this.filteredDoctors.length
+      this.currentPage() * this.pageSize,
+      this.totalRecords()
     );
   }
 
-  goToPreviousPage() {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-    }
-  }
-
-  goToNextPage() {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-    }
-  }
-
-
-
-
-  filterDoctors() {
-    const search = this.searchText.toLowerCase().trim();
-
-    if (!search) {
-      this.filteredDoctors = [...this.doctors];
-      this.currentPage = 1;
+  goToPreviousPage(): void {
+    if (this.currentPage() <= 1) {
       return;
     }
 
-    this.filteredDoctors = this.doctors.filter(doctor =>
-      doctor.employeeCode?.toLowerCase().includes(search) ||
-      doctor.firstName?.toLowerCase().includes(search) ||
-      doctor.lastName?.toLowerCase().includes(search) ||
-      doctor.email?.toLowerCase().includes(search) ||
-      doctor.phone?.includes(search) ||
-      doctor.specialization?.toLowerCase().includes(search) ||
-      doctor.qualification?.toLowerCase().includes(search) ||
-      doctor.medicalRegistrationNo?.toLowerCase().includes(search)
-    );
-    this.currentPage = 1;
+    this.currentPage.update((page) => page - 1);
+    this.getDoctors();
   }
 
+  goToNextPage(): void {
+    if (this.currentPage() >= this.totalPages()) {
+      return;
+    }
 
+    this.currentPage.update((page) => page + 1);
+    this.getDoctors();
+  }
 
+  filterDoctors(): void {
+    if (this.searchTimer) {
+      clearTimeout(this.searchTimer);
+    }
 
+    this.searchTimer = setTimeout(() => {
+      this.currentPage.set(1);
+      this.getDoctors();
+    }, 300);
+  }
 
-  openAddDoctorModal() {
-    this.isEditMode = false;
-    this.selectedDoctor = null;
+  openAddDoctorModal(): void {
+    this.isEditMode.set(false);
+    this.selectedDoctor.set(null);
 
-    this.doctorForm.reset({ designation: 'Jr Doctor' });
+    this.doctorForm.reset({
+      designation: 'Jr Doctor'
+    });
 
     this.doctorForm.get('password')?.setValidators([
       Validators.required,
       Validators.minLength(6)
     ]);
+
     this.doctorForm.get('password')?.updateValueAndValidity();
 
-    this.showAddDoctorModal = true;
+    this.showAddDoctorModal.set(true);
   }
-  openEditDoctorModal(doctor: Doctor) {
-    this.isEditMode = true;
-    this.selectedDoctor = doctor;
+
+  openEditDoctorModal(doctor: Doctor): void {
+    this.isEditMode.set(true);
+    this.selectedDoctor.set(doctor);
 
     this.doctorForm.reset();
 
@@ -299,46 +302,50 @@ export class Doctors implements OnInit {
       phone: doctor.phone,
       department: doctor.department,
       designation: doctor.designation,
-      joiningDate: doctor.joiningDate ? doctor.joiningDate.split('T')[0] : '',
+      joiningDate: doctor.joiningDate
+        ? doctor.joiningDate.split('T')[0]
+        : '',
       specialization: doctor.specialization,
       qualification: doctor.qualification,
-      consultationFee: doctor.consultationFee as any,
+      consultationFee: doctor.consultationFee,
       medicalRegistrationNo: doctor.medicalRegistrationNo,
       availabilityStartTime: doctor.availabilityStartTime,
       availabilityEndTime: doctor.availabilityEndTime,
-      experienceYears: doctor.experienceYears as any
+      experienceYears: doctor.experienceYears
     });
 
     this.doctorForm.get('password')?.clearValidators();
     this.doctorForm.get('password')?.updateValueAndValidity();
 
-    this.showAddDoctorModal = true;
+    this.showAddDoctorModal.set(true);
   }
-  closeAddDoctorModal() {
-    this.showAddDoctorModal = false;
-    this.isEditMode = false;
-    this.selectedDoctor = null;
 
-    this.doctorForm.reset({ designation: 'Jr Doctor' });
+  closeAddDoctorModal(): void {
+    this.showAddDoctorModal.set(false);
+    this.isEditMode.set(false);
+    this.selectedDoctor.set(null);
+
+    this.doctorForm.reset({
+      designation: 'Jr Doctor'
+    });
 
     this.doctorForm.get('password')?.setValidators([
       Validators.required,
       Validators.minLength(6)
     ]);
+
     this.doctorForm.get('password')?.updateValueAndValidity();
   }
 
-
-
-
-
-  saveDoctor() {
+  saveDoctor(): void {
     if (this.doctorForm.invalid) {
       this.doctorForm.markAllAsTouched();
       return;
     }
 
-    if (this.isEditMode && this.selectedDoctor) {
+    const selectedDoctor = this.selectedDoctor();
+
+    if (this.isEditMode() && selectedDoctor) {
       const payload = {
         firstName: this.doctorForm.get('firstName')?.value,
         lastName: this.doctorForm.get('lastName')?.value,
@@ -347,7 +354,7 @@ export class Doctors implements OnInit {
         department: this.doctorForm.get('department')?.value,
         designation: this.doctorForm.get('designation')?.value,
         joiningDate: this.doctorForm.get('joiningDate')?.value,
-        status: this.selectedDoctor.status,
+        status: selectedDoctor.status,
 
         specialization: this.doctorForm.get('specialization')?.value,
         qualification: this.doctorForm.get('qualification')?.value,
@@ -358,23 +365,19 @@ export class Doctors implements OnInit {
         experienceYears: this.doctorForm.get('experienceYears')?.value
       };
 
-      this.doctorService.updateDoctor(
-        this.selectedDoctor.doctorId,
-        payload as any
-      ).subscribe({
-        next: (res) => {
-          alert('Doctor updated successfully!');
-          this.closeAddDoctorModal();
-          this.getDoctors();
-          this.cd.detectChanges();
-        },
-        error: (err) => {
-          console.error('Full error:', err);
-          console.error('Backend error body:', err.error);
-          console.error('Backend message:', err.error?.message);
-          alert(err.error?.message || 'Something went wrong');
-        }
-      });
+      this.doctorService
+        .updateDoctor(selectedDoctor.doctorId, payload as any)
+        .subscribe({
+          next: () => {
+            alert('Doctor updated successfully!');
+            this.closeAddDoctorModal();
+            this.getDoctors();
+          },
+          error: (err) => {
+            console.error('Full error:', err);
+            alert(err.error?.message || 'Something went wrong');
+          }
+        });
 
       return;
     }
@@ -383,16 +386,17 @@ export class Doctors implements OnInit {
 
     this.doctorService.createDoctor(payload as any)
       .subscribe({
-        next: (res) => {
+        next: () => {
           alert('Doctor created successfully!');
           this.closeAddDoctorModal();
+
+          this.currentPage.set(1);
+          this.searchText.set('');
           this.getDoctors();
-          this.cd.detectChanges();
         },
         error: (err) => {
           alert(err.error?.message || 'Something went wrong');
         }
       });
   }
-
 }

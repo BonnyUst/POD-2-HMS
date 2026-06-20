@@ -52,18 +52,19 @@ const updateDoctor = async (req, res) => {
 
 
 const getAllDoctors = async (req, res, next) => {
-    try {
-        const doctors = await doctorService.getAllDoctors();
+  try {
+    const result = await doctorService.getAllDoctors(req.query);
 
-        res.status(200).json({
-            success: true,
-            statusCode: 200,
-            message: 'Doctors fetched successfully',
-            data: doctors
-        });
-    } catch (error) {
-        next(error);
-    }
+    return res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: 'Doctors fetched successfully',
+      data: result.doctors,
+      pagination: result.pagination
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 module.exports = { createDoctorByAdmin,getAllDoctors,updateDoctor }

@@ -51,9 +51,17 @@ getPatients(): Observable<PaginatedResponse<Patient>> {
     { params }
   );
 }
-   getDoctors(): Observable<ApiResponse<Doctor[]>> {
-    return this.http.get<ApiResponse<Doctor[]>>(`${this.baseUrl}/doctors/list`);
-  }
+  getDoctors(): Observable<PaginatedResponse<Doctor>> {
+  const params = new HttpParams()
+    .set('page', '1')
+    .set('limit', '100')
+    .set('search', '');
+
+  return this.http.get<PaginatedResponse<Doctor>>(
+    `${this.baseUrl}/doctors/list`,
+    { params }
+  );
+}
 
   getAvailableSlots(doctorId: string, appointmentDate: string): Observable<ApiResponse<SlotResponse>> {
     return this.http.get<ApiResponse<SlotResponse>>(

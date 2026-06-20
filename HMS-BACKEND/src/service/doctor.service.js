@@ -5,6 +5,11 @@ const Doctor = require('../models/Doctor.model')
 const bcrypt = require('bcrypt');
 const ApiError = require('../utils/ApiError');
 const userService = require('./user.service')
+const {
+  getPagination,
+  buildPaginationResponse
+} = require('../utils/pagination');
+
 
 exports.createDoctorByAdmin = async (doctorData) => {
     const {
@@ -229,39 +234,79 @@ exports.updateDoctor = async (doctorId, data) => {
     return buildDoctorResponse(doctor, employee, user);
 };
 
-exports.getAllDoctors = async () => {
-    const doctors = await Doctor.find()
-        .populate({
-            path: 'employeeId',
-            populate: {
-                path: 'userId',
-                select: 'firstName lastName email phone status isVerified'
-            }
-        })
-        .sort({ createdAt: -1 });
+exports.getAllDoctors = async (query = {}) => {
+  const { page, limit, skip, sortBy, sortOrder } = getPagination(query);
+  const search = query.search ? query.search.trim() : '';
 
-    return doctors.map((doctor) => ({
-        doctorId: doctor._id,
+  const allowedSortFields = [
+    'createdAt',
+    'specialization',
+    'qualification',
+    'consultationFee',
+    'experienceYears'
+  ];
 
-        employeeId: doctor.employeeId?._id,
-        employeeCode: doctor.employeeId?.employeeCode,
+  const finalSortBy = allowedSortFields.includes(sortBy)
+    ? sortBy
+    : 'createdAt';
 
-        firstName: doctor.employeeId?.userId?.firstName,
-        lastName: doctor.employeeId?.userId?.lastName,
-        email: doctor.employeeId?.userId?.email,
-        phone: doctor.employeeId?.phone,
+  const filter = {};
 
-        specialization: doctor.specialization,
-        qualification: doctor.qualification,
-        consultationFee: doctor.consultationFee,
-        medicalRegistrationNo: doctor.medicalRegistrationNo,
-        availabilityStartTime: doctor.availabilityStartTime,
-        availabilityEndTime: doctor.availabilityEndTime,
-        experienceYears: doctor.experienceYears,
+  if (search) {
+    filter.$or = [
+      { specialization: { $regex: search, $options: 'i' } },
+      { qualification: { $regex: search, $options: 'i' } },
+      { medicalRegistrationNo: { $regex: search, $options: 'i' } }
+    ];
+  }
 
-        joiningDate: doctor.employeeId?.joiningDate,
+  const totalRecords = await Doctor.countDocuments(filter);
 
-        status: doctor.employeeId?.userId?.status,
-        isVerified: doctor.employeeId?.userId?.isVerified
-    }));
+  const doctors = await Doctor.find(filter)
+    .populate({
+      path: 'employeeId',
+      populate: {
+        path: 'userId',
+        select: 'firstName lastName email phone status isVerified'
+      }
+    })
+    .sort({ [finalSortBy]: sortOrder })
+    .skip(skip)
+    .limit(limit);
+
+  const formattedDoctors = doctors.map((doctor) => ({
+    doctorId: doctor._id,
+    employeeId: doctor.employeeId?._id,
+    employeeCode: doctor.employeeId?.employeeCode,
+
+    firstName: doctor.employeeId?.userId?.firstName,
+    lastName: doctor.employeeId?.userId?.lastName,
+    email: doctor.employeeId?.userId?.email,
+    phone: doctor.employeeId?.phone,
+
+    specialization: doctor.specialization,
+    qualification: doctor.qualification,
+    consultationFee: doctor.consultationFee,
+    medicalRegistrationNo: doctor.medicalRegistrationNo,
+    availabilityStartTime: doctor.availabilityStartTime,
+    availabilityEndTime: doctor.availabilityEndTime,
+    experienceYears: doctor.experienceYears,
+
+    joiningDate: doctor.employeeId?.joiningDate,
+    status: doctor.employeeId?.userId?.status,
+    isVerified: doctor.employeeId?.userId?.isVerified
+  }));
+
+  return {
+    doctors: formattedDoctors,
+    pagination: {
+      ...buildPaginationResponse({
+        page,
+        limit,
+        totalRecords
+      }),
+      sortBy: finalSortBy,
+      sortOrder: sortOrder === 1 ? 'asc' : 'desc'
+    }
+  };
 };
