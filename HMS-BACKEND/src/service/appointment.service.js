@@ -1,9 +1,14 @@
 const Appointment = require('../models/Appointment.model');
 const Patient = require('../models/Patient.model');
 const Employee = require('../models/Employee.model');
+const User = require('../models/User.model');
 const ApiError = require('../utils/ApiError');
 const Doctor = require('../models/Doctor.model');
 const sendMail = require('./mail.service');
+const {
+  getPagination,
+  buildPaginationResponse
+} = require('../utils/pagination');
 
 const HealthRecord = require('../models/healthRecord.model');
 
@@ -405,9 +410,70 @@ exports.createAppointment = async (
 
   return appointment;
 };
+exports.getAppointments = async (query = {}) => {
+  const { page, limit, skip, sortBy, sortOrder } = getPagination(query);
+  const search = query.search ? query.search.trim() : '';
 
-exports.getAppointments = async () => {
-  const appointments = await Appointment.find()
+  const allowedSortFields = [
+    'createdAt',
+    'appointmentDate',
+    'appointmentCode',
+    'status'
+  ];
+
+  const finalSortBy = allowedSortFields.includes(sortBy)
+    ? sortBy
+    : 'createdAt';
+
+  const filter = {};
+
+  if (search) {
+    const matchingPatients = await Patient.find({
+      $or: [
+        { UHID: { $regex: search, $options: 'i' } },
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } }
+      ]
+    }).select('_id');
+
+    const matchingPatientIds = matchingPatients.map(patient => patient._id);
+
+    const matchingUsers = await User.find({
+      $or: [
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ]
+    }).select('_id');
+
+    const matchingUserIds = matchingUsers.map(user => user._id);
+
+    const matchingEmployees = await Employee.find({
+      userId: { $in: matchingUserIds }
+    }).select('_id');
+
+    const matchingEmployeeIds = matchingEmployees.map(employee => employee._id);
+
+    const matchingDoctors = await Doctor.find({
+      employeeId: { $in: matchingEmployeeIds }
+    }).select('_id');
+
+    const matchingDoctorIds = matchingDoctors.map(doctor => doctor._id);
+
+    filter.$or = [
+      { appointmentCode: { $regex: search, $options: 'i' } },
+      { status: { $regex: search, $options: 'i' } },
+      { timeSlot: { $regex: search, $options: 'i' } },
+      { reason: { $regex: search, $options: 'i' } },
+      { patientId: { $in: matchingPatientIds } },
+      { doctorId: { $in: matchingDoctorIds } }
+    ];
+  }
+
+  const totalRecords = await Appointment.countDocuments(filter);
+
+  const appointments = await Appointment.find(filter)
     .populate('patientId')
     .populate({
       path: 'doctorId',
@@ -420,18 +486,46 @@ exports.getAppointments = async () => {
       },
     })
     .populate('createdBy', 'firstName lastName email')
-    .sort({ createdAt: -1 });
+    .sort({ [finalSortBy]: sortOrder })
+    .skip(skip)
+    .limit(limit);
 
-  return appointments;
+  return {
+    appointments,
+    pagination: {
+      ...buildPaginationResponse({
+        page,
+        limit,
+        totalRecords
+      }),
+      sortBy: finalSortBy,
+      sortOrder: sortOrder === 1 ? 'asc' : 'desc'
+    }
+  };
 };
-
-exports.getMyAppointments = async (user) => {
+exports.getMyAppointments = async (user, query = {}) => {
   const { userId } = user;
   const roleCode = user.roleCode || user.rolecode;
+
+  const { page, limit, skip, sortBy, sortOrder } = getPagination(query);
+  const search = query.search ? query.search.trim() : '';
 
   if (!['DOC', 'PAT'].includes(roleCode)) {
     throw new ApiError(403, 'Only patients and doctors can access my appointments');
   }
+
+  const allowedSortFields = [
+    'createdAt',
+    'appointmentDate',
+    'appointmentCode',
+    'status'
+  ];
+
+  const finalSortBy = allowedSortFields.includes(sortBy)
+    ? sortBy
+    : 'appointmentDate';
+
+  const filter = {};
 
   if (roleCode === 'DOC') {
     const employee = await Employee.findOne({ userId });
@@ -446,28 +540,31 @@ exports.getMyAppointments = async (user) => {
       throw new ApiError(404, 'Doctor profile not found');
     }
 
-    return await Appointment.find({ doctorId: doctor._id })
-      .populate('patientId', 'UHID firstName lastName phone gender bloodGroup')
-      .populate({
-        path: 'doctorId',
-        populate: {
-          path: 'employeeId',
-          populate: {
-            path: 'userId',
-            select: 'firstName lastName email',
-          },
-        },
-      })
-      .sort({ appointmentDate: -1 });
+    filter.doctorId = doctor._id;
   }
 
-  const patient = await Patient.findOne({ userId });
+  if (roleCode === 'PAT') {
+    const patient = await Patient.findOne({ userId });
 
-  if (!patient) {
-    throw new ApiError(404, 'Patient profile not found');
+    if (!patient) {
+      throw new ApiError(404, 'Patient profile not found');
+    }
+
+    filter.patientId = patient._id;
   }
 
-  return await Appointment.find({ patientId: patient._id })
+  if (search) {
+    filter.$or = [
+      { appointmentCode: { $regex: search, $options: 'i' } },
+      { status: { $regex: search, $options: 'i' } },
+      { timeSlot: { $regex: search, $options: 'i' } },
+      { reason: { $regex: search, $options: 'i' } }
+    ];
+  }
+
+  const totalRecords = await Appointment.countDocuments(filter);
+
+  const appointments = await Appointment.find(filter)
     .populate('patientId', 'UHID firstName lastName phone gender bloodGroup')
     .populate({
       path: 'doctorId',
@@ -479,7 +576,22 @@ exports.getMyAppointments = async (user) => {
         },
       },
     })
-    .sort({ appointmentDate: -1 });
+    .sort({ [finalSortBy]: sortOrder })
+    .skip(skip)
+    .limit(limit);
+
+  return {
+    appointments,
+    pagination: {
+      ...buildPaginationResponse({
+        page,
+        limit,
+        totalRecords
+      }),
+      sortBy: finalSortBy,
+      sortOrder: sortOrder === 1 ? 'asc' : 'desc'
+    }
+  };
 };
 
 exports.getAvailableSlots = async (doctorId, appointmentDate) => {

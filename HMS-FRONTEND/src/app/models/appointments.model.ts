@@ -68,3 +68,20 @@ export interface SlotResponse {
   bookedSlots: string[];
   availableSlots: string[];
 }
+
+export interface PaginationData {
+  page: number;
+  limit: number;
+  totalRecords: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+export interface PaginatedAppointmentResponse {
+  success: boolean;
+  statusCode?: number;
+  message: string;
+  data: Appointment[];
+  pagination: PaginationData;
+}

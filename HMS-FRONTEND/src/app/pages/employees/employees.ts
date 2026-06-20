@@ -1,5 +1,12 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { FormGroup, FormControl, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
+import { Component, OnInit, signal } from '@angular/core';
+import {
+  FormGroup,
+  FormControl,
+  Validators,
+  ReactiveFormsModule,
+  AbstractControl,
+  ValidationErrors
+} from '@angular/forms';
 import { DatePipe, NgClass } from '@angular/common';
 import { EmployeeService } from '../../services/employee.service';
 import { Employee } from '../../models/employee.model';
@@ -12,48 +19,52 @@ import { Employee } from '../../models/employee.model';
   styleUrl: './employees.css'
 })
 export class Employees implements OnInit {
+  employees = signal<Employee[]>([]);
+  searchText = signal('');
+  showAddEmployeeModal = signal(false);
 
-  employees: Employee[] = [];
-  filteredEmployees: Employee[] = [];
-  searchText = '';
-  showAddEmployeeModal = false;
-  currentPage = 1;
+  currentPage = signal(1);
   pageSize = 10;
-  isEditMode = false;
-  selectedEmployee: Employee | null = null;
+  totalRecords = signal(0);
+  totalPages = signal(0);
+
+  isEditMode = signal(false);
+  selectedEmployee = signal<Employee | null>(null);
+
   loggedInUserId: string | null = null;
 
+  private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
   joiningDateRangeValidator(control: AbstractControl): ValidationErrors | null {
-  if (!control.value) return null;
+    if (!control.value) return null;
 
-  const selected = new Date(control.value);
-  const today = new Date();
+    const selected = new Date(control.value);
+    const today = new Date();
 
-  const minDate = new Date();
-  minDate.setMonth(today.getMonth() - 2);
+    const minDate = new Date();
+    minDate.setMonth(today.getMonth() - 2);
 
-  const maxDate = new Date();
-  maxDate.setMonth(today.getMonth() + 2);
+    const maxDate = new Date();
+    maxDate.setMonth(today.getMonth() + 2);
 
-  if (selected < minDate || selected > maxDate) {
-    return { dateOutOfRange: true };
+    if (selected < minDate || selected > maxDate) {
+      return { dateOutOfRange: true };
+    }
+
+    return null;
   }
 
-  return null;
-}
+  getTodayDate(): string {
+    const today = new Date();
+    today.setMonth(today.getMonth() - 2);
+    return today.toISOString().split('T')[0];
+  }
 
-getTodayDate(): string {
-  const today = new Date();
-  today.setMonth(today.getMonth() - 2);
-  return today.toISOString().split('T')[0];
-}
-
-getMaxDate(): string {
-  const today = new Date();
-  today.setMonth(today.getMonth() + 2);
-  return today.toISOString().split('T')[0];
-}
+  getMaxDate(): string {
+    const today = new Date();
+    today.setMonth(today.getMonth() + 2);
+    return today.toISOString().split('T')[0];
+  }
 
   employeeForm = new FormGroup({
     firstName: new FormControl('', [
@@ -94,51 +105,27 @@ getMaxDate(): string {
     ])
   });
 
-  constructor(
-    readonly employeeService: EmployeeService,
-    readonly cd: ChangeDetectorRef
-  ) { }
+  constructor(readonly employeeService: EmployeeService) {}
 
   ngOnInit(): void {
     this.getEmployees();
   }
 
-  get paginatedEmployees(): Employee[] {
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-
-    return this.filteredEmployees.slice(startIndex, endIndex);
-  }
-
-  get totalPages(): number {
-    return Math.ceil(this.filteredEmployees.length / this.pageSize);
-  }
-
-  get startRecord(): number {
-    if (this.filteredEmployees.length === 0) {
-      return 0;
-    }
-
-    return (this.currentPage - 1) * this.pageSize + 1;
-  }
-
-  get endRecord(): number {
-    return Math.min(
-      this.currentPage * this.pageSize,
-      this.filteredEmployees.length
-    );
-  }
-
-
-
-
-  getEmployees() {
-    this.employeeService.getAllEmployees()
+  getEmployees(): void {
+    this.employeeService
+      .getAllEmployees(
+        this.currentPage(),
+        this.pageSize,
+        this.searchText().trim()
+      )
       .subscribe({
         next: (res) => {
-          this.employees = res.data;
-          this.filteredEmployees = res.data;
-          this.cd.detectChanges();
+          this.employees.set(res.data);
+
+          this.totalRecords.set(res.pagination.totalRecords);
+          this.totalPages.set(res.pagination.totalPages);
+
+          this.currentPage.set(res.pagination.page);
         },
         error: (err) => {
           console.error('Error fetching employees:', err);
@@ -146,49 +133,47 @@ getMaxDate(): string {
       });
   }
 
-  goToPreviousPage() {
-    if (this.currentPage > 1) {
-      this.currentPage--;
+  startRecord(): number {
+    if (this.totalRecords() === 0) {
+      return 0;
+    }
+
+    return (this.currentPage() - 1) * this.pageSize + 1;
+  }
+
+  endRecord(): number {
+    const end = this.currentPage() * this.pageSize;
+    return Math.min(end, this.totalRecords());
+  }
+
+  goToPreviousPage(): void {
+    if (this.currentPage() > 1) {
+      this.currentPage.update(page => page - 1);
+      this.getEmployees();
     }
   }
 
-  goToNextPage() {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
+  goToNextPage(): void {
+    if (this.currentPage() < this.totalPages()) {
+      this.currentPage.update(page => page + 1);
+      this.getEmployees();
     }
   }
 
-
-
-
-
-  filterEmployees() {
-    const search = this.searchText.toLowerCase().trim();
-
-    if (!search) {
-      this.filteredEmployees = [...this.employees];
-      return;
+  filterEmployees(): void {
+    if (this.searchTimer) {
+      clearTimeout(this.searchTimer);
     }
 
-    this.filteredEmployees = this.employees.filter(employee =>
-      employee.employeeCode?.toLowerCase().includes(search) ||
-      employee.firstName?.toLowerCase().includes(search) ||
-      employee.lastName?.toLowerCase().includes(search) ||
-      employee.email?.toLowerCase().includes(search) ||
-      employee.phone?.includes(search) ||
-      employee.role?.toLowerCase().includes(search) ||
-      employee.department?.toLowerCase().includes(search) ||
-      employee.designation?.toLowerCase().includes(search)
-    );
-    this.currentPage = 1;
+    this.searchTimer = setTimeout(() => {
+      this.currentPage.set(1);
+      this.getEmployees();
+    }, 300);
   }
 
-
-
-
-  openAddEmployeeModal() {
-    this.isEditMode = false;
-    this.selectedEmployee = null
+  openAddEmployeeModal(): void {
+    this.isEditMode.set(false);
+    this.selectedEmployee.set(null);
 
     this.employeeForm.reset();
 
@@ -199,12 +184,14 @@ getMaxDate(): string {
     ]);
     this.employeeForm.get('password')?.updateValueAndValidity();
 
-    this.showAddEmployeeModal = true;
+    this.employeeForm.get('role')?.enable();
+
+    this.showAddEmployeeModal.set(true);
   }
 
-  openEditEmployeeModal(employee: Employee) {
-    this.isEditMode = true;
-    this.selectedEmployee = employee;
+  openEditEmployeeModal(employee: Employee): void {
+    this.isEditMode.set(true);
+    this.selectedEmployee.set(employee);
 
     this.employeeForm.reset();
 
@@ -225,12 +212,13 @@ getMaxDate(): string {
 
     this.employeeForm.get('role')?.disable();
 
-    this.showAddEmployeeModal = true;
+    this.showAddEmployeeModal.set(true);
   }
-  closeAddEmployeeModal() {
-    this.showAddEmployeeModal = false;
-    this.isEditMode = false;
-    this.selectedEmployee = null;
+
+  closeAddEmployeeModal(): void {
+    this.showAddEmployeeModal.set(false);
+    this.isEditMode.set(false);
+    this.selectedEmployee.set(null);
 
     this.employeeForm.reset();
 
@@ -243,17 +231,15 @@ getMaxDate(): string {
     this.employeeForm.get('password')?.updateValueAndValidity();
   }
 
-
-
-
-
-  saveEmployee() {
+  saveEmployee(): void {
     if (this.employeeForm.invalid) {
       this.employeeForm.markAllAsTouched();
       return;
     }
 
-    if (this.isEditMode && this.selectedEmployee) {
+    const selectedEmployee = this.selectedEmployee();
+
+    if (this.isEditMode() && selectedEmployee) {
       const payload = {
         firstName: this.employeeForm.get('firstName')?.value,
         lastName: this.employeeForm.get('lastName')?.value,
@@ -262,18 +248,17 @@ getMaxDate(): string {
         department: this.employeeForm.get('department')?.value,
         designation: this.employeeForm.get('designation')?.value,
         joiningDate: this.employeeForm.get('joiningDate')?.value,
-        status: this.selectedEmployee.status
+        status: selectedEmployee.status
       };
 
       this.employeeService.updateEmployee(
-        this.selectedEmployee.employeeId,
+        selectedEmployee.employeeId,
         payload as any
       ).subscribe({
-        next: (res) => {
+        next: () => {
           alert('Employee updated successfully!');
           this.closeAddEmployeeModal();
           this.getEmployees();
-          this.cd.detectChanges();
         },
         error: (err) => {
           console.error('Error updating employee:', err);
@@ -288,11 +273,12 @@ getMaxDate(): string {
 
     this.employeeService.createEmployee(payload as any)
       .subscribe({
-        next: (res) => {
+        next: () => {
           alert('Employee created successfully!');
           this.closeAddEmployeeModal();
+          this.currentPage.set(1);
+          this.searchText.set('');
           this.getEmployees();
-          this.cd.detectChanges();
         },
         error: (err) => {
           console.error('Error creating employee:', err);
@@ -300,5 +286,4 @@ getMaxDate(): string {
         }
       });
   }
-
 }

@@ -4,6 +4,10 @@ const Employee = require('../models/Employee.model')
 const bcrypt = require('bcrypt');
 const ApiError = require('../utils/ApiError');
 const sendEmail = require('./mail.service')
+const {
+  getPagination,
+  buildPaginationResponse
+} = require('../utils/pagination');
 
 exports.createEmployeeUser = async (userData) => {
     const {
@@ -241,36 +245,88 @@ exports.currentProfile = async (userId) => {
     };
 };
 
-//to get all the employees
+// to get all the employees with pagination and search
+exports.getAllEmployees = async (query = {}) => {
+  const { page, limit, skip, sortBy, sortOrder } = getPagination(query);
+  const search = query.search ? query.search.trim() : '';
 
-exports.getAllEmployees = async () => {
-    const employees = await Employee.find()
-        .populate({
-            path: "userId",
-            select: "firstName lastName email roleId isVerified status",
-            populate: {
-                path: "roleId",
-                select: "name roleCode"
-            }
-        })
-        .sort({ createdAt: -1 });
+  const allowedSortFields = [
+    'createdAt',
+    'employeeCode',
+    'department',
+    'designation',
+    'status'
+  ];
 
-    return employees.map((employee) => ({
-        employeeId: employee._id,
-        employeeCode: employee.employeeCode,
+  const finalSortBy = allowedSortFields.includes(sortBy)
+    ? sortBy
+    : 'createdAt';
 
-        firstName: employee.userId.firstName,
-        lastName: employee.userId.lastName,
-        email: employee.userId.email,
+  const filter = {};
 
-        role: employee.userId.roleId.name,
-        roleCode: employee.userId.roleId.roleCode,
-        isVerified: employee.userId.isVerified,
+  if (search) {
+    const matchingUsers = await User.find({
+      $or: [
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ]
+    }).select('_id');
 
-        phone: employee.phone,
-        department: employee.department,
-        designation: employee.designation,
-        joiningDate: employee.joiningDate,
-        status: employee.status
-    }));
+    const matchingUserIds = matchingUsers.map(user => user._id);
+
+    filter.$or = [
+      { employeeCode: { $regex: search, $options: 'i' } },
+      { phone: { $regex: search, $options: 'i' } },
+      { department: { $regex: search, $options: 'i' } },
+      { designation: { $regex: search, $options: 'i' } },
+      { status: { $regex: search, $options: 'i' } },
+      { userId: { $in: matchingUserIds } }
+    ];
+  }
+
+  const totalRecords = await Employee.countDocuments(filter);
+
+  const employees = await Employee.find(filter)
+    .populate({
+      path: 'userId',
+      select: 'firstName lastName email roleId isVerified status',
+      populate: {
+        path: 'roleId',
+        select: 'name roleCode'
+      }
+    })
+    .sort({ [finalSortBy]: sortOrder })
+    .skip(skip)
+    .limit(limit);
+
+  const formattedEmployees = employees.map((employee) => ({
+    employeeId: employee._id,
+    userId: employee.userId?._id,
+
+    employeeCode: employee.employeeCode,
+
+    firstName: employee.userId?.firstName,
+    lastName: employee.userId?.lastName,
+    email: employee.userId?.email,
+
+    role: employee.userId?.roleId?.name,
+    roleCode: employee.userId?.roleId?.roleCode,
+    isVerified: employee.userId?.isVerified,
+
+    phone: employee.phone,
+    department: employee.department,
+    designation: employee.designation,
+    joiningDate: employee.joiningDate,
+    status: employee.status
+  }));
+
+  return {
+    employees: formattedEmployees,
+    pagination: buildPaginationResponse({
+      page,
+      limit,
+      totalRecords
+    })
+  };
 };

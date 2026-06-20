@@ -8,6 +8,10 @@ const bcrypt = require("bcrypt");
 const Patient = require('../models/Patient.model');
 const ApiError = require('../utils/ApiError');
 const { generateToken } = require('../utils/jwt')
+const {
+  getPagination,
+  buildPaginationResponse
+} = require('../utils/pagination');
 
 
 
@@ -42,17 +46,13 @@ exports.createPatient = async (patientData, employeeId) => {
   return patient;
 };
 exports.getAllPatients = async (query = {}) => {
-  const page = Number(query.page) || 1;
-  const limit = Number(query.limit) || 5;
+  const { page, limit, skip, sortBy, sortOrder } = getPagination(query);
   const search = query.search ? query.search.trim() : '';
-  const skip = (page - 1) * limit;
 
   const allowedSortFields = ['createdAt', 'firstName', 'lastName', 'UHID'];
-  const sortBy = allowedSortFields.includes(query.sortBy)
-    ? query.sortBy
+  const finalSortBy = allowedSortFields.includes(sortBy)
+    ? sortBy
     : 'createdAt';
-
-  const sortOrder = query.sortOrder === 'asc' ? 1 : -1;
 
   const filter = {};
 
@@ -81,7 +81,7 @@ exports.getAllPatients = async (query = {}) => {
         select: 'name roleCode',
       },
     })
-    .sort({ [sortBy]: sortOrder })
+    .sort({ [finalSortBy]: sortOrder })
     .skip(skip)
     .limit(limit);
 
@@ -119,11 +119,12 @@ exports.getAllPatients = async (query = {}) => {
   return {
     patients: formattedPatients,
     pagination: {
-      totalRecords,
-      currentPage: page,
-      totalPages: Math.ceil(totalRecords / limit),
-      limit,
-      sortBy,
+      ...buildPaginationResponse({
+        page,
+        limit,
+        totalRecords
+      }),
+      sortBy: finalSortBy,
       sortOrder: sortOrder === 1 ? 'asc' : 'desc'
     }
   };

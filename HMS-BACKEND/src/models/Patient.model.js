@@ -107,4 +107,9 @@ patientSchema.pre('save', async function () {
     }
 });
 
+patientSchema.index({ phone: 1 });
+patientSchema.index({ createdAt: -1 });
+patientSchema.index({ firstName: 1 });
+patientSchema.index({ lastName: 1 });
+
 module.exports = mongoose.model('Patient', patientSchema);

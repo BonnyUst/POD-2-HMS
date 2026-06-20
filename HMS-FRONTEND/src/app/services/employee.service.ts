@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient , HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Employee, CreateEmployeePayload,UpdateEmployeePayload } from '../models/employee.model';
+import { Employee, CreateEmployeePayload,UpdateEmployeePayload , PaginatedEmployeeResponse} from '../models/employee.model';
 import { ApiResponse } from '../models/api-response.model';
 
 @Injectable({
@@ -14,8 +14,20 @@ export class EmployeeService {
 
   constructor(readonly http: HttpClient) {}
 
-  getAllEmployees(): Observable<ApiResponse<Employee[]>> {
-    return this.http.get<ApiResponse<Employee[]>>(`${this.baseUrl}/users/list`);
+  getAllEmployees(
+    page: number,
+    limit: number,
+    search: string
+  ): Observable<PaginatedEmployeeResponse> {
+    const params = new HttpParams()
+      .set('page', page)
+      .set('limit', limit)
+      .set('search', search);
+
+    return this.http.get<PaginatedEmployeeResponse>(
+      `${this.baseUrl}/users/list`,
+      { params }
+    );
   }
 
   createEmployee(payload: CreateEmployeePayload): Observable<ApiResponse<Employee>> {
