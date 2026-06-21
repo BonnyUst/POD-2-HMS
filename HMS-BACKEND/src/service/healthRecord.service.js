@@ -4,6 +4,12 @@ const Employee = require('../models/Employee.model');
 const Doctor=require('../models/Doctor.model')
 const ApiError = require('../utils/ApiError');
 
+const {
+  getPagination,
+  buildPaginationResponse
+} = require('../utils/pagination');
+
+
 const getLoggedInEmployee = async (userId) => {
   const employee = await Employee.findOne({ userId });
 
@@ -56,7 +62,21 @@ exports.createHealthRecord = async (data, loggedInUser) => {
 
   return healthRecord;
 };
-exports.getHealthRecords = async (loggedInUser) => {
+exports.getHealthRecords = async (loggedInUser, query = {}) => {
+  const { page, limit, skip, sortBy, sortOrder } = getPagination(query);
+  const search = query.search ? query.search.trim() : '';
+
+  const allowedSortFields = [
+    'createdAt',
+    'updatedAt',
+    'status',
+    'medicalRecordId'
+  ];
+
+  const finalSortBy = allowedSortFields.includes(sortBy)
+    ? sortBy
+    : 'createdAt';
+
   const filter = {
     isDeleted: false
   };
@@ -81,6 +101,18 @@ exports.getHealthRecords = async (loggedInUser) => {
     filter.doctorId = doctor._id;
   }
 
+  if (search) {
+    filter.$or = [
+      { medicalRecordId: { $regex: search, $options: 'i' } },
+      { status: { $regex: search, $options: 'i' } },
+      { diagnosis: { $regex: search, $options: 'i' } },
+      { notes: { $regex: search, $options: 'i' } },
+      { treatmentPlan: { $regex: search, $options: 'i' } }
+    ];
+  }
+
+  const totalRecords = await HealthRecord.countDocuments(filter);
+
   const healthRecords = await HealthRecord.find(filter)
     .populate('patientId', 'UHID firstName lastName phone gender dob')
     .populate({
@@ -95,50 +127,23 @@ exports.getHealthRecords = async (loggedInUser) => {
       }
     })
     .populate('appointmentId', 'appointmentCode appointmentDate timeSlot status reason')
-    .sort({ createdAt: -1 });
+    .sort({ [finalSortBy]: sortOrder })
+    .skip(skip)
+    .limit(limit);
 
-  return healthRecords;
+  return {
+    healthRecords,
+    pagination: {
+      ...buildPaginationResponse({
+        page,
+        limit,
+        totalRecords
+      }),
+      sortBy: finalSortBy,
+      sortOrder: sortOrder === 1 ? 'asc' : 'desc'
+    }
+  };
 };
-
-exports.getHealthRecordById = async (id) => {
-  const record = await HealthRecord.findOne({
-    _id: id,
-    isDeleted: false
-  })
-    .populate('appointmentId', 'appointmentCode appointmentDate timeSlot status reason')
-    .populate('patientId', 'UHID firstName lastName phone gender')
-    .populate({
-      path: 'doctorId',
-      select: 'employeeCode department designation userId',
-      populate: {
-        path: 'userId',
-        select: 'firstName lastName email'
-      }
-    })
-    .populate({
-      path: 'createdBy',
-      select: 'employeeCode department designation userId',
-      populate: {
-        path: 'userId',
-        select: 'firstName lastName email'
-      }
-    })
-    .populate({
-      path: 'finalizedBy',
-      select: 'employeeCode department designation userId',
-      populate: {
-        path: 'userId',
-        select: 'firstName lastName email'
-      }
-    });
-
-  if (!record) {
-    throw new ApiError(404, 'Health record not found');
-  }
-
-  return record;
-};
-
 exports.updateHealthRecord = async (id, data) => {
   const record = await HealthRecord.findOne({
     _id: id,

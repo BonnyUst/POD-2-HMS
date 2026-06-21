@@ -1,8 +1,9 @@
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
 import { HealthRecordService } from '../../services/health-record.service';
+import { HealthRecord } from '../../models/health-record.model';
 
 @Component({
   selector: 'app-health-records',
@@ -16,49 +17,14 @@ export class HealthRecords implements OnInit {
   errorMessage = signal('');
   searchText = signal('');
 
-  healthRecords = signal<any[]>([]);
+  healthRecords = signal<HealthRecord[]>([]);
 
-  filteredHealthRecords = computed(() => {
-    const search = this.searchText().trim().toLowerCase();
+  currentPage = signal(1);
+  pageSize = 10;
+  totalRecords = signal(0);
+  totalPages = signal(0);
 
-    if (!search) {
-      return this.healthRecords();
-    }
-
-    return this.healthRecords().filter((record) => {
-      const medicalRecordId = record.medicalRecordId?.toLowerCase() || '';
-      const appointmentCode = record.appointmentId?.appointmentCode?.toLowerCase() || '';
-
-      const patientFirstName = record.patientId?.firstName?.toLowerCase() || '';
-      const patientLastName = record.patientId?.lastName?.toLowerCase() || '';
-      const uhid = record.patientId?.UHID?.toLowerCase() || '';
-
-      const doctorFirstName =
-        record.doctorId?.userId?.firstName?.toLowerCase() ||
-        record.doctorId?.employeeId?.userId?.firstName?.toLowerCase() ||
-        '';
-
-      const doctorLastName =
-        record.doctorId?.userId?.lastName?.toLowerCase() ||
-        record.doctorId?.employeeId?.userId?.lastName?.toLowerCase() ||
-        '';
-
-      const status = record.status?.toLowerCase() || '';
-      const diagnosis = record.diagnosis?.toLowerCase() || '';
-
-      return (
-        medicalRecordId.includes(search) ||
-        appointmentCode.includes(search) ||
-        patientFirstName.includes(search) ||
-        patientLastName.includes(search) ||
-        uhid.includes(search) ||
-        doctorFirstName.includes(search) ||
-        doctorLastName.includes(search) ||
-        status.includes(search) ||
-        diagnosis.includes(search)
-      );
-    });
-  });
+  private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     readonly healthRecordService: HealthRecordService,
@@ -73,51 +39,113 @@ export class HealthRecords implements OnInit {
     this.loading.set(true);
     this.errorMessage.set('');
 
-    this.healthRecordService.getHealthRecords().subscribe({
-      next: (res: any) => {
-        this.healthRecords.set(res.data || []);
-        this.loading.set(false);
-      },
-      error: (error: any) => {
-        this.errorMessage.set(
-          error?.error?.message || 'Unable to load health records'
-        );
-        this.loading.set(false);
-      }
-    });
+    this.healthRecordService
+      .getHealthRecords(
+        this.currentPage(),
+        this.pageSize,
+        this.searchText().trim()
+      )
+      .subscribe({
+        next: (res) => {
+          this.healthRecords.set(res.data || []);
+
+          this.totalRecords.set(res.pagination.totalRecords);
+          this.totalPages.set(res.pagination.totalPages);
+          this.currentPage.set(res.pagination.page);
+
+          this.loading.set(false);
+        },
+        error: (error: any) => {
+          this.errorMessage.set(
+            error?.error?.message || 'Unable to load health records'
+          );
+
+          this.healthRecords.set([]);
+          this.totalRecords.set(0);
+          this.totalPages.set(0);
+          this.loading.set(false);
+        }
+      });
   }
 
-  onSearch(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.searchText.set(value);
+  filterHealthRecords(): void {
+    if (this.searchTimer) {
+      clearTimeout(this.searchTimer);
+    }
+
+    this.searchTimer = setTimeout(() => {
+      this.currentPage.set(1);
+      this.loadHealthRecords();
+    }, 300);
   }
 
-  getPatientName(record: any): string {
+  get startRecord(): number {
+    if (this.totalRecords() === 0) {
+      return 0;
+    }
+
+    return (this.currentPage() - 1) * this.pageSize + 1;
+  }
+
+  get endRecord(): number {
+    return Math.min(
+      this.currentPage() * this.pageSize,
+      this.totalRecords()
+    );
+  }
+
+  goToPreviousPage(): void {
+    if (this.currentPage() <= 1) {
+      return;
+    }
+
+    this.currentPage.update((page) => page - 1);
+    this.loadHealthRecords();
+  }
+
+  goToNextPage(): void {
+    if (this.currentPage() >= this.totalPages()) {
+      return;
+    }
+
+    this.currentPage.update((page) => page + 1);
+    this.loadHealthRecords();
+  }
+
+  getPatientName(record: HealthRecord): string {
+    if (typeof record.patientId === 'string') {
+      return '-';
+    }
+
     const firstName = record.patientId?.firstName || '';
     const lastName = record.patientId?.lastName || '';
 
     return `${firstName} ${lastName}`.trim() || '-';
   }
 
-  getDoctorName(record: any): string {
+  getDoctorName(record: HealthRecord): string {
+    if (typeof record.doctorId === 'string') {
+      return '-';
+    }
+
     const firstName =
-      record.doctorId?.userId?.firstName ||
-      record.doctorId?.employeeId?.userId?.firstName ||
-      '';
+      record.doctorId?.userId?.firstName || '';
 
     const lastName =
-      record.doctorId?.userId?.lastName ||
-      record.doctorId?.employeeId?.userId?.lastName ||
-      '';
+      record.doctorId?.userId?.lastName || '';
 
     return `${firstName} ${lastName}`.trim() || '-';
   }
 
-  getAppointmentCode(record: any): string {
+  getAppointmentCode(record: HealthRecord): string {
+    if (typeof record.appointmentId === 'string') {
+      return '-';
+    }
+
     return record.appointmentId?.appointmentCode || '-';
   }
 
-  getAppointmentId(record: any): string {
+  getAppointmentId(record: HealthRecord): string {
     if (typeof record.appointmentId === 'string') {
       return record.appointmentId;
     }
@@ -125,7 +153,7 @@ export class HealthRecords implements OnInit {
     return record.appointmentId?._id || '';
   }
 
-  viewAppointmentDetails(record: any): void {
+  viewAppointmentDetails(record: HealthRecord): void {
     const appointmentId = this.getAppointmentId(record);
 
     if (!appointmentId) {
@@ -134,6 +162,9 @@ export class HealthRecords implements OnInit {
 
     const basePath = localStorage.getItem('basePath') || '/admin';
 
-    this.router.navigate([`${basePath}/appointments/details`, appointmentId]);
+    this.router.navigate([
+      `${basePath}/appointments/details`,
+      appointmentId
+    ]);
   }
 }

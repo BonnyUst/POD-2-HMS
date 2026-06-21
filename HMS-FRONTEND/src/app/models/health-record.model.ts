@@ -1,3 +1,5 @@
+import { PaginationData } from './pagination.model';
+
 export interface PrescriptionMedicine {
   name: string;
   dosage: string;
@@ -84,6 +86,7 @@ export interface UpdateHealthRecordRequest {
 export interface HealthRecordListResponse {
   success: boolean;
   data: HealthRecord[];
+  pagination: PaginationData;
   message?: string;
 }
 
