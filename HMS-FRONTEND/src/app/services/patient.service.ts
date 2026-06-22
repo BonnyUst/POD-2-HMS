@@ -1,8 +1,18 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpParams
+} from '@angular/common/http';
 import { Observable } from 'rxjs';
+
 import { environment } from '../../environments/environment';
-import { Patient, CreatePatientPayload } from '../models/patients.model';
+
+import {
+  Patient,
+  CreatePatientPayload,
+  CreatePatientResult
+} from '../models/patients.model';
+
 import { ApiResponse } from '../models/api-response.model';
 
 export interface PaginationData {
@@ -12,7 +22,8 @@ export interface PaginationData {
   limit: number;
 }
 
-export interface PaginatedPatientResponse extends ApiResponse<Patient[]> {
+export interface PaginatedPatientResponse
+  extends ApiResponse<Patient[]> {
   pagination: PaginationData;
 }
 
@@ -30,8 +41,8 @@ export class PatientService {
     search: string
   ): Observable<PaginatedPatientResponse> {
     const params = new HttpParams()
-      .set('page', page)
-      .set('limit', limit)
+      .set('page', page.toString())
+      .set('limit', limit.toString())
       .set('search', search);
 
     return this.http.get<PaginatedPatientResponse>(
@@ -40,8 +51,10 @@ export class PatientService {
     );
   }
 
-  createPatient(payload: CreatePatientPayload): Observable<ApiResponse<Patient>> {
-    return this.http.post<ApiResponse<Patient>>(
+  createPatient(
+    payload: CreatePatientPayload
+  ): Observable<ApiResponse<CreatePatientResult>> {
+    return this.http.post<ApiResponse<CreatePatientResult>>(
       `${this.baseUrl}/patients/create`,
       payload
     );

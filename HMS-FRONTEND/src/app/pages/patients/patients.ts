@@ -55,6 +55,13 @@ export class Patients implements OnInit {
       Validators.minLength(1),
       Validators.pattern(/^(?!\s+$)[A-Za-z\s]+$/)
     ]),
+    email: new FormControl('', [
+  Validators.required,
+  Validators.email,
+  Validators.pattern(
+    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+  )
+]),
     phone: new FormControl('', [
       Validators.required,
       Validators.pattern('^[6-9][0-9]{9}$')
@@ -69,13 +76,22 @@ export class Patients implements OnInit {
     bloodGroup: new FormControl('', [
       Validators.required
     ]),
-    address: new FormGroup({
-      city: new FormControl(''),
-      state: new FormControl(''),
-      pincode: new FormControl('', [
-        Validators.pattern('^[0-9]{6}$')
-      ])
-    }),
+   address: new FormGroup({
+  city: new FormControl('', [
+    Validators.required,
+    Validators.minLength(2),
+    Validators.maxLength(100)
+  ]),
+
+  state: new FormControl('', [
+    Validators.required
+  ]),
+
+  pincode: new FormControl('', [
+    Validators.required,
+    Validators.pattern('^[0-9]{6}$')
+  ])
+}),
     emergencyContactName: new FormControl('', [
       Validators.required,
       Validators.minLength(2)
@@ -172,21 +188,31 @@ export class Patients implements OnInit {
       return;
     }
 
-    const payload = this.patientForm.value as CreatePatientPayload;
+   const payload = this.patientForm.getRawValue() as CreatePatientPayload;
 
     console.log('Patient form data:', payload);
 
     this.patientService.createPatient(payload)
       .subscribe({
         next: (res) => {
-          console.log('Patient created successfully:', res);
-          alert('Patient created successfully!');
-          this.closeAddPatientModal();
+  console.log('Patient created successfully:', res);
 
-          this.currentPage.set(1);
-          this.searchText.set('');
-          this.getPatients();
-        },
+  if (res.data.credentialsEmailSent) {
+    alert(
+      'Patient created and login credentials emailed successfully!'
+    );
+  } else {
+    alert(
+      'Patient created, but login credentials could not be emailed.'
+    );
+  }
+
+  this.closeAddPatientModal();
+
+  this.currentPage.set(1);
+  this.searchText.set('');
+  this.getPatients();
+},
         error: (err) => {
           console.error('Error creating patient:', err);
           alert(err.error?.message || 'Something went wrong');
