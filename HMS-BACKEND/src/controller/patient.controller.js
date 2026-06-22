@@ -4,16 +4,23 @@ const patientService = require('../service/patient.service');
 
 exports.createPatient = async (req, res, next) => {
   try {
-    console.log("Logged in user:", req.user);
-    const userId = req.user.userId; 
-    const patient = await patientService.createPatient(req.body, userId);
+    const employeeId = req.user.userId;
+
+    const result =
+      await patientService.createPatient(
+        req.body,
+        employeeId
+      );
+
+    const message = result.credentialsEmailSent
+      ? "Patient created and login credentials emailed successfully"
+      : "Patient created, but login credentials email could not be sent";
 
     return res.status(201).json({
       success: true,
-      message: "Patient created successfully",
-      data: patient
+      message,
+      data: result,
     });
-
   } catch (error) {
     next(error);
   }

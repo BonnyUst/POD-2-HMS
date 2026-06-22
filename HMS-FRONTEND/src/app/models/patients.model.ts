@@ -1,4 +1,3 @@
-
 export interface Patient {
   patientId: string;
   UHID: string;
@@ -19,10 +18,17 @@ export interface Patient {
   createdByRoleCode?: string;
   createdAt: string;
 }
-
+
+export interface PatientAddress {
+  city: string;
+  state: string;
+  pincode: string;
+}
+
 export interface CreatePatientPayload {
   firstName: string;
   lastName: string;
+  email: string;
   phone: string;
   gender: string;
   dob: string;
@@ -32,8 +38,9 @@ export interface CreatePatientPayload {
   emergencyContactPhone: string;
 }
 
-export interface PatientAddress {
-  city: string;
-  state: string;
-  pincode: string;
+export interface CreatePatientResult {
+  patientId: string;
+  userId: string;
+  email: string;
+  credentialsEmailSent: boolean;
 }

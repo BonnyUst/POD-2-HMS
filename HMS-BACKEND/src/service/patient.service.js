@@ -13,7 +13,8 @@ const {
   buildPaginationResponse
 } = require('../utils/pagination');
 
-
+const generateTemporaryPassword =
+  require("../utils/passwordGenerator");
 
 const mailService = require('../service/mail.service');
 const sendEmail = require('../service/mail.service');
@@ -21,6 +22,7 @@ exports.createPatient = async (patientData, employeeId) => {
   const {
     firstName,
     lastName,
+    email,
     phone,
     gender,
     dob,
@@ -30,20 +32,172 @@ exports.createPatient = async (patientData, employeeId) => {
     emergencyContactPhone,
   } = patientData;
 
-  const patient = await Patient.create({
-    firstName,
-    lastName,
-    phone,
-    gender,
-    dob,
-    bloodGroup,
-    address,
-    emergencyContactName,
-    emergencyContactPhone,
-    createdBy: employeeId,
+  const normalizedEmail = email.trim().toLowerCase();
+
+  // Check whether the email already exists in users collection
+  const existingUser = await User.findOne({
+    email: normalizedEmail,
   });
 
-  return patient;
+  if (existingUser) {
+    throw new ApiError(
+      409,
+      "A user is already registered with this email"
+    );
+  }
+
+  // Use the same role lookup used in self-registration
+  const patientRole = await Role.findOne({
+    name: "Patient",
+  });
+
+  if (!patientRole) {
+    throw new ApiError(
+      500,
+      "Patient role not configured"
+    );
+  }
+
+  // Generate and hash the temporary password
+  const temporaryPassword =
+    generateTemporaryPassword();
+
+  const passwordHash = await bcrypt.hash(
+    temporaryPassword,
+    10
+  );
+
+  let user;
+  let patient;
+
+  try {
+    /*
+     * Create the patient's login account
+     * in the users collection.
+     */
+    user = await User.create({
+      firstName,
+      lastName,
+      email: normalizedEmail,
+      passwordHash,
+      roleId: patientRole._id,
+
+      /*
+       * The account is created by an authorised admin,
+       * so separate email verification is not required.
+       */
+      isVerified: true,
+      status: "ACTIVE",
+      mustChangePassword: true,
+    });
+
+    /*
+     * Create the patient profile and link it
+     * to the newly created User.
+     */
+    patient = await Patient.create({
+      userId: user._id,
+
+      firstName,
+      lastName,
+      phone,
+      gender,
+      dob,
+      bloodGroup,
+      address,
+      emergencyContactName,
+      emergencyContactPhone,
+
+      // The logged-in admin who created this patient
+      createdBy: employeeId,
+    });
+  } catch (error) {
+    /*
+     * If Patient creation fails after User creation,
+     * remove the incomplete User record.
+     */
+    if (patient?._id) {
+      await Patient.findByIdAndDelete(
+        patient._id
+      ).catch(() => {});
+    }
+
+    if (user?._id) {
+      await User.findByIdAndDelete(
+        user._id
+      ).catch(() => {});
+    }
+
+    throw error;
+  }
+
+  let credentialsEmailSent = false;
+
+  try {
+    const subject =
+      "Your HMS Patient Account";
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+        <h2>Welcome to HMS</h2>
+
+        <p>Hi ${firstName},</p>
+
+        <p>
+          Your patient account has been created successfully
+          by the hospital administrator.
+        </p>
+
+        <p>
+          You can log in using the following credentials:
+        </p>
+
+        <p>
+          <strong>Email:</strong>
+          ${normalizedEmail}
+        </p>
+
+        <p>
+          <strong>Temporary password:</strong>
+          ${temporaryPassword}
+        </p>
+
+        <p>
+          For security, please change your temporary password
+          immediately after logging in.
+        </p>
+
+        <p>
+          Regards,<br>
+          Hospital Management System
+        </p>
+      </div>
+    `;
+
+    /*
+     * Existing mail.service.js signature:
+     * sendEmail(to, subject, html)
+     */
+    await sendEmail(
+      normalizedEmail,
+      subject,
+      html
+    );
+
+    credentialsEmailSent = true;
+  } catch (emailError) {
+    console.error(
+      "Patient created, but credentials email failed:",
+      emailError.message
+    );
+  }
+
+  return {
+    patientId: patient._id,
+    userId: user._id,
+    email: normalizedEmail,
+    credentialsEmailSent,
+  };
 };
 exports.getAllPatients = async (query = {}) => {
   const { page, limit, skip, sortBy, sortOrder } = getPagination(query);
