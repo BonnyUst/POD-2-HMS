@@ -33,7 +33,7 @@ import {
 })
 export class AppointmentDetails implements OnInit {
   appointmentId = '';
-
+  returnTo = '';
   loading = signal(false);
   saving = signal(false);
   finalizing = signal(false);
@@ -70,15 +70,18 @@ export class AppointmentDetails implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    this.appointmentId = this.route.snapshot.paramMap.get('id') || '';
+ngOnInit(): void {
+  this.appointmentId = this.route.snapshot.paramMap.get('id') || '';
 
-    this.addMedicine();
+  this.returnTo =
+    this.route.snapshot.queryParamMap.get('returnTo') || '';
 
-    if (this.appointmentId) {
-      this.loadAppointmentDetails();
-    }
+  this.addMedicine();
+
+  if (this.appointmentId) {
+    this.loadAppointmentDetails();
   }
+}
 
   get prescription(): FormArray {
     return this.healthRecordForm.get('prescription') as FormArray;
@@ -266,11 +269,16 @@ export class AppointmentDetails implements OnInit {
     });
   }
 
-  goBack(): void {
-    const basePath = localStorage.getItem('basePath') || '/admin';
-    this.router.navigate([`${basePath}/appointments`]);
+goBack(): void {
+  const basePath = localStorage.getItem('basePath') || '/admin';
+
+  if (this.returnTo === 'health-records') {
+    this.router.navigate([`${basePath}/health-records`]);
+    return;
   }
 
+  this.router.navigate([`${basePath}/appointments`]);
+}
   canAddHealthRecord(): boolean {
     return !this.healthRecord() && this.appointment()?.status === 'BOOKED';
   }

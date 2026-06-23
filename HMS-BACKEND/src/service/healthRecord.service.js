@@ -1,8 +1,9 @@
 const HealthRecord = require('../models/healthRecord.model');
 const Appointment = require('../models/appointment.model');
 const Employee = require('../models/Employee.model');
-const Doctor=require('../models/Doctor.model')
+const Doctor = require('../models/Doctor.model')
 const ApiError = require('../utils/ApiError');
+const Patient =require('../models/Patient.model')
 
 const {
   getPagination,
@@ -100,6 +101,18 @@ exports.getHealthRecords = async (loggedInUser, query = {}) => {
 
     filter.doctorId = doctor._id;
   }
+  if (loggedInUser.rolecode === 'PAT' || loggedInUser.role === 'Patient') {
+    const patient = await Patient.findOne({
+      userId: loggedInUser.userId
+    });
+
+    if (!patient) {
+      throw new ApiError(404, 'Patient profile not found');
+    }
+
+    filter.patientId = patient._id;
+    filter.status = 'FINALIZED';
+  }
 
   if (search) {
     filter.$or = [
@@ -126,7 +139,21 @@ exports.getHealthRecords = async (loggedInUser, query = {}) => {
         }
       }
     })
-    .populate('appointmentId', 'appointmentCode appointmentDate timeSlot status reason')
+    .populate({
+  path: 'appointmentId',
+  select: 'appointmentCode appointmentDate timeSlot status reason doctorId',
+  populate: {
+    path: 'doctorId',
+    populate: {
+      path: 'employeeId',
+      select: 'employeeCode department designation userId',
+      populate: {
+        path: 'userId',
+        select: 'firstName lastName email'
+      }
+    }
+  }
+})
     .sort({ [finalSortBy]: sortOrder })
     .skip(skip)
     .limit(limit);

@@ -49,3 +49,10 @@ export const cancelAppointment = async (
 
   return response.data.data;
 };
+export const getAppointmentDetails = async (appointmentId: string) => {
+  const response = await apiClient.get(
+    `/appointments/details/${appointmentId}`
+  );
+
+  return response.data.data;
+};
