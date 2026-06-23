@@ -23,7 +23,7 @@ const permissions = {
 
 
     ADD_HEALTH_RECORD: ['Admin', 'Receptionist', 'Doctor'],
-    VIEW_HEALTH_RECORD: ['Admin', 'Receptionist', 'Doctor'],
+    VIEW_HEALTH_RECORD: ['Admin', 'Receptionist', 'Doctor','Patient'],
     UPDATE_HEALTH_RECORD: ['Admin', 'Receptionist', 'Doctor'],
     FINALIZE_HEALTH_RECORD: ['Doctor'],
     DELETE_HEALTH_RECORD: ['Admin', 'Doctor'],

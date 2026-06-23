@@ -39,6 +39,7 @@ export interface HealthRecordAppointment {
   appointmentCode?: string;
   appointmentDate?: string;
   timeSlot?: string;
+  doctorId?: HealthRecordDoctor;
   status?: 'BOOKED' | 'CANCELLED' | 'COMPLETED';
   reason?: string;
 }
@@ -49,7 +50,7 @@ export interface HealthRecord {
 
   appointmentId?: string | HealthRecordAppointment;
   patientId?: string | HealthRecordPatient;
-  doctorId?: string | HealthRecordEmployee;
+  doctorId?: string | HealthRecordDoctor;
 
   symptomsReason?: string;
   diagnosis: string;
@@ -94,4 +95,9 @@ export interface HealthRecordSingleResponse {
   success: boolean;
   data: HealthRecord;
   message?: string;
+}
+
+export interface HealthRecordDoctor {
+  _id: string;
+  employeeId?: HealthRecordEmployee;
 }

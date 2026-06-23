@@ -29,7 +29,7 @@ export class HealthRecords implements OnInit {
   constructor(
     readonly healthRecordService: HealthRecordService,
     readonly router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadHealthRecords();
@@ -47,6 +47,9 @@ export class HealthRecords implements OnInit {
       )
       .subscribe({
         next: (res) => {
+
+          console.log('Health record list response:', res.data);
+          console.log('First record doctor:', res.data?.[0]?.doctorId);
           this.healthRecords.set(res.data || []);
 
           this.totalRecords.set(res.pagination.totalRecords);
@@ -124,18 +127,25 @@ export class HealthRecords implements OnInit {
   }
 
   getDoctorName(record: HealthRecord): string {
-    if (typeof record.doctorId === 'string') {
-      return '-';
-    }
+  const directDoctor =
+    typeof record.doctorId === 'string'
+      ? null
+      : record.doctorId;
 
-    const firstName =
-      record.doctorId?.userId?.firstName || '';
+  const appointmentDoctor =
+    typeof record.appointmentId === 'string'
+      ? null
+      : record.appointmentId?.doctorId;
 
-    const lastName =
-      record.doctorId?.userId?.lastName || '';
+  const user =
+    directDoctor?.employeeId?.userId ||
+    appointmentDoctor?.employeeId?.userId;
 
-    return `${firstName} ${lastName}`.trim() || '-';
-  }
+  const firstName = user?.firstName || '';
+  const lastName = user?.lastName || '';
+
+  return `${firstName} ${lastName}`.trim() || '-';
+}
 
   getAppointmentCode(record: HealthRecord): string {
     if (typeof record.appointmentId === 'string') {
@@ -162,9 +172,13 @@ export class HealthRecords implements OnInit {
 
     const basePath = localStorage.getItem('basePath') || '/admin';
 
-    this.router.navigate([
-      `${basePath}/appointments/details`,
-      appointmentId
-    ]);
+    this.router.navigate(
+      [`${basePath}/appointments/details`, appointmentId],
+      {
+        queryParams: {
+          returnTo: 'health-records'
+        }
+      }
+    );
   }
 }
