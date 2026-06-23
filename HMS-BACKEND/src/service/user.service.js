@@ -1,6 +1,8 @@
 const User = require('../models/User.model')
 const RoleModel = require('../models/Role.model');
 const Employee = require('../models/Employee.model')
+const Doctor = require('../models/Doctor.model');
+const Appointment = require('../models/Appointment.model');
 const bcrypt = require('bcrypt');
 const ApiError = require('../utils/ApiError');
 const sendEmail = require('./mail.service')
@@ -262,7 +264,7 @@ exports.getAllEmployees = async (query = {}) => {
     ? sortBy
     : 'createdAt';
 
-  const filter = {};
+  const filter = {  isDeleted: false};
 
   if (search) {
     const matchingUsers = await User.find({
@@ -328,5 +330,115 @@ exports.getAllEmployees = async (query = {}) => {
       limit,
       totalRecords
     })
+  };
+};
+
+//helper functions in the next sprint will be changed to reusable helpers
+
+const parseTimeToMinutes = (timeValue) => {
+  const [time, period] = timeValue.split(' ');
+  let [hours, minutes] = time.split(':').map(Number);
+
+  if (period === 'PM' && hours !== 12) {
+    hours += 12;
+  }
+
+  if (period === 'AM' && hours === 12) {
+    hours = 0;
+  }
+
+  return hours * 60 + minutes;
+};
+
+const hasUpcomingBookedAppointment = async (doctorId) => {
+  const bookedAppointments = await Appointment.find({
+    doctorId,
+    status: 'BOOKED'
+  }).select('appointmentDate timeSlot');
+
+  const now = new Date();
+
+  return bookedAppointments.some((appointment) => {
+    const appointmentDateTime = new Date(appointment.appointmentDate);
+
+    const slotMinutes = parseTimeToMinutes(appointment.timeSlot);
+
+    appointmentDateTime.setHours(
+      Math.floor(slotMinutes / 60),
+      slotMinutes % 60,
+      0,
+      0
+    );
+
+    return appointmentDateTime > now;
+  });
+};
+
+//checking the doctor appointment logic 
+exports.softDeleteEmployeeById = async (
+  employeeId,
+  deletedByUserId
+) => {
+  const employee = await Employee.findOne({
+    _id: employeeId,
+    isDeleted: false
+  });
+
+  if (!employee) {
+    throw new ApiError(404, 'Employee not found');
+  }
+
+  if (employee.userId.toString() === deletedByUserId.toString()) {
+    throw new ApiError(
+      403,
+      'You cannot delete your own employee profile'
+    );
+  }
+
+  const user = await User.findById(employee.userId);
+
+  if (!user) {
+    throw new ApiError(404, 'User not found for this employee');
+  }
+
+  const doctor = await Doctor.findOne({
+    employeeId: employee._id,
+    isDeleted: false
+  });
+
+  if (doctor) {
+    const hasUpcomingAppointment =
+      await hasUpcomingBookedAppointment(doctor._id);
+
+    if (hasUpcomingAppointment) {
+      throw new ApiError(
+        400,
+        'Doctor cannot be deleted because upcoming booked appointments exist'
+      );
+    }
+
+    doctor.isDeleted = true;
+    doctor.deletedAt = new Date();
+    doctor.deletedBy = deletedByUserId;
+
+    await doctor.save();
+  }
+
+  employee.isDeleted = true;
+  employee.status = 'INACTIVE';
+  employee.deletedAt = new Date();
+  employee.deletedBy = deletedByUserId;
+
+  user.status = 'INACTIVE';
+
+  await employee.save();
+  await user.save();
+
+  return {
+    employeeId: employee._id,
+    employeeCode: employee.employeeCode,
+    message: doctor
+      ? 'Doctor and employee deleted successfully'
+      : 'Employee deleted successfully'
   };
 };

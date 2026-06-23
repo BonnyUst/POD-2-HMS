@@ -250,7 +250,7 @@ exports.getAllDoctors = async (query = {}) => {
     ? sortBy
     : 'createdAt';
 
-  const filter = {};
+  const filter = {isDeleted:false};
 
   if (search) {
     filter.$or = [

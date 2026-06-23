@@ -30,6 +30,7 @@ import {
   getMaximumJoiningDate,
   getMinimumJoiningDate
 } from '../../validations/doctor.validation';
+import { EmployeeService } from '../../services/employee.service';
 
 @Component({
   selector: 'app-doctors',
@@ -191,8 +192,9 @@ export class Doctors implements OnInit {
   );
 
   constructor(
-    readonly doctorService: DoctorService
-  ) {}
+    readonly doctorService: DoctorService,
+    readonly employeeService: EmployeeService
+  ) { }
 
   ngOnInit(): void {
     this.getDoctors();
@@ -250,7 +252,7 @@ export class Doctors implements OnInit {
 
     return (
       (this.currentPage() - 1) *
-        this.pageSize +
+      this.pageSize +
       1
     );
   }
@@ -457,7 +459,33 @@ export class Doctors implements OnInit {
       .get('password')
       ?.updateValueAndValidity();
   }
+  deleteDoctor(doctor: Doctor): void {
+    const confirmed = confirm(
+      `Are you sure you want to delete Dr. ${doctor.firstName} ${doctor.lastName}?`
+    );
 
+    if (!confirmed) {
+      return;
+    }
+
+    this.employeeService.deleteEmployee(doctor.employeeId).subscribe({
+      next: () => {
+        alert('Doctor deleted successfully');
+
+        if (this.doctors().length === 1 && this.currentPage() > 1) {
+          this.currentPage.update((page) => page - 1);
+        }
+
+        this.getDoctors();
+      },
+      error: (err) => {
+        alert(
+          err.error?.message ||
+          'Unable to delete doctor'
+        );
+      }
+    });
+  }
   saveDoctor(): void {
     if (this.doctorForm.invalid) {
       this.doctorForm.markAllAsTouched();
@@ -547,7 +575,7 @@ export class Doctors implements OnInit {
 
             alert(
               err.error?.message ||
-                'Something went wrong'
+              'Something went wrong'
             );
           }
         });
@@ -578,7 +606,7 @@ export class Doctors implements OnInit {
         error: (err) => {
           alert(
             err.error?.message ||
-              'Something went wrong'
+            'Something went wrong'
           );
         }
       });

@@ -111,7 +111,7 @@ export class Employees implements OnInit {
 
   constructor(
     readonly employeeService: EmployeeService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.getEmployees();
@@ -165,7 +165,7 @@ export class Employees implements OnInit {
 
     return (
       (this.currentPage() - 1) *
-        this.pageSize +
+      this.pageSize +
       1
     );
   }
@@ -384,7 +384,7 @@ export class Employees implements OnInit {
 
             alert(
               err.error?.message ||
-                'Something went wrong'
+              'Something went wrong'
             );
           }
         });
@@ -419,9 +419,48 @@ export class Employees implements OnInit {
 
           alert(
             err.error?.message ||
-              'Something went wrong'
+            'Something went wrong'
           );
         }
-      });                                                               
+      });
+  }
+
+  deleteEmployee(employee: Employee): void {
+    const confirmed = confirm(
+      `Are you sure you want to delete ${employee.firstName} ${employee.lastName}?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.employeeService
+      .deleteEmployee(employee.employeeId)
+      .subscribe({
+        next: () => {
+          alert('Employee deleted successfully!');
+
+          if (
+            this.employees().length === 1 &&
+            this.currentPage() > 1
+          ) {
+            this.currentPage.update((page) => page - 1);
+          }
+
+          this.getEmployees();
+        },
+
+        error: (err) => {
+          console.error(
+            'Error deleting employee:',
+            err
+          );
+
+          alert(
+            err.error?.message ||
+            'Unable to delete employee'
+          );
+        }
+      });
   }
 }

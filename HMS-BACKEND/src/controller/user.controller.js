@@ -99,4 +99,33 @@ const getCurrentProfile = async (req, res) => {
     }
 }
 
-module.exports = { createEmployeeByAdmin, getCurrentProfile, getAllEmployees, updateEmployee };
+const softDeleteEmployee = async (req, res) => {
+    try {
+        const { employeeId } = req.params;
+        const deletedByUserId = req.user.userId;
+
+        const result = await userService.softDeleteEmployeeById(
+            employeeId,
+            deletedByUserId
+        );
+
+        return res.status(200).json(
+            new ApiResponse(
+                200,
+                'Employee deleted successfully',
+                result
+            )
+        );
+    } catch (error) {
+        return res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message || 'Unable to delete employee'
+        });
+    }
+};
+
+module.exports = {
+    createEmployeeByAdmin, getCurrentProfile,
+    getAllEmployees, updateEmployee,
+    softDeleteEmployee
+};

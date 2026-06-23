@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient , HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Employee, CreateEmployeePayload,UpdateEmployeePayload , PaginatedEmployeeResponse} from '../models/employee.model';
+import { Employee, CreateEmployeePayload, UpdateEmployeePayload, PaginatedEmployeeResponse } from '../models/employee.model';
 import { ApiResponse } from '../models/api-response.model';
 
 @Injectable({
@@ -12,7 +12,7 @@ export class EmployeeService {
 
   readonly baseUrl = environment.apiUrl;
 
-  constructor(readonly http: HttpClient) {}
+  constructor(readonly http: HttpClient) { }
 
   getAllEmployees(
     page: number,
@@ -34,13 +34,21 @@ export class EmployeeService {
     return this.http.post<ApiResponse<Employee>>(`${this.baseUrl}/users/create`, payload);
   }
 
-updateEmployee(
-  employeeId: string,
-  payload: UpdateEmployeePayload
-): Observable<ApiResponse<Employee>> {
-  return this.http.put<ApiResponse<Employee>>(
-    `${this.baseUrl}/users/update/${employeeId}`,
-    payload
-  );
-}
+  updateEmployee(
+    employeeId: string,
+    payload: UpdateEmployeePayload
+  ): Observable<ApiResponse<Employee>> {
+    return this.http.put<ApiResponse<Employee>>(
+      `${this.baseUrl}/users/update/${employeeId}`,
+      payload
+    );
+  }
+
+  deleteEmployee(
+    employeeId: string
+  ): Observable<ApiResponse<{ message: string }>> {
+    return this.http.delete<ApiResponse<{ message: string }>>(
+      `${this.baseUrl}/users/delete/${employeeId}`
+    );
+  }
 }
