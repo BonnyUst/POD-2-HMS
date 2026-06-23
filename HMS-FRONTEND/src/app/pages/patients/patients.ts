@@ -1,32 +1,29 @@
 import { Component, OnInit, signal } from '@angular/core';
 import {
-  FormGroup,
   FormControl,
-  Validators,
-  ReactiveFormsModule,
-  AbstractControl,
-  ValidationErrors
+  FormGroup,
+  ReactiveFormsModule
 } from '@angular/forms';
 import { DatePipe } from '@angular/common';
-import { Patient, CreatePatientPayload } from '../../models/patients.model';
+
+import {
+  Patient,
+  CreatePatientPayload
+} from '../../models/patients.model';
+
 import { PatientService } from '../../services/patient.service';
 
-function futureDateValidator(control: AbstractControl): ValidationErrors | null {
-  if (!control.value) return null;
-
-  const selected = new Date(control.value);
-  const today = new Date();
-
-  selected.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-
-  return selected > today ? { futureDate: true } : null;
-}
+import {
+  patientValidators
+} from '../../validations/patient.validation';
 
 @Component({
   selector: 'app-patients',
   standalone: true,
-  imports: [ReactiveFormsModule, DatePipe],
+  imports: [
+    ReactiveFormsModule,
+    DatePipe
+  ],
   templateUrl: './patients.html',
   styleUrl: './patients.css'
 })
@@ -45,61 +42,67 @@ export class Patients implements OnInit {
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
   patientForm = new FormGroup({
-    firstName: new FormControl('', [
-      Validators.required,
-      Validators.minLength(2),
-      Validators.pattern(/^(?!\s+$)[A-Za-z\s]+$/)
-    ]),
-    lastName: new FormControl('', [
-      Validators.required,
-      Validators.minLength(1),
-      Validators.pattern(/^(?!\s+$)[A-Za-z\s]+$/)
-    ]),
-    email: new FormControl('', [
-  Validators.required,
-  Validators.email,
-  Validators.pattern(
-    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-  )
-]),
-    phone: new FormControl('', [
-      Validators.required,
-      Validators.pattern('^[6-9][0-9]{9}$')
-    ]),
-    gender: new FormControl('', [
-      Validators.required
-    ]),
-    dob: new FormControl('', [
-      Validators.required,
-      futureDateValidator
-    ]),
-    bloodGroup: new FormControl('', [
-      Validators.required
-    ]),
-   address: new FormGroup({
-  city: new FormControl('', [
-    Validators.required,
-    Validators.minLength(2),
-    Validators.maxLength(100)
-  ]),
+    firstName: new FormControl(
+      '',
+      patientValidators.firstName
+    ),
 
-  state: new FormControl('', [
-    Validators.required
-  ]),
+    lastName: new FormControl(
+      '',
+      patientValidators.lastName
+    ),
 
-  pincode: new FormControl('', [
-    Validators.required,
-    Validators.pattern('^[0-9]{6}$')
-  ])
-}),
-    emergencyContactName: new FormControl('', [
-      Validators.required,
-      Validators.minLength(2)
-    ]),
-    emergencyContactPhone: new FormControl('', [
-      Validators.required,
-      Validators.pattern('^[6-9][0-9]{9}$')
-    ])
+    email: new FormControl(
+      '',
+      patientValidators.email
+    ),
+
+    phone: new FormControl(
+      '',
+      patientValidators.phone
+    ),
+
+    gender: new FormControl(
+      '',
+      patientValidators.gender
+    ),
+
+    dob: new FormControl(
+      '',
+      patientValidators.dob
+    ),
+
+    bloodGroup: new FormControl(
+      '',
+      patientValidators.bloodGroup
+    ),
+
+    address: new FormGroup({
+      city: new FormControl(
+        '',
+        patientValidators.city
+      ),
+
+      state: new FormControl(
+        '',
+        patientValidators.state
+      ),
+
+      pincode: new FormControl(
+        '',
+        patientValidators.pincode
+      )
+    }),
+
+    emergencyContactName: new FormControl(
+      '',
+      patientValidators.emergencyContactName
+    ),
+
+    emergencyContactPhone: new FormControl(
+      '',
+      patientValidators.emergencyContactPhone
+    )
   });
 
   constructor(
@@ -120,14 +123,29 @@ export class Patients implements OnInit {
       .subscribe({
         next: (res) => {
           this.patients.set(res.data);
-          this.totalRecords.set(res.pagination.totalRecords);
-          this.totalPages.set(res.pagination.totalPages);
+          this.totalRecords.set(
+            res.pagination.totalRecords
+          );
+          this.totalPages.set(
+            res.pagination.totalPages
+          );
 
-          console.log('Patients:', this.patients());
-          console.log('Pagination:', res.pagination);
+          console.log(
+            'Patients:',
+            this.patients()
+          );
+
+          console.log(
+            'Pagination:',
+            res.pagination
+          );
         },
+
         error: (err) => {
-          console.error('Error fetching patients:', err);
+          console.error(
+            'Error fetching patients:',
+            err
+          );
         }
       });
   }
@@ -137,26 +155,49 @@ export class Patients implements OnInit {
       return 0;
     }
 
-    return (this.currentPage() - 1) * this.itemsPerPage + 1;
+    return (
+      (this.currentPage() - 1) *
+        this.itemsPerPage +
+      1
+    );
   }
 
   endRecord(): number {
-    const end = this.currentPage() * this.itemsPerPage;
-    return Math.min(end, this.totalRecords());
+    const end =
+      this.currentPage() *
+      this.itemsPerPage;
+
+    return Math.min(
+      end,
+      this.totalRecords()
+    );
   }
 
   goToPreviousPage(): void {
-    if (this.currentPage() > 1) {
-      this.currentPage.update(page => page - 1);
-      this.getPatients();
+    if (this.currentPage() <= 1) {
+      return;
     }
+
+    this.currentPage.update(
+      (page) => page - 1
+    );
+
+    this.getPatients();
   }
 
   goToNextPage(): void {
-    if (this.currentPage() < this.totalPages()) {
-      this.currentPage.update(page => page + 1);
-      this.getPatients();
+    if (
+      this.currentPage() >=
+      this.totalPages()
+    ) {
+      return;
     }
+
+    this.currentPage.update(
+      (page) => page + 1
+    );
+
+    this.getPatients();
   }
 
   filterPatients(): void {
@@ -173,13 +214,19 @@ export class Patients implements OnInit {
   openAddPatientModal(): void {
     this.patientForm.reset();
     this.showAddPatientModal.set(true);
-    document.body.classList.add('modal-open');
+
+    document.body.classList.add(
+      'modal-open'
+    );
   }
 
   closeAddPatientModal(): void {
     this.showAddPatientModal.set(false);
     this.patientForm.reset();
-    document.body.classList.remove('modal-open');
+
+    document.body.classList.remove(
+      'modal-open'
+    );
   }
 
   savePatient(): void {
@@ -188,34 +235,53 @@ export class Patients implements OnInit {
       return;
     }
 
-   const payload = this.patientForm.getRawValue() as CreatePatientPayload;
+    const payload =
+      this.patientForm.getRawValue() as CreatePatientPayload;
 
-    console.log('Patient form data:', payload);
+    console.log(
+      'Patient form data:',
+      payload
+    );
 
-    this.patientService.createPatient(payload)
+    this.patientService
+      .createPatient(payload)
       .subscribe({
         next: (res) => {
-  console.log('Patient created successfully:', res);
+          console.log(
+            'Patient created successfully:',
+            res
+          );
 
-  if (res.data.credentialsEmailSent) {
-    alert(
-      'Patient created and login credentials emailed successfully!'
-    );
-  } else {
-    alert(
-      'Patient created, but login credentials could not be emailed.'
-    );
-  }
+          if (
+            res.data.credentialsEmailSent
+          ) {
+            alert(
+              'Patient created and login credentials emailed successfully!'
+            );
+          } else {
+            alert(
+              'Patient created, but login credentials could not be emailed.'
+            );
+          }
 
-  this.closeAddPatientModal();
+          this.closeAddPatientModal();
 
-  this.currentPage.set(1);
-  this.searchText.set('');
-  this.getPatients();
-},
+          this.currentPage.set(1);
+          this.searchText.set('');
+
+          this.getPatients();
+        },
+
         error: (err) => {
-          console.error('Error creating patient:', err);
-          alert(err.error?.message || 'Something went wrong');
+          console.error(
+            'Error creating patient:',
+            err
+          );
+
+          alert(
+            err.error?.message ||
+              'Something went wrong'
+          );
         }
       });
   }

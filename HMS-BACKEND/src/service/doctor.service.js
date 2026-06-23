@@ -283,7 +283,8 @@ exports.getAllDoctors = async (query = {}) => {
     lastName: doctor.employeeId?.userId?.lastName,
     email: doctor.employeeId?.userId?.email,
     phone: doctor.employeeId?.phone,
-
+    department: doctor.employeeId?.department,
+designation: doctor.employeeId?.designation,
     specialization: doctor.specialization,
     qualification: doctor.qualification,
     consultationFee: doctor.consultationFee,
