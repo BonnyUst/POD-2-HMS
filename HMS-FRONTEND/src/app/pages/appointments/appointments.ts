@@ -2,14 +2,14 @@ import { Component, OnInit, signal } from '@angular/core';
 import {
   FormGroup,
   FormControl,
-  Validators,
   ReactiveFormsModule,
-  AbstractControl,
-  ValidationErrors
 } from '@angular/forms';
 import { DatePipe, NgClass } from '@angular/common';
 import { Router } from '@angular/router';
 
+import {
+  appointmentValidators
+} from '../../validations/appointment.validation';
 import { AppointmentService } from '../../services/appointments.service';
 import { Appointment } from '../../models/appointments.model';
 import { Patient } from '../../models/patients.model';
@@ -62,24 +62,30 @@ export class Appointments implements OnInit {
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
   appointmentForm = new FormGroup({
-    patientId: new FormControl('', [
-      Validators.required
-    ]),
-    doctorId: new FormControl('', [
-      Validators.required
-    ]),
-    appointmentDate: new FormControl('', [
-      Validators.required,
-      this.futureDateValidator
-    ]),
-    timeSlot: new FormControl('', [
-      Validators.required
-    ]),
-    reason: new FormControl('', [
-      Validators.required,
-      Validators.minLength(3),
-      Validators.maxLength(500)
-    ])
+    patientId: new FormControl(
+      '',
+      appointmentValidators.patientId
+    ),
+
+    doctorId: new FormControl(
+      '',
+      appointmentValidators.doctorId
+    ),
+
+    appointmentDate: new FormControl(
+      '',
+      appointmentValidators.appointmentDate
+    ),
+
+    timeSlot: new FormControl(
+      '',
+      appointmentValidators.timeSlot
+    ),
+
+    reason: new FormControl(
+      '',
+      appointmentValidators.reason
+    )
   });
 
   constructor(
@@ -116,22 +122,6 @@ export class Appointments implements OnInit {
       appointment.status === 'BOOKED' &&
       this.userRole() !== 'Doctor'
     );
-  }
-
-  futureDateValidator(control: AbstractControl): ValidationErrors | null {
-    const value = control.value;
-
-    if (!value) {
-      return null;
-    }
-
-    const selectedDate = new Date(value);
-    const today = new Date();
-
-    selectedDate.setHours(0, 0, 0, 0);
-    today.setHours(0, 0, 0, 0);
-
-    return selectedDate < today ? { pastDate: true } : null;
   }
 
   setupSlotWatcher(): void {

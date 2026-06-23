@@ -37,6 +37,11 @@ export class Patients implements OnInit {
   totalRecords = signal(0);
   totalPages = signal(0);
 
+  isEditMode = signal(false);
+
+  selectedPatient =
+    signal<Patient | null>(null);
+
   showAddPatientModal = signal(false);
 
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
@@ -213,76 +218,178 @@ export class Patients implements OnInit {
 
   openAddPatientModal(): void {
     this.patientForm.reset();
-    this.showAddPatientModal.set(true);
 
     document.body.classList.add(
       'modal-open'
     );
+
+    this.patientForm.get('email')?.enable();
+    this.showAddPatientModal.set(true);
+    this.isEditMode.set(false);
+    this.selectedPatient.set(null);
   }
 
   closeAddPatientModal(): void {
     this.showAddPatientModal.set(false);
     this.patientForm.reset();
-
+    this.isEditMode.set(false);
+    this.selectedPatient.set(null);
     document.body.classList.remove(
       'modal-open'
     );
   }
 
-  savePatient(): void {
-    if (this.patientForm.invalid) {
-      this.patientForm.markAllAsTouched();
-      return;
-    }
+  openEditPatientModal(
+    patient: Patient
+  ): void {
+    this.isEditMode.set(true);
 
-    const payload =
-      this.patientForm.getRawValue() as CreatePatientPayload;
-
-    console.log(
-      'Patient form data:',
-      payload
+    this.selectedPatient.set(
+      patient
     );
 
-    this.patientService
-      .createPatient(payload)
-      .subscribe({
-        next: (res) => {
-          console.log(
-            'Patient created successfully:',
-            res
-          );
+    this.patientForm.get('email')?.disable();
 
-          if (
-            res.data.credentialsEmailSent
-          ) {
-            alert(
-              'Patient created and login credentials emailed successfully!'
-            );
-          } else {
-            alert(
-              'Patient created, but login credentials could not be emailed.'
-            );
-          }
+    this.patientForm.patchValue({
+      firstName:
+        patient.firstName,
 
-          this.closeAddPatientModal();
+      lastName:
+        patient.lastName,
 
-          this.currentPage.set(1);
-          this.searchText.set('');
+      email:
+        patient.email,
 
-          this.getPatients();
-        },
+      phone:
+        patient.phone,
 
-        error: (err) => {
-          console.error(
-            'Error creating patient:',
-            err
-          );
+      gender:
+        patient.gender,
 
-          alert(
-            err.error?.message ||
-              'Something went wrong'
-          );
-        }
-      });
+      dob:
+        patient.dob
+          ? patient.dob.split('T')[0]
+          : '',
+
+      bloodGroup:
+        patient.bloodGroup,
+
+      emergencyContactName:
+        patient.emergencyContactName,
+
+      emergencyContactPhone:
+        patient.emergencyContactPhone,
+
+      address: {
+        city: patient.city,
+        state: patient.state,
+        pincode: patient.pincode
+      }
+    });
+    console.log('Patient:', patient);
+
+    document.body.classList.add(
+      'modal-open'
+    );
+
+    this.showAddPatientModal.set(
+      true
+    );
   }
+
+  savePatient(): void {
+  if (this.patientForm.invalid) {
+  this.patientForm.markAllAsTouched();
+  return;
+  }
+
+  const payload =
+  this.patientForm.getRawValue();
+
+  const selectedPatient =
+  this.selectedPatient();
+
+  if (
+  this.isEditMode() &&
+  selectedPatient
+  ) {
+  this.patientService
+  .updatePatient(
+  selectedPatient.patientId,
+  payload
+  )
+  .subscribe({
+  next: () => {
+  alert(
+  'Patient updated successfully!'
+  );
+
+
+        this.closeAddPatientModal();
+
+        this.getPatients();
+      },
+
+      error: (err) => {
+        console.error(
+          'Error updating patient:',
+          err
+        );
+
+        alert(
+          err.error?.message ||
+          'Something went wrong'
+        );
+      }
+    });
+
+  return;
+
+
+  }
+
+  this.patientService
+  .createPatient(
+  payload as CreatePatientPayload
+  )
+  .subscribe({
+  next: (res) => {
+
+
+      if (
+        res.data.credentialsEmailSent
+      ) {
+        alert(
+          'Patient created and login credentials emailed successfully!'
+        );
+      } else {
+        alert(
+          'Patient created, but login credentials could not be emailed.'
+        );
+      }
+
+      this.closeAddPatientModal();
+
+      this.currentPage.set(1);
+      this.searchText.set('');
+
+      this.getPatients();
+    },
+
+    error: (err) => {
+      console.error(
+        'Error creating patient:',
+        err
+      );
+
+      alert(
+        err.error?.message ||
+        'Something went wrong'
+      );
+    }
+  });
+
+
+  }
+
 }

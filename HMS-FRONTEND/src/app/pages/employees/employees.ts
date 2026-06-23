@@ -134,6 +134,7 @@ export class Employees implements OnInit {
       )
       .subscribe({
         next: (res) => {
+          console.log('Employee API Response:', res);
           this.employees.set(res.data);
 
           this.totalRecords.set(

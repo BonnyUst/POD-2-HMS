@@ -59,4 +59,14 @@ export class PatientService {
       payload
     );
   }
+
+  updatePatient(
+    patientId: string,
+    payload: any
+  ) {
+    return this.http.put(
+      `${this.baseUrl}/patients/update/${patientId}`,
+      payload
+    );
+  }
 }
