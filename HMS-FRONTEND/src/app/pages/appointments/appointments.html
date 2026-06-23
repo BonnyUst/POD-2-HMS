@@ -78,16 +78,23 @@
                     <td>{{ appointment.reason }}</td>
 
                     <td class="appointment-actions-cell">
-                        <button type="button" class="appointment-view-btn" (click)="viewDetails(appointment._id)">
-                            View Details
-                        </button>
+                        <div class="appointment-actions">
+                            <button
+                                type="button"
+                                class="appointment-view-btn"
+                                (click)="viewDetails(appointment._id)">
+                                View
+                            </button>
 
-                        @if (canCancelAppointment(appointment)) {
-                        <button type="button" class="appointment-cancel-btn"
-                            (click)="cancelAppointment(appointment._id)">
-                            Cancel
-                        </button>
-                        }
+                            @if (canCancelAppointment(appointment)) {
+                            <button
+                                type="button"
+                                class="appointment-cancel-btn"
+                                (click)="cancelAppointment(appointment._id)">
+                                Cancel
+                            </button>
+                            }
+                        </div>
                     </td>
                 </tr>
                 }

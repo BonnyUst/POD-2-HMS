@@ -6,9 +6,11 @@ import {
   FormArray,
   FormBuilder,
   FormGroup,
-  Validators
 } from '@angular/forms';
 
+import {
+  appointmentDetailsValidators
+} from '../../../validations/appointment-details.validation';
 import { AppointmentService } from '../../../services/appointments.service';
 import { HealthRecordService } from '../../../services/health-record.service';
 
@@ -51,7 +53,7 @@ export class AppointmentDetails implements OnInit {
     localStorage.getItem('rolecode') ||
     localStorage.getItem('roleCode') ||
     localStorage.getItem('role')||
-    
+
     '';
 
   healthRecordForm!: FormGroup;
@@ -64,7 +66,10 @@ export class AppointmentDetails implements OnInit {
     readonly healthRecordService: HealthRecordService
   ) {
     this.healthRecordForm = this.fb.group({
-      diagnosis: ['', [Validators.required]],
+      diagnosis: [
+        '',
+        appointmentDetailsValidators.diagnosis
+      ],
       prescription: this.fb.array([]),
       notes: ['']
     });
@@ -89,10 +94,24 @@ ngOnInit(): void {
 
   createMedicineGroup(data?: PrescriptionMedicine): FormGroup {
     return this.fb.group({
-      name: [data?.name || '', [Validators.required]],
-      dosage: [data?.dosage || '', [Validators.required]],
-      duration: [data?.duration || '', [Validators.required]],
-      notes: [data?.notes || '']
+      name: [
+        data?.name || '',
+        appointmentDetailsValidators.medicineName
+      ],
+
+      dosage: [
+        data?.dosage || '',
+        appointmentDetailsValidators.dosage
+      ],
+
+      duration: [
+        data?.duration || '',
+        appointmentDetailsValidators.duration
+      ],
+
+      notes: [
+        data?.notes || ''
+      ]
     });
   }
 

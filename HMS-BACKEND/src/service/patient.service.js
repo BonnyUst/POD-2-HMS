@@ -5,19 +5,18 @@ const User = require("../models/User.model");
 const Role = require("../models/Role.model");
 const bcrypt = require("bcrypt");
 
-const Patient = require('../models/Patient.model');
-const ApiError = require('../utils/ApiError');
-const { generateToken } = require('../utils/jwt')
+const Patient = require("../models/Patient.model");
+const ApiError = require("../utils/ApiError");
+const { generateToken } = require("../utils/jwt");
 const {
   getPagination,
-  buildPaginationResponse
-} = require('../utils/pagination');
+  buildPaginationResponse,
+} = require("../utils/pagination");
 
-const generateTemporaryPassword =
-  require("../utils/passwordGenerator");
+const generateTemporaryPassword = require("../utils/passwordGenerator");
 
-const mailService = require('../service/mail.service');
-const sendEmail = require('../service/mail.service');
+const mailService = require("../service/mail.service");
+const sendEmail = require("../service/mail.service");
 exports.createPatient = async (patientData, employeeId) => {
   const {
     firstName,
@@ -40,10 +39,7 @@ exports.createPatient = async (patientData, employeeId) => {
   });
 
   if (existingUser) {
-    throw new ApiError(
-      409,
-      "A user is already registered with this email"
-    );
+    throw new ApiError(409, "A user is already registered with this email");
   }
 
   // Use the same role lookup used in self-registration
@@ -52,20 +48,13 @@ exports.createPatient = async (patientData, employeeId) => {
   });
 
   if (!patientRole) {
-    throw new ApiError(
-      500,
-      "Patient role not configured"
-    );
+    throw new ApiError(500, "Patient role not configured");
   }
 
   // Generate and hash the temporary password
-  const temporaryPassword =
-    generateTemporaryPassword();
+  const temporaryPassword = generateTemporaryPassword();
 
-  const passwordHash = await bcrypt.hash(
-    temporaryPassword,
-    10
-  );
+  const passwordHash = await bcrypt.hash(temporaryPassword, 10);
 
   let user;
   let patient;
@@ -117,15 +106,11 @@ exports.createPatient = async (patientData, employeeId) => {
      * remove the incomplete User record.
      */
     if (patient?._id) {
-      await Patient.findByIdAndDelete(
-        patient._id
-      ).catch(() => {});
+      await Patient.findByIdAndDelete(patient._id).catch(() => {});
     }
 
     if (user?._id) {
-      await User.findByIdAndDelete(
-        user._id
-      ).catch(() => {});
+      await User.findByIdAndDelete(user._id).catch(() => {});
     }
 
     throw error;
@@ -134,8 +119,7 @@ exports.createPatient = async (patientData, employeeId) => {
   let credentialsEmailSent = false;
 
   try {
-    const subject =
-      "Your HMS Patient Account";
+    const subject = "Your HMS Patient Account";
 
     const html = `
       <div style="font-family: Arial, sans-serif; line-height: 1.6;">
@@ -178,17 +162,13 @@ exports.createPatient = async (patientData, employeeId) => {
      * Existing mail.service.js signature:
      * sendEmail(to, subject, html)
      */
-    await sendEmail(
-      normalizedEmail,
-      subject,
-      html
-    );
+    await sendEmail(normalizedEmail, subject, html);
 
     credentialsEmailSent = true;
   } catch (emailError) {
     console.error(
       "Patient created, but credentials email failed:",
-      emailError.message
+      emailError.message,
     );
   }
 
@@ -201,26 +181,24 @@ exports.createPatient = async (patientData, employeeId) => {
 };
 exports.getAllPatients = async (query = {}) => {
   const { page, limit, skip, sortBy, sortOrder } = getPagination(query);
-  const search = query.search ? query.search.trim() : '';
+  const search = query.search ? query.search.trim() : "";
 
-  const allowedSortFields = ['createdAt', 'firstName', 'lastName', 'UHID'];
-  const finalSortBy = allowedSortFields.includes(sortBy)
-    ? sortBy
-    : 'createdAt';
+  const allowedSortFields = ["createdAt", "firstName", "lastName", "UHID"];
+  const finalSortBy = allowedSortFields.includes(sortBy) ? sortBy : "createdAt";
 
   const filter = {};
 
   if (search) {
     filter.$or = [
-      { UHID: { $regex: search, $options: 'i' } },
-      { firstName: { $regex: search, $options: 'i' } },
-      { lastName: { $regex: search, $options: 'i' } },
-      { phone: { $regex: search, $options: 'i' } },
-      { gender: { $regex: search, $options: 'i' } },
-      { bloodGroup: { $regex: search, $options: 'i' } },
-      { 'address.city': { $regex: search, $options: 'i' } },
-      { 'address.state': { $regex: search, $options: 'i' } },
-      { 'address.pincode': { $regex: search, $options: 'i' } }
+      { UHID: { $regex: search, $options: "i" } },
+      { firstName: { $regex: search, $options: "i" } },
+      { lastName: { $regex: search, $options: "i" } },
+      { phone: { $regex: search, $options: "i" } },
+      { gender: { $regex: search, $options: "i" } },
+      { bloodGroup: { $regex: search, $options: "i" } },
+      { "address.city": { $regex: search, $options: "i" } },
+      { "address.state": { $regex: search, $options: "i" } },
+      { "address.pincode": { $regex: search, $options: "i" } },
     ];
   }
 
@@ -228,11 +206,15 @@ exports.getAllPatients = async (query = {}) => {
 
   const patients = await Patient.find(filter)
     .populate({
-      path: 'createdBy',
-      select: 'firstName lastName email roleId',
+      path: "userId",
+      select: "email",
+    })
+    .populate({
+      path: "createdBy",
+      select: "firstName lastName email roleId",
       populate: {
-        path: 'roleId',
-        select: 'name roleCode',
+        path: "roleId",
+        select: "name roleCode",
       },
     })
     .sort({ [finalSortBy]: sortOrder })
@@ -246,6 +228,7 @@ exports.getAllPatients = async (query = {}) => {
     firstName: patient.firstName,
     lastName: patient.lastName,
     phone: patient.phone,
+    email: patient.userId?.email,
 
     gender: patient.gender,
     dob: patient.dob,
@@ -259,9 +242,9 @@ exports.getAllPatients = async (query = {}) => {
     emergencyContactPhone: patient.emergencyContactPhone,
 
     createdByName:
-      `${patient.createdBy?.firstName || ''} ${patient.createdBy?.lastName || ''}`.trim() ||
+      `${patient.createdBy?.firstName || ""} ${patient.createdBy?.lastName || ""}`.trim() ||
       patient.createdBy?.email ||
-      'Unknown User',
+      "Unknown User",
 
     createdByEmail: patient.createdBy?.email,
     createdByRole: patient.createdBy?.roleId?.name,
@@ -276,11 +259,11 @@ exports.getAllPatients = async (query = {}) => {
       ...buildPaginationResponse({
         page,
         limit,
-        totalRecords
+        totalRecords,
       }),
       sortBy: finalSortBy,
-      sortOrder: sortOrder === 1 ? 'asc' : 'desc'
-    }
+      sortOrder: sortOrder === 1 ? "asc" : "desc",
+    },
   };
 };
 
@@ -313,18 +296,16 @@ exports.registerPatient = async (body) => {
     email,
     passwordHash,
     roleId: patientRole._id,
-    isVerified: false,//will later implement the email verification
+    isVerified: false, //will later implement the email verification
     status: "ACTIVE",
-    mustChangePassword: true
-
+    mustChangePassword: true,
   });
-  if(!user)
-  {
-    throw new ApiError(404,"User not Found");
+  if (!user) {
+    throw new ApiError(404, "User not Found");
   }
   const userId = user._id;
   const token = await generateToken({ userId });
-  const verifyLink = `http://localhost:5000/api/auth/verify-email/${token}`
+  const verifyLink = `http://localhost:5000/api/auth/verify-email/${token}`;
   const html = `
     <h2>Welcome to HMS 👋</h2>
 
@@ -342,13 +323,9 @@ exports.registerPatient = async (body) => {
 
     <p>This link will expire in 24 hours.</p>
   `;
-  sendEmail(
-    email,
-    "Welcome to HMS 🎉",
-    html
-  );
+  sendEmail(email, "Welcome to HMS 🎉", html);
   if (!user) {
-    throw new ApiError(404, 'User not found');
+    throw new ApiError(404, "User not found");
   }
   const patient = await Patient.create({
     userId: user._id,
@@ -368,15 +345,14 @@ exports.registerPatient = async (body) => {
 };
 
 exports.getPatientProfile = async (userId) => {
-  const patientProfile = await Patient.findOne({ userId })
-    .populate({
-      path: "userId",
-      select: "-passwordHash",
-      populate: {
-        path: "roleId",
-        select: "name roleCode"
-      }
-    });
+  const patientProfile = await Patient.findOne({ userId }).populate({
+    path: "userId",
+    select: "-passwordHash",
+    populate: {
+      path: "roleId",
+      select: "name roleCode",
+    },
+  });
 
   if (!patientProfile) {
     throw new ApiError(404, "Patient profile not found");
@@ -406,7 +382,7 @@ exports.getPatientProfile = async (userId) => {
     address: patientProfile.address,
 
     emergencyContactName: patientProfile.emergencyContactName,
-    emergencyContactPhone: patientProfile.emergencyContactPhone
+    emergencyContactPhone: patientProfile.emergencyContactPhone,
   };
 };
 
@@ -414,17 +390,17 @@ exports.updatePatientProfile = async (userId, updateData) => {
   const patient = await Patient.findOne({ userId });
 
   if (!patient) {
-    throw new ApiError(404, 'Patient profile not found');
+    throw new ApiError(404, "Patient profile not found");
   }
 
   const patientAllowedFields = [
-    'phone',
-    'gender',
-    'dob',
-    'bloodGroup',
-    'address',
-    'emergencyContactName',
-    'emergencyContactPhone'
+    "phone",
+    "gender",
+    "dob",
+    "bloodGroup",
+    "address",
+    "emergencyContactName",
+    "emergencyContactPhone",
   ];
 
   patientAllowedFields.forEach((field) => {
@@ -436,11 +412,11 @@ exports.updatePatientProfile = async (userId, updateData) => {
   if (updateData.firstName !== undefined || updateData.lastName !== undefined) {
     await User.findByIdAndUpdate(userId, {
       ...(updateData.firstName !== undefined && {
-        firstName: updateData.firstName
+        firstName: updateData.firstName,
       }),
       ...(updateData.lastName !== undefined && {
-        lastName: updateData.lastName
-      })
+        lastName: updateData.lastName,
+      }),
     });
   }
 
@@ -455,7 +431,55 @@ exports.updatePatientProfile = async (userId, updateData) => {
   await patient.save();
 
   return await Patient.findById(patient._id).populate(
-    'userId',
-    'firstName lastName email'
+    "userId",
+    "firstName lastName email",
   );
+};
+
+exports.updatePatient = async (patientId, updateData) => {
+  const patient = await Patient.findById(patientId);
+
+  if (!patient) {
+    throw new ApiError(404, "Patient not found");
+  }
+
+  const patientAllowedFields = [
+    "phone",
+    "gender",
+    "dob",
+    "bloodGroup",
+    "address",
+    "emergencyContactName",
+    "emergencyContactPhone",
+  ];
+
+  patientAllowedFields.forEach((field) => {
+    if (updateData[field] !== undefined) {
+      patient[field] = updateData[field];
+    }
+  });
+
+  if (updateData.firstName !== undefined || updateData.lastName !== undefined) {
+    await User.findByIdAndUpdate(patient.userId, {
+      ...(updateData.firstName !== undefined && {
+        firstName: updateData.firstName,
+      }),
+
+      ...(updateData.lastName !== undefined && {
+        lastName: updateData.lastName,
+      }),
+    });
+  }
+
+  if (updateData.firstName !== undefined) {
+    patient.firstName = updateData.firstName;
+  }
+
+  if (updateData.lastName !== undefined) {
+    patient.lastName = updateData.lastName;
+  }
+
+  await patient.save();
+
+  return patient;
 };

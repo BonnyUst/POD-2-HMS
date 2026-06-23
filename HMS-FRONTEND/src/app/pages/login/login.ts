@@ -65,7 +65,7 @@ export class Login {
 
     this.auth.login(loginData)
       .pipe(
-        timeout(1000),
+        timeout(5000),
         finalize(() => {
           this.isLoading = false;
         })
