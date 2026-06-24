@@ -1,68 +1,126 @@
-const ApiResponse = require('../utils/ApiResponse')
-const authService=require('../service/auth.service')
+const ApiResponse = require("../utils/ApiResponse");
+const authService = require("../service/auth.service");
 
-const verifyEmail=async(req,res)=>{
-    try{
-        const{token}=req.params;
+const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.params;
 
-        const result=await authService.verifyEmployeeEmail(token);
-        return res
-        .status(200)
-        .json(
-            new ApiResponse(
-                200,
-                "Email Verified Successfully",
-                result
-            )
-        );
-    }
-    catch(error){
-         return res
-            .status(error.statusCode || 500)
-            .json({
-                success: false,
-                message: error.message || "something went wrong"
-            });
-    };
+    const result = await authService.verifyEmployeeEmail(token);
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "Email Verified Successfully", result));
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message || "something went wrong",
+    });
+  }
 };
 
-const login=async(req,res)=>{
-    try{
-        const result=await authService.loginEmployee(req.body);
-        return res
-            .status(200)
-            .json(new ApiResponse(200,"Login Successfull",result));
+const login = async (req, res) => {
+  try {
+    const result = await authService.loginEmployee(req.body);
 
+    res.cookie("accessToken", result.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 1000,
+    });
 
+    res.cookie("refreshToken", result.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json(
+      new ApiResponse(200, "Login Successful", {
+        user: result.user,
+      }),
+    );
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message || "something went wrong",
+    });
+  }
+};
+
+const refreshToken = async (req, res) => {
+  try {
+    const refreshTokenCookie = req.cookies?.refreshToken;
+
+    if (!refreshTokenCookie) {
+      return res.status(401).json({
+        success: false,
+        message: "Refresh token missing",
+      });
     }
-    catch(error)
-    {
-        return res 
-        .status(error.statusCode||500)
-        .json({
-            success:false,
-            message:error.message||"something went wrong"
-        });
 
-    };
+    const result = await authService.refreshAccessToken(refreshTokenCookie);
+
+    res.cookie("accessToken", result.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Access token refreshed",
+    });
+  } catch (error) {
+  return res.status(401).json({
+    success: false,
+    code: "REFRESH_TOKEN_INVALID",
+    message: error.message || "Unable to refresh token"
+  });
+
 }
+};
 
+const logout = async (req, res) => {
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
+
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: "Logged out successfully",
+  });
+};
 
 const changePassword = async (req, res, next) => {
-    try {
-        const userId = req.user.userId;
+  try {
+    const userId = req.user.userId;
 
-        const result = await authService.changePassword(userId, req.body);
+    const result = await authService.changePassword(userId, req.body);
 
-        return res.status(200).json({
-            success: true,
-            message: "Password changed successfully",
-            data: result
-        });
-
-    } catch (error) {
-        next(error);
-    }
+    return res.status(200).json({
+      success: true,
+      message: "Password changed successfully",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
-module.exports={verifyEmail,login,changePassword};
+module.exports = {
+  verifyEmail,
+  login,
+  refreshToken,
+  logout,
+  changePassword,
+};

@@ -309,7 +309,10 @@ exports.registerPatient = async (body) => {
     throw new ApiError(404, "User not Found");
   }
   const userId = user._id;
-  const token = await generateToken({ userId });
+  const token = generateToken(
+    { userId },
+    process.env.JWT_EMAIL_VERIFICATION_EXPIRY,
+  );
   const verifyLink = `http://localhost:5000/api/auth/verify-email/${token}`;
   const html = `
     <h2>Welcome to HMS 👋</h2>
