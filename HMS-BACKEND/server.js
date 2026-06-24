@@ -3,7 +3,8 @@ const app=require('./app');
 const connection=require('./src/config/db')
 const connectDB=require('./src/config/db')
 const seedAdmin=require('./src/utils/seedAdmin')
-const seedData=require('./src/utils/seedData')
+const seedData=require('./src/utils/seedData');
+const seedMenus = require('./src/utils/seedMenus');
 
 connectDB();
 
@@ -17,6 +18,6 @@ app.listen(PORT,()=>
 {
     console.log(`Server running on http://localhost:${PORT}`);
 })
-
+seedMenus();
 seedData();
 seedAdmin();

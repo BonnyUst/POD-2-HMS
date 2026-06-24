@@ -101,3 +101,27 @@ exports.updatePatient = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.softDeletePatient = async (req, res) => {
+  try {
+    const { patientId } = req.params;
+    const deletedByUserId = req.user.userId;
+
+    const result = await patientService.softDeletePatientById(
+      patientId,
+      deletedByUserId
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Patient deleted successfully",
+      data: result
+    });
+
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message || "Unable to delete patient"
+    });
+  }
+};

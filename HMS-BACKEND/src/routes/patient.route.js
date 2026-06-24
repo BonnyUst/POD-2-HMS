@@ -31,6 +31,12 @@ router.get(
   patientController.getAllPatients,
 );
 
+router.delete(
+  "/delete/:patientId",
+  authMiddleware,
+  authRoles(permissions.DELETE_PATIENT),
+  patientController.softDeletePatient
+)
 // Self-registration by patients
 router.post(
   "/register",
