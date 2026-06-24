@@ -4,7 +4,7 @@ const User = require("../models/User.model");
 
 const Role = require("../models/Role.model");
 const bcrypt = require("bcrypt");
-
+const Appointment = require('../models/appointment.model')
 const Patient = require("../models/Patient.model");
 const ApiError = require("../utils/ApiError");
 const { generateToken } = require("../utils/jwt");
@@ -179,6 +179,7 @@ exports.createPatient = async (patientData, employeeId) => {
     credentialsEmailSent,
   };
 };
+
 exports.getAllPatients = async (query = {}) => {
   const { page, limit, skip, sortBy, sortOrder } = getPagination(query);
   const search = query.search ? query.search.trim() : "";
@@ -186,8 +187,12 @@ exports.getAllPatients = async (query = {}) => {
   const allowedSortFields = ["createdAt", "firstName", "lastName", "UHID"];
   const finalSortBy = allowedSortFields.includes(sortBy) ? sortBy : "createdAt";
 
-  const filter = {};
+  // ✅ ADDED: filter out deleted patients
+  const filter = {
+    isDeleted: false
+  };
 
+  // ✅ KEEP your search logic (no change)
   if (search) {
     filter.$or = [
       { UHID: { $regex: search, $options: "i" } },
@@ -482,4 +487,54 @@ exports.updatePatient = async (patientId, updateData) => {
   await patient.save();
 
   return patient;
+};
+
+exports.softDeletePatientById = async (
+  patientId,
+  deletedByUserId
+) => {
+  const patient = await Patient.findOne({
+    _id: patientId,
+    isDeleted: false
+  });
+
+  if (!patient) {
+    throw new ApiError(404, "Patient not found");
+  }
+
+  const user = await User.findById(patient.userId);
+
+  if (!user) {
+    throw new ApiError(404, "User not found for this patient");
+  }
+
+  // ✅ CHECK APPOINTMENTS (NEW LOGIC)
+  const invalidAppointments = await Appointment.find({
+    patientId: patient._id,
+    status: { $nin: ["COMPLETED", "CANCELLED"] }
+  });
+
+  if (invalidAppointments.length > 0) {
+    throw new ApiError(
+      400,
+      "Patient cannot be deleted because active appointments exist"
+    );
+  }
+
+  // ✅ EXISTING LOGIC (UNCHANGED)
+  patient.isDeleted = true;
+  patient.status = "INACTIVE";
+  patient.deletedAt = new Date();
+  patient.deletedBy = deletedByUserId;
+
+  user.status = "INACTIVE";
+
+  await patient.save();
+  await user.save();
+
+  return {
+    patientId: patient._id,
+    UHID: patient.UHID,
+    message: "Patient deleted successfully"
+  };
 };
