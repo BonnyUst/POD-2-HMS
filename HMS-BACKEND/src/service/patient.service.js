@@ -508,7 +508,6 @@ exports.softDeletePatientById = async (
     throw new ApiError(404, "User not found for this patient");
   }
 
-  // ✅ CHECK APPOINTMENTS (NEW LOGIC)
   const invalidAppointments = await Appointment.find({
     patientId: patient._id,
     status: { $nin: ["COMPLETED", "CANCELLED"] }
@@ -521,7 +520,7 @@ exports.softDeletePatientById = async (
     );
   }
 
-  // ✅ EXISTING LOGIC (UNCHANGED)
+
   patient.isDeleted = true;
   patient.status = "INACTIVE";
   patient.deletedAt = new Date();
