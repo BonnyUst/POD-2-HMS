@@ -10,9 +10,14 @@ export class Auth {
   constructor(readonly http: HttpClient) { }
 
   getProfile() {
-    return this.http.get<any>(`${this.baseUrl}/users/profile`);
+    return this.http.get<any>(
+      `${this.baseUrl}/users/profile`,
+      {
+        withCredentials: true
+      }
+    );
   }
- 
+
   checkJoinUsEmail(data: any) {
     return this.http.post(`${this.baseUrl}/join-us/check-email`, data);
   }
@@ -24,7 +29,30 @@ export class Auth {
   login(loginData: any) {
     return this.http.post<any>(
       `${this.baseUrl}/auth/login`,
-      loginData
+      loginData,
+      {
+        withCredentials: true
+      }
+    );
+  }
+
+  refreshToken() {
+    return this.http.post(
+      `${this.baseUrl}/auth/refresh-token`,
+      {},
+      {
+        withCredentials: true
+      }
+    );
+  }
+
+  logout() {
+    return this.http.post(
+      `${this.baseUrl}/auth/logout`,
+      {},
+      {
+        withCredentials: true
+      }
     );
   }
 }
