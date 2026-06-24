@@ -49,7 +49,7 @@ export interface Appointment {
   doctorId?: AppointmentDoctor;
   appointmentDate: string;
   timeSlot: string;
-  status: 'BOOKED' | 'COMPLETED' | 'CANCELLED';
+  status: 'BOOKED' | 'COMPLETED' | 'CANCELLED'|'UNATTENDED';
   reason?: string;
   createdAt?: string;
   updatedAt?: string;
