@@ -1,25 +1,42 @@
-import axios from 'axios';
-import { tokenStorage } from '@/storage/tokenStorage';
+import axios from "axios";
 
-const BASE_URL = 'http://localhost:5000/api';
+import { tokenStorage } from "@/storage/tokenStorage";
+
+/*
+ 
+
+ * Android emulator:
+ * http://10.0.2.2:5000/api
+ 
+ 
+ */
+const BASE_URL ="http://10.0.2.2:5000/api";
 
 const apiClient = axios.create({
-    baseURL: BASE_URL,
-    timeout: 15000,
-    headers: {
-        'Content-Type': 'application/json',
-    },
+  baseURL: BASE_URL,
+  timeout: 15000,
+
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-//interceptors 
-apiClient.interceptors.request.use(async (config) => {
-    const token = await tokenStorage.getToken(); // reads from AsyncStorage
+
+apiClient.interceptors.request.use(
+  async (config) => {
+    const token = await tokenStorage.getToken();
+
     if (token) {
-        config.headers.Authorization = `Bearer ${token}`; // attaches to header
+      config.headers.Authorization =
+        `Bearer ${token}`;
     }
+
     return config;
-});
+  },
 
-
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 export default apiClient;

@@ -1,31 +1,51 @@
-const express = require('express');
+const express = require("express");
 
 const router = express.Router();
-const authValidator = require('../validation/auth.validation')
 
-const validate = require('../middleware/validate');
-const authMiddleware = require('../middleware/authMiddleware')
+const authValidator = require(
+  "../validation/auth.validation"
+);
 
-const authController=require('../controller/authController');
+const validate = require(
+  "../middleware/validate"
+);
 
+const authMiddleware = require(
+  "../middleware/authMiddleware"
+);
 
+const authController = require(
+  "../controller/authController"
+);
 
-router.post('/login',
-    authValidator.validateLogin,
-    validate,
-    authController.login)
+router.post(
+  "/login",
+  authValidator.validateLogin,
+  validate,
+  authController.login
+);
 
+router.post(
+  "/change-password",
+  authMiddleware,
+  authValidator.validateChangePassword,
+  validate,
+  authController.changePassword
+);
 
-    console.log("authMiddleware type:", typeof authMiddleware);
-console.log("changePassword type:", typeof authController.changePassword);
+router.put(
+  "/first-login/change-password",
+  authMiddleware,
+  authValidator
+    .validateFirstLoginPasswordChange,
+  validate,
+  authController
+    .changeFirstLoginPassword
+);
 
-
-router.post('/change-password',
-    authMiddleware,
-    authController.changePassword
-)
-
-router.get('/verify-email/:token',
-     authController.verifyEmail);
+router.get(
+  "/verify-email/:token",
+  authController.verifyEmail
+);
 
 module.exports = router;
