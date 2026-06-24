@@ -291,7 +291,6 @@ export default function RegisterScreen() {
       setLoading(true);
 
       await registerPatient(registerData);
-      await registerPatient(registerData);
 
       Alert.alert("Success", "Patient registered successfully", [
         {
