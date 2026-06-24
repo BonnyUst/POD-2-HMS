@@ -1,4 +1,4 @@
-import apiClient from '../config/appClient'
+import apiClient from '../config/appClient';
 import { tokenStorage } from '../storage/tokenStorage';
 
 export const login = async (email: string, password: string) => {
@@ -7,10 +7,9 @@ export const login = async (email: string, password: string) => {
     password,
   });
 
-  const { token, user } = response.data.data;
+  const { accessToken, refreshToken, user } = response.data.data; // ← data.data
 
-  // save token to device
-  await tokenStorage.saveToken(token);
+  await tokenStorage.saveTokens(accessToken, refreshToken);
 
   return user;
 };

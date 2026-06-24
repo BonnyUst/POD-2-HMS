@@ -20,6 +20,7 @@ const verifyEmail = async (req, res) => {
 const login = async (req, res) => {
   try {
     const result = await authService.loginEmployee(req.body);
+    const isMobile = req.headers['x-client-type'] === 'mobile';//specifically for mobile sending the token not to expose the tokens in the angular side 
 
     res.cookie("accessToken", result.accessToken, {
       httpOnly: true,
@@ -37,6 +38,10 @@ const login = async (req, res) => {
 
     return res.status(200).json(
       new ApiResponse(200, "Login Successful", {
+        ...(isMobile && {
+          accessToken: result.accessToken,
+          refreshToken: result.refreshToken,
+        }),
         user: result.user,
       }),
     );
@@ -50,7 +55,10 @@ const login = async (req, res) => {
 
 const refreshToken = async (req, res) => {
   try {
-    const refreshTokenCookie = req.cookies?.refreshToken;
+    const isMobile = req.headers['x-client-type'] === 'mobile';
+    const refreshTokenCookie = isMobile
+      ? req.body.refreshToken
+      : req.cookies?.refreshToken;
 
     if (!refreshTokenCookie) {
       return res.status(401).json({
@@ -61,25 +69,30 @@ const refreshToken = async (req, res) => {
 
     const result = await authService.refreshAccessToken(refreshTokenCookie);
 
-    res.cookie("accessToken", result.accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 1000,
-    });
+    if (!isMobile) {
+      res.cookie("accessToken", result.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 1000,
+      });
+    }
 
     return res.status(200).json({
       success: true,
       message: "Access token refreshed",
+      ...(isMobile && {
+        data: { accessToken: result.accessToken }
+      }),
     });
   } catch (error) {
-  return res.status(401).json({
-    success: false,
-    code: "REFRESH_TOKEN_INVALID",
-    message: error.message || "Unable to refresh token"
-  });
+    return res.status(401).json({
+      success: false,
+      code: "REFRESH_TOKEN_INVALID",
+      message: error.message || "Unable to refresh token"
+    });
 
-}
+  }
 };
 
 const logout = async (req, res) => {
