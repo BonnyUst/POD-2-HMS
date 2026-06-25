@@ -336,3 +336,12 @@ exports.getAllDoctors = async (query = {}) => {
         }
     };
 };
+
+exports.getDoctorSpecializations = async () => {
+  const specializations = await Doctor.distinct('specialization', {
+    isDeleted: false,
+    specialization: { $exists: true, $ne: '' }
+  });
+
+  return specializations.sort();
+};

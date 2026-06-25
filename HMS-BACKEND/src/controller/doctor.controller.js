@@ -67,4 +67,19 @@ const getAllDoctors = async (req, res, next) => {
   }
 };
 
-module.exports = { createDoctorByAdmin,getAllDoctors,updateDoctor }
+const getDoctorSpecializations = async (req, res, next) => {
+  try {
+    const specializations =
+      await doctorService.getDoctorSpecializations();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Doctor specializations fetched successfully',
+      data: specializations
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { createDoctorByAdmin,getAllDoctors,updateDoctor ,getDoctorSpecializations}

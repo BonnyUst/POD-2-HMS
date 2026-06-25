@@ -1,4 +1,5 @@
 import apiClient from "../config/appClient";
+import { DoctorSpecializations } from "../types/doctor.types";
 
 
 export const getDoctors = async (
@@ -18,4 +19,9 @@ export const getDoctors = async (
   });
 
   return response.data;
+};
+export const getDoctorSpecializations = async (): Promise<DoctorSpecializations> => {  // ← add return type
+  const response = await apiClient.get('/doctors/specializations');
+
+  return response.data.data || [];
 };

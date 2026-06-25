@@ -11,7 +11,7 @@ import {
 import { router } from 'expo-router';
 
 import { getPatientProfile } from '../../services/patient.service';
-import { getDoctors } from '../../services/doctor.service';
+import { getDoctors, getDoctorSpecializations } from '../../services/doctor.service';
 import { Doctor } from '../../types/doctor.types';
 import { PatientProfile } from '../../types/patient.types';
 import { styles } from '../../styles/patient/home.style';
@@ -22,6 +22,7 @@ export default function HomeScreen() {
   const [profile, setProfile] = useState<PatientProfile | null>(null);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [selectedSpecialization, setSelectedSpecialization] = useState('All');
+  const [specializations, setSpecializations] = useState<string[]>(['All']);
   const [searchText, setSearchText] = useState('');
 
   const [loading, setLoading] = useState(true);
@@ -42,15 +43,17 @@ export default function HomeScreen() {
     }, 400);
 
     return () => clearTimeout(timer);
-  }, [searchText,selectedSpecialization]);
+  }, [searchText, selectedSpecialization]);
   const loadDoctorsBySearch = async () => {
     try {
+      console.log('SEARCH PARAMS:', { searchText, selectedSpecialization });
       const doctorResponse = await getDoctors(
         1,
         LIMIT,
         searchText,
         selectedSpecialization
       );
+       console.log('SEARCH RESULT:', JSON.stringify(doctorResponse.data, null, 2)); 
 
       setDoctors(doctorResponse.data || []);
       setPage(doctorResponse.pagination?.page || 1);
@@ -68,14 +71,24 @@ export default function HomeScreen() {
     try {
       setLoading(true);
 
-      const [profileData, doctorResponse] = await Promise.all([
+      const [profileData, doctorResponse, specializationData] = await Promise.all([
         getPatientProfile(),
         getDoctors(1, LIMIT, ''),//for showcase in the demo
+        getDoctorSpecializations(),
       ]);
 
+      console.log('SPECIALIZATION API RESPONSE:', specializationData);
+
+      const cleanedSpecializations = specializationData
+        .filter((item) => item.trim().toLowerCase() !== 'all')
+        .map((item) => item.trim());
       setProfile(profileData);
       setDoctors(doctorResponse.data || []);
 
+      setSpecializations([
+        'All',
+        ...Array.from(new Set(cleanedSpecializations)),
+      ]);
       setPage(doctorResponse.pagination?.page || 1);
       setHasNextPage(
         doctorResponse.pagination?.hasNextPage || false
@@ -99,7 +112,7 @@ export default function HomeScreen() {
       setLoadingMore(true);
 
       const nextPage = page + 1;
-      const doctorResponse = await getDoctors(nextPage, LIMIT, searchText);
+      const doctorResponse = await getDoctors(nextPage, LIMIT, searchText,selectedSpecialization);
 
       const newDoctors = doctorResponse.data || [];
 
@@ -175,17 +188,10 @@ export default function HomeScreen() {
       .toUpperCase();
   };
 
-  const specializations = useMemo(() => {
-    const values = doctors
-      .map((doctor) => doctor.specialization)
-      .filter(Boolean);
-
-    return ['All', ...new Set(values)];
-  }, [doctors]);
 
   // Current local search:
   // It searches doctors loaded so far.
- 
+
 
   const handleBookAppointment = () => {
     router.push({
