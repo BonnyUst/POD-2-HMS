@@ -2,7 +2,10 @@ const { verifyAccessToken } = require("../utils/jwt");
 
 const authMiddleware = (req, res, next) => {
   try {
-    const token = req.cookies?.accessToken;
+     const authHeader = req.headers?.authorization;
+     const token = authHeader?.startsWith('Bearer ')
+      ? authHeader.split(' ')[1]   
+      : req.cookies?.accessToken; 
 
     if (!token) {
       return res.status(401).json({
