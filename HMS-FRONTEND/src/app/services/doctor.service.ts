@@ -5,9 +5,6 @@ import { environment } from '../../environments/environment';
 import { Doctor, CreateDoctorPayload, UpdateDoctorPayload } from '../models/doctor.model';
 import { ApiResponse } from '../models/api-response.model';
 import { PaginatedResponse } from '../models/pagination.model';
-import {
-  EmployeeService
-} from './employee.service';
 @Injectable({
   providedIn: 'root'
 })

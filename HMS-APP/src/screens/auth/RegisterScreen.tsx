@@ -291,7 +291,6 @@ export default function RegisterScreen() {
       setLoading(true);
 
       await registerPatient(registerData);
-      await registerPatient(registerData);
 
       Alert.alert("Success", "Patient registered successfully", [
         {
@@ -311,7 +310,7 @@ export default function RegisterScreen() {
     }
   };
 
-  // ─── DOB helpers ────────────────────────────────────────────────────────────
+  // DOB helpers 
 
   const formatDateToString = (date: Date): string => {
     const yyyy = date.getFullYear();
@@ -337,9 +336,9 @@ export default function RegisterScreen() {
   onChange: onDobChange,
 };
 
-  // ─── Picker row helper ───────────────────────────────────────────────────────
+// row picker helper 
 
-  /** Renders a labelled Picker wrapped in the same visual style as AppInput */
+  // Renders a labelled Picker wrapped in the same visual style as AppInput 
   const renderPickerField = (
     label: string,
     selectedValue: string,
@@ -496,7 +495,7 @@ export default function RegisterScreen() {
               error={showError("phone")}
             />
 
-            {/* ── Gender & Blood Group row ─────────────────────────────────── */}
+            {/* Gender & Blood Group row  */}
             <View style={styles.row}>
               <View style={styles.halfInput}>
                 {renderPickerField(
@@ -521,7 +520,7 @@ export default function RegisterScreen() {
               </View>
             </View>
 
-            {/* ── Date of Birth ────────────────────────────────────────────── */}
+            {/* Date of Birth */}
             <View style={{ marginBottom: 12 }}>
               <Text style={pickerStyles.label}>
                 Date of Birth
@@ -623,7 +622,7 @@ export default function RegisterScreen() {
               error={showError("city")}
             />
 
-            {/* ── State Picker ─────────────────────────────────────────────── */}
+            {/*State Picker*/}
             {renderPickerField(
               "State",
               stateName,

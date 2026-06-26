@@ -104,14 +104,14 @@ export const employeeValidators = {
     Validators.required,
     Validators.minLength(8),
     Validators.pattern(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$/
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/
     )
   ],
 
   phone: [
     Validators.required,
     Validators.pattern(
-      /^[6-9][0-9]{9}$/
+      /^[6-9]\d{9}$/
     )
   ],
 

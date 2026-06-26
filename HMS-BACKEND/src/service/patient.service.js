@@ -84,6 +84,10 @@ exports.createPatient = async (patientData, employeeId) => {
      * Create the patient profile and link it
      * to the newly created User.
      */
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
     patient = await Patient.create({
       userId: user._id,
 
@@ -106,11 +110,11 @@ exports.createPatient = async (patientData, employeeId) => {
      * remove the incomplete User record.
      */
     if (patient?._id) {
-      await Patient.findByIdAndDelete(patient._id).catch(() => {});
+      await Patient.findByIdAndDelete(patient._id).catch(() => { });
     }
 
     if (user?._id) {
-      await User.findByIdAndDelete(user._id).catch(() => {});
+      await User.findByIdAndDelete(user._id).catch(() => { });
     }
 
     throw error;

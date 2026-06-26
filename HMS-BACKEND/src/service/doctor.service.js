@@ -229,77 +229,113 @@ exports.updateDoctor = async (doctorId, data) => {
 };
 
 exports.getAllDoctors = async (query = {}) => {
-  const { page, limit, skip, sortBy, sortOrder } = getPagination(query);
-  const search = query.search ? query.search.trim() : "";
+    const { page, limit, skip, sortBy, sortOrder } = getPagination(query);
+    const search = query.search ? query.search.trim() : '';
+    const specialization = query.specialization
+        ? query.specialization.trim()
+        : '';
 
-  const allowedSortFields = [
-    "createdAt",
-    "specialization",
-    "qualification",
-    "consultationFee",
-    "experienceYears",
-  ];
-
-  const finalSortBy = allowedSortFields.includes(sortBy) ? sortBy : "createdAt";
-
-  const filter = { isDeleted: false };
-
-  if (search) {
-    filter.$or = [
-      { specialization: { $regex: search, $options: "i" } },
-      { qualification: { $regex: search, $options: "i" } },
-      { medicalRegistrationNo: { $regex: search, $options: "i" } },
+    const allowedSortFields = [
+        'createdAt',
+        'specialization',
+        'qualification',
+        'consultationFee',
+        'experienceYears'
     ];
-  }
 
-  const totalRecords = await Doctor.countDocuments(filter);
+    const finalSortBy = allowedSortFields.includes(sortBy)
+        ? sortBy
+        : 'createdAt';
 
-  const doctors = await Doctor.find(filter)
-    .populate({
-      path: "employeeId",
-      populate: {
-        path: "userId",
-        select: "firstName lastName email phone status isVerified",
-      },
-    })
-    .sort({ [finalSortBy]: sortOrder })
-    .skip(skip)
-    .limit(limit);
+    const filter = { isDeleted: false };
+    if (specialization && specialization !== 'All') {
+        filter.specialization = specialization;
+    }
 
-  const formattedDoctors = doctors.map((doctor) => ({
-    doctorId: doctor._id,
-    employeeId: doctor.employeeId?._id,
-    employeeCode: doctor.employeeId?.employeeCode,
+    if (search) {
+        const matchingUsers = await User.find({
+            $or: [
+                { firstName: { $regex: search, $options: 'i' } },
+                { lastName: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } }
+            ]
+        }).select('_id');
 
-    firstName: doctor.employeeId?.userId?.firstName,
-    lastName: doctor.employeeId?.userId?.lastName,
-    email: doctor.employeeId?.userId?.email,
-    phone: doctor.employeeId?.phone,
-    department: doctor.employeeId?.department,
-    designation: doctor.employeeId?.designation,
-    specialization: doctor.specialization,
-    qualification: doctor.qualification,
-    consultationFee: doctor.consultationFee,
-    medicalRegistrationNo: doctor.medicalRegistrationNo,
-    availabilityStartTime: doctor.availabilityStartTime,
-    availabilityEndTime: doctor.availabilityEndTime,
-    experienceYears: doctor.experienceYears,
+        const matchingUserIds = matchingUsers.map((user) => user._id);
 
-    joiningDate: doctor.employeeId?.joiningDate,
-    status: doctor.employeeId?.userId?.status,
-    isVerified: doctor.employeeId?.userId?.isVerified,
-  }));
+        const matchingEmployees = await Employee.find({
+            userId: { $in: matchingUserIds }
+        }).select('_id');
 
-  return {
-    doctors: formattedDoctors,
-    pagination: {
-      ...buildPaginationResponse({
-        page,
-        limit,
-        totalRecords,
-      }),
-      sortBy: finalSortBy,
-      sortOrder: sortOrder === 1 ? "asc" : "desc",
-    },
-  };
+        const matchingEmployeeIds = matchingEmployees.map(
+            (employee) => employee._id
+        );
+
+        filter.$or = [
+            { specialization: { $regex: search, $options: 'i' } },
+            { qualification: { $regex: search, $options: 'i' } },
+            { medicalRegistrationNo: { $regex: search, $options: 'i' } },
+            { employeeId: { $in: matchingEmployeeIds } }
+        ];
+    }
+
+    const totalRecords = await Doctor.countDocuments(filter);
+
+    const doctors = await Doctor.find(filter)
+        .populate({
+            path: 'employeeId',
+            populate: {
+                path: 'userId',
+                select: 'firstName lastName email phone status isVerified'
+            }
+        })
+        .sort({ [finalSortBy]: sortOrder })
+        .skip(skip)
+        .limit(limit);
+
+    const formattedDoctors = doctors.map((doctor) => ({
+        doctorId: doctor._id,
+        employeeId: doctor.employeeId?._id,
+        employeeCode: doctor.employeeId?.employeeCode,
+
+        firstName: doctor.employeeId?.userId?.firstName,
+        lastName: doctor.employeeId?.userId?.lastName,
+        email: doctor.employeeId?.userId?.email,
+        phone: doctor.employeeId?.phone,
+        department: doctor.employeeId?.department,
+        designation: doctor.employeeId?.designation,
+        specialization: doctor.specialization,
+        qualification: doctor.qualification,
+        consultationFee: doctor.consultationFee,
+        medicalRegistrationNo: doctor.medicalRegistrationNo,
+        availabilityStartTime: doctor.availabilityStartTime,
+        availabilityEndTime: doctor.availabilityEndTime,
+        experienceYears: doctor.experienceYears,
+
+        joiningDate: doctor.employeeId?.joiningDate,
+        status: doctor.employeeId?.userId?.status,
+        isVerified: doctor.employeeId?.userId?.isVerified
+    }));
+
+    return {
+        doctors: formattedDoctors,
+        pagination: {
+            ...buildPaginationResponse({
+                page,
+                limit,
+                totalRecords
+            }),
+            sortBy: finalSortBy,
+            sortOrder: sortOrder === 1 ? 'asc' : 'desc'
+        }
+    };
+};
+
+exports.getDoctorSpecializations = async () => {
+  const specializations = await Doctor.distinct('specialization', {
+    isDeleted: false,
+    specialization: { $exists: true, $ne: '' }
+  });
+
+  return specializations.sort();
 };
