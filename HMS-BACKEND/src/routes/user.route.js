@@ -8,7 +8,41 @@ const permissions=require('../utils/permissions')
 const userValidator=require('../validation/user.validation')
 const validate=require('../middleware/validate')
 
+console.log(
+  "authMiddleware:",
+  typeof authMiddleware
+);
 
+console.log(
+  "authRoles:",
+  typeof authRoles
+);
+
+console.log(
+  "ADD_EMPLOYEE middleware:",
+  typeof authRoles(
+    permissions.ADD_EMPLOYEE
+  )
+);
+
+console.log(
+  "validateCreateEmployeeByAdmin:",
+  Array.isArray(
+    userValidator.validateCreateEmployeeByAdmin
+  )
+    ? "array"
+    : typeof userValidator.validateCreateEmployeeByAdmin
+);
+
+console.log(
+  "validate:",
+  typeof validate
+);
+
+console.log(
+  "createEmployeeByAdmin:",
+  typeof userController.createEmployeeByAdmin
+);
 router.post('/create',
     authMiddleware,
     authRoles(permissions.ADD_EMPLOYEE),

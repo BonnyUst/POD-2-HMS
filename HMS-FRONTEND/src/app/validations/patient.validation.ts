@@ -34,6 +34,24 @@ export function futureDateValidator(
     : null;
 }
 
+/*
+  Allows letters, spaces, apostrophes,
+  full stops and hyphens.
+
+  Valid examples:
+  - Thiruvananthapuram
+  - St. Thomas
+  - Mary Ann
+  - O'Connor
+  - Ernakulam-Kochi
+
+  Invalid examples:
+  - Kochi123
+  - 123456
+*/
+const nameAndPlacePattern =
+  /^(?!\s+$)[A-Za-z][A-Za-z\s.'-]*$/;
+
 export const patientValidators: {
   firstName: ValidatorFn[];
   lastName: ValidatorFn[];
@@ -95,7 +113,10 @@ export const patientValidators: {
   city: [
     Validators.required,
     Validators.minLength(2),
-    Validators.maxLength(100)
+    Validators.maxLength(100),
+    Validators.pattern(
+      nameAndPlacePattern
+    )
   ],
 
   state: [
@@ -111,7 +132,11 @@ export const patientValidators: {
 
   emergencyContactName: [
     Validators.required,
-    Validators.minLength(2)
+    Validators.minLength(2),
+    Validators.maxLength(100),
+    Validators.pattern(
+      nameAndPlacePattern
+    )
   ],
 
   emergencyContactPhone: [

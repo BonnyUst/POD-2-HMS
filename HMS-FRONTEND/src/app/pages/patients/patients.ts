@@ -427,5 +427,27 @@ export class Patients implements OnInit {
 
 
   }
+sanitizeTextInput(
+  event: Event,
+  controlPath: string
+): void {
+  const input =
+    event.target as HTMLInputElement;
 
+  const sanitizedValue =
+    input.value.replace(
+      /[^A-Za-z\s.'-]/g,
+      ''
+    );
+
+  if (input.value === sanitizedValue) {
+    return;
+  }
+
+  input.value = sanitizedValue;
+
+  this.patientForm
+    .get(controlPath)
+    ?.setValue(sanitizedValue);
+}
 }

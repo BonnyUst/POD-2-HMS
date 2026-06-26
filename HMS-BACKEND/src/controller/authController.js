@@ -1,28 +1,23 @@
-const ApiResponse = require(
-  "../utils/ApiResponse"
-);
-
-const authService = require(
-  "../service/auth.service"
-);
+const ApiResponse = require("../utils/ApiResponse");
+const authService = require("../service/auth.service");
 
 const verifyEmail = async (req, res) => {
   try {
     const { token } = req.params;
 
     const result =
-      await authService.verifyEmployeeEmail(
-        token
-      );
+      await authService.verifyEmployeeEmail(token);
 
     return res.status(200).json(
       new ApiResponse(
         200,
-        "Email verified successfully",
+        "Email Verified Successfully",
         result
       )
     );
   } catch (error) {
+    console.error("VERIFY EMAIL ERROR:", error);
+
     return res
       .status(error.statusCode || 500)
       .json({
@@ -41,14 +36,55 @@ const login = async (req, res) => {
         req.body
       );
 
+    const isMobile =
+      req.headers["x-client-type"] ===
+      "mobile";
+
+    res.cookie(
+      "accessToken",
+      result.accessToken,
+      {
+        httpOnly: true,
+        secure:
+          process.env.NODE_ENV ===
+          "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 1000,
+      }
+    );
+
+    res.cookie(
+      "refreshToken",
+      result.refreshToken,
+      {
+        httpOnly: true,
+        secure:
+          process.env.NODE_ENV ===
+          "production",
+        sameSite: "lax",
+        maxAge:
+          30 * 24 * 60 * 60 * 1000,
+      }
+    );
+
     return res.status(200).json(
       new ApiResponse(
         200,
-        "Login successful",
-        result
+        "Login Successful",
+        {
+          ...(isMobile && {
+            accessToken:
+              result.accessToken,
+            refreshToken:
+              result.refreshToken,
+          }),
+          user: result.user,
+        }
       )
     );
   } catch (error) {
+    console.error("LOGIN ERROR:", error);
+
     return res
       .status(error.statusCode || 500)
       .json({
@@ -58,6 +94,93 @@ const login = async (req, res) => {
           "Something went wrong",
       });
   }
+};
+
+const refreshToken = async (req, res) => {
+  try {
+    const isMobile =
+      req.headers["x-client-type"] ===
+      "mobile";
+
+    const refreshTokenValue = isMobile
+      ? req.body.refreshToken
+      : req.cookies?.refreshToken;
+
+    if (!refreshTokenValue) {
+      return res.status(401).json({
+        success: false,
+        message: "Refresh token missing",
+      });
+    }
+
+    const result =
+      await authService.refreshAccessToken(
+        refreshTokenValue
+      );
+
+    if (!isMobile) {
+      res.cookie(
+        "accessToken",
+        result.accessToken,
+        {
+          httpOnly: true,
+          secure:
+            process.env.NODE_ENV ===
+            "production",
+          sameSite: "lax",
+          maxAge: 60 * 60 * 1000,
+        }
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Access token refreshed",
+      ...(isMobile && {
+        data: {
+          accessToken:
+            result.accessToken,
+        },
+      }),
+    });
+  } catch (error) {
+    console.error(
+      "REFRESH TOKEN ERROR:",
+      error
+    );
+
+    return res.status(401).json({
+      success: false,
+      code: "REFRESH_TOKEN_INVALID",
+      message:
+        error.message ||
+        "Unable to refresh token",
+    });
+  }
+};
+
+const logout = async (req, res) => {
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure:
+      process.env.NODE_ENV ===
+      "production",
+    sameSite: "lax",
+  });
+
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure:
+      process.env.NODE_ENV ===
+      "production",
+    sameSite: "lax",
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: "Logged out successfully",
+  });
 };
 
 const changePassword = async (
@@ -81,6 +204,11 @@ const changePassword = async (
       data: result,
     });
   } catch (error) {
+    console.error(
+      "CHANGE PASSWORD ERROR:",
+      error
+    );
+
     next(error);
   }
 };
@@ -92,7 +220,6 @@ const changeFirstLoginPassword = async (
 ) => {
   try {
     const userId = req.user.userId;
-
     const { newPassword } = req.body;
 
     const result =
@@ -101,15 +228,34 @@ const changeFirstLoginPassword = async (
         newPassword
       );
 
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure:
+        process.env.NODE_ENV ===
+        "production",
+      sameSite: "lax",
+    });
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure:
+        process.env.NODE_ENV ===
+        "production",
+      sameSite: "lax",
+    });
+
     return res.status(200).json({
       success: true,
-
       message:
         "Password changed successfully. Please log in again using your new password.",
-
       data: result,
     });
   } catch (error) {
+    console.error(
+      "FIRST LOGIN PASSWORD ERROR:",
+      error
+    );
+
     next(error);
   }
 };
@@ -117,6 +263,8 @@ const changeFirstLoginPassword = async (
 module.exports = {
   verifyEmail,
   login,
+  refreshToken,
+  logout,
   changePassword,
   changeFirstLoginPassword,
 };

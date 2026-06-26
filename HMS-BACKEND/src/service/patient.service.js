@@ -16,7 +16,6 @@ const {
 const generateTemporaryPassword = require(
   "../utils/passwordGenerator"
 );
-
 const sendEmail = require("../service/mail.service");
 
 exports.createPatient = async (patientData, employeeId) => {
@@ -79,7 +78,7 @@ exports.createPatient = async (patientData, employeeId) => {
       isVerified: true,
       status: "ACTIVE",
 
-      // Admin-created patients receive a temporary password.
+
       mustChangePassword: true,
     });
 
@@ -420,14 +419,11 @@ exports.registerPatient = async (body) => {
   }
 
   const userId = user._id;
-
-  const token = await generateToken({
-    userId,
-  });
-
-  const verifyLink =
-    `http://localhost:5000/api/auth/verify-email/${token}`;
-
+  const token = generateToken(
+    { userId },
+    process.env.JWT_EMAIL_VERIFICATION_EXPIRY,
+  );
+  const verifyLink = `http://localhost:5000/api/auth/verify-email/${token}`;
   const html = `
     <h2>Welcome to HMS 👋</h2>
 
@@ -711,17 +707,10 @@ exports.softDeletePatientById = async (
     );
   }
 
-  const invalidAppointments =
-    await Appointment.find({
-      patientId: patient._id,
-
-      status: {
-        $nin: [
-          "COMPLETED",
-          "CANCELLED",
-        ],
-      },
-    });
+  const invalidAppointments = await Appointment.find({
+    patientId: patient._id,
+    status: { $nin: ["COMPLETED", "CANCELLED"] }
+  });
 
   if (invalidAppointments.length > 0) {
     throw new ApiError(
@@ -729,6 +718,7 @@ exports.softDeletePatientById = async (
       "Patient cannot be deleted because active appointments exist"
     );
   }
+
 
   patient.isDeleted = true;
   patient.status = "INACTIVE";

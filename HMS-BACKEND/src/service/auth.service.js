@@ -1,80 +1,68 @@
-const User = require(
-  "../models/User.model"
-);
+const User = require("../models/User.model");
 
 const bcrypt = require("bcrypt");
 
 const {
-  generateToken,
   verifyToken,
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
 } = require("../utils/jwt");
 
-const ApiError = require(
-  "../utils/ApiError"
-);
+const ApiError = require("../utils/ApiError");
 
-exports.loginEmployee = async ({
-  email,
-  password,
-}) => {
-  const normalizedEmail = email
-    .trim()
-    .toLowerCase();
+exports.loginEmployee = async ({ email, password }) => {
+  const normalizedEmail = email.trim().toLowerCase();
 
   const user = await User.findOne({
     email: normalizedEmail,
   }).populate("roleId");
 
   if (!user) {
+    throw new ApiError(404, "Employee Not Found");
+  }
+
+  const isPasswordMatch = await bcrypt.compare(
+    password,
+    user.passwordHash
+  );
+
+  if (!isPasswordMatch) {
+    throw new ApiError(401, "Invalid Credentials");
+  }
+
+  if (!user.isVerified) {
     throw new ApiError(
-      404,
-      "Employee not found"
+      401,
+      "Please verify your mail before login"
     );
   }
 
   if (user.status !== "ACTIVE") {
     throw new ApiError(
       403,
-      "This account is inactive"
+      "User account is inactive"
     );
   }
 
-  const isPasswordMatch =
-    await bcrypt.compare(
-      password,
-      user.passwordHash
-    );
+  const accessToken = generateAccessToken({
+    userId: user._id,
+    role: user.roleId.name,
+    rolecode: user.roleId.roleCode,
+    basePath: user.roleId.basePath,
+  });
 
-  if (!isPasswordMatch) {
-    throw new ApiError(
-      401,
-      "Invalid credentials"
-    );
-  }
-
-  if (!user.isVerified) {
-    throw new ApiError(
-      401,
-      "Please verify your email before login"
-    );
-  }
-
-  const loginToken = generateToken(
-    {
-      userId: user._id,
-      role: user.roleId.name,
-      rolecode: user.roleId.roleCode,
-      basePath: user.roleId.basePath,
-    },
-    "1d"
-  );
+  const refreshToken = generateRefreshToken({
+    userId: user._id,
+  });
 
   user.lastLoginAt = new Date();
 
   await user.save();
 
   return {
-    token: loginToken,
+    accessToken,
+    refreshToken,
 
     user: {
       id: user._id,
@@ -84,6 +72,7 @@ exports.loginEmployee = async ({
       roleId: user.roleId,
       status: user.status,
 
+      // Used by React Native to redirect temporary-password users.
       mustChangePassword: Boolean(
         user.mustChangePassword
       ),
@@ -91,9 +80,7 @@ exports.loginEmployee = async ({
   };
 };
 
-exports.verifyEmployeeEmail = async (
-  token
-) => {
+exports.verifyEmployeeEmail = async (token) => {
   const decoded = verifyToken(token);
 
   const user = await User.findById(
@@ -103,7 +90,7 @@ exports.verifyEmployeeEmail = async (
   if (!user) {
     throw new ApiError(
       404,
-      "User not found"
+      "User Not Found"
     );
   }
 
@@ -115,7 +102,7 @@ exports.verifyEmployeeEmail = async (
     email: user.email,
     isVerified: user.isVerified,
     message:
-      "Employee email verified successfully",
+      "Employee Email Verified successfully",
   };
 };
 
@@ -176,6 +163,10 @@ exports.changePassword = async (
   };
 };
 
+/*
+ * Used only when an admin-created patient logs in
+ * with the temporary password for the first time.
+ */
 exports.changeFirstLoginPassword = async (
   userId,
   newPassword
@@ -209,9 +200,10 @@ exports.changeFirstLoginPassword = async (
     );
   }
 
-  user.passwordHash =
+  const newPasswordHash =
     await bcrypt.hash(newPassword, 10);
 
+  user.passwordHash = newPasswordHash;
   user.mustChangePassword = false;
 
   await user.save();
@@ -220,5 +212,49 @@ exports.changeFirstLoginPassword = async (
     email: user.email,
     mustChangePassword:
       user.mustChangePassword,
+  };
+};
+
+exports.refreshAccessToken = async (
+  refreshToken
+) => {
+  const decoded =
+    verifyRefreshToken(refreshToken);
+
+  const user = await User.findById(
+    decoded.userId
+  ).populate("roleId");
+
+  if (!user) {
+    throw new ApiError(
+      404,
+      "User not found"
+    );
+  }
+
+  if (!user.isVerified) {
+    throw new ApiError(
+      401,
+      "User is not verified"
+    );
+  }
+
+  if (user.status !== "ACTIVE") {
+    throw new ApiError(
+      401,
+      "User account is inactive"
+    );
+  }
+
+  const accessToken =
+    generateAccessToken({
+      userId: user._id,
+      role: user.roleId.name,
+      rolecode: user.roleId.roleCode,
+      basePath: user.roleId.basePath,
+    });
+
+  return {
+    accessToken,
   };
 };

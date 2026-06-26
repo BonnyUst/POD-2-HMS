@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { router } from "expo-router";
+import axios from "axios";
 
 import {
   View,
@@ -28,11 +29,15 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
+  const [emailError, setEmailError] =
+    useState("");
+  const [passwordError, setPasswordError] =
+    useState("");
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] =
+    useState(false);
+  const [loading, setLoading] =
+    useState(false);
 
   const validateForm = (): boolean => {
     const emailValidationError =
@@ -41,7 +46,8 @@ export default function LoginScreen() {
     const passwordValidationError =
       validateLoginPassword(password);
 
-    let finalEmailError = emailValidationError;
+    let finalEmailError =
+      emailValidationError;
 
     if (
       !finalEmailError &&
@@ -52,7 +58,9 @@ export default function LoginScreen() {
     }
 
     setEmailError(finalEmailError);
-    setPasswordError(passwordValidationError);
+    setPasswordError(
+      passwordValidationError
+    );
 
     return (
       !finalEmailError &&
@@ -60,60 +68,135 @@ export default function LoginScreen() {
     );
   };
 
-  const handleLogin = async (): Promise<void> => {
-    if (!validateForm()) {
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const user = await login(
-        email.trim().toLowerCase(),
-        password
-      );
-
-      console.log("Logged in user:", user);
-      console.log(
-        "Must change password:",
-        user.mustChangePassword
-      );
-
-      /*
-       * Admin-created patients receive a temporary password.
-       * They must change it before accessing the home page.
-       */
-      if (user.mustChangePassword === true) {
-        router.replace("/change-password");
+  const handleLogin =
+    async (): Promise<void> => {
+      if (loading) {
         return;
       }
 
-      Alert.alert(
-        "Login Success",
-        `Welcome ${user.firstName}!`,
-        [
-          {
-            text: "Continue",
-            onPress: () => {
-              router.replace("/(tabs)/home");
-            },
-          },
-        ]
-      );
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Unable to log in. Please try again.";
+      if (!validateForm()) {
+        return;
+      }
 
-      Alert.alert(
-        "Login Failed",
-        errorMessage
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+      setEmailError("");
+      setPasswordError("");
+      setLoading(true);
+
+      try {
+        const user = await login(
+          email.trim().toLowerCase(),
+          password
+        );
+
+        console.log(
+          "Logged in user:",
+          user
+        );
+
+        console.log(
+          "Must change password:",
+          user.mustChangePassword
+        );
+
+      
+      
+        if (
+          user.mustChangePassword === true
+        ) {
+          router.replace(
+            "/change-password"
+          );
+          return;
+        }
+
+        Alert.alert(
+          "Login Success",
+          `Welcome ${user.firstName}!`,
+          [
+            {
+              text: "Continue",
+              onPress: () => {
+                router.replace(
+                  "/(tabs)/home"
+                );
+              },
+            },
+          ]
+        );
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          const status =
+            error.response?.status;
+
+          const responseData =
+            error.response?.data as
+              | {
+                  message?: string;
+                  error?: string;
+                }
+              | undefined;
+
+          const serverMessage =
+            responseData?.message ||
+            responseData?.error;
+
+          
+          if (status === 401) {
+            setPasswordError(
+              "Enter a valid password"
+            );
+            return;
+          }
+
+          
+          if (status === 403) {
+            Alert.alert(
+              "Login Failed",
+              serverMessage ||
+                "Your account is not permitted to log in."
+            );
+            return;
+          }
+
+        
+           
+          if (status === 400) {
+            Alert.alert(
+              "Login Failed",
+              serverMessage ||
+                "Please check your login details."
+            );
+            return;
+          }
+
+        
+          if (!error.response) {
+            Alert.alert(
+              "Connection Error",
+              "Unable to connect to the server. Please check your internet connection and try again."
+            );
+            return;
+          }
+
+          Alert.alert(
+            "Login Failed",
+            serverMessage ||
+              "Unable to log in. Please try again."
+          );
+
+          return;
+        }
+
+        Alert.alert(
+          "Login Failed",
+          error instanceof Error
+            ? error.message
+            : "Something went wrong. Please try again."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
 
   return (
     <KeyboardAvoidingView
@@ -143,8 +226,8 @@ export default function LoginScreen() {
           </Text>
 
           <Text style={styles.subtitle}>
-            Login to view your profile and manage
-            appointments
+            Login to view your profile and
+            manage appointments
           </Text>
 
           <View style={styles.formContainer}>
@@ -157,6 +240,14 @@ export default function LoginScreen() {
 
                 if (emailError) {
                   setEmailError("");
+                }
+
+                /*
+                 * Clear the API login error when
+                 * the email is changed.
+                 */
+                if (passwordError) {
+                  setPasswordError("");
                 }
               }}
               keyboardType="email-address"
@@ -182,12 +273,12 @@ export default function LoginScreen() {
               error={passwordError}
               rightElement={
                 <TouchableOpacity
-                  onPress={() =>
+                  onPress={() => {
                     setShowPassword(
                       (currentValue) =>
                         !currentValue
-                    )
-                  }
+                    );
+                  }}
                 >
                   <Text
                     style={
@@ -210,7 +301,9 @@ export default function LoginScreen() {
           </View>
 
           <View
-            style={styles.registerContainer}
+            style={
+              styles.registerContainer
+            }
           >
             <Text
               style={styles.registerText}
@@ -219,9 +312,9 @@ export default function LoginScreen() {
             </Text>
 
             <TouchableOpacity
-              onPress={() =>
-                router.push("/register")
-              }
+              onPress={() => {
+                router.push("/register");
+              }}
             >
               <Text
                 style={styles.registerLink}
