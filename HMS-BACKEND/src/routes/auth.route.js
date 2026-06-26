@@ -1,38 +1,25 @@
 const express = require("express");
 
 const router = express.Router();
+const authValidator = require("../validation/auth.validation");
 
-const authValidator = require(
-  "../validation/auth.validation"
-);
+const validate = require("../middleware/validate");
+const authMiddleware = require("../middleware/authMiddleware");
 
-const validate = require(
-  "../middleware/validate"
-);
-
-const authMiddleware = require(
-  "../middleware/authMiddleware"
-);
-
-const authController = require(
-  "../controller/authController"
-);
+const authController = require("../controller/authController");
 
 router.post(
   "/login",
   authValidator.validateLogin,
   validate,
-  authController.login
+  authController.login,
 );
 
-router.post(
-  "/change-password",
-  authMiddleware,
-  authValidator.validateChangePassword,
-  validate,
-  authController.changePassword
-);
+router.post("/refresh-token", authController.refreshToken);
 
+router.post("/logout", authController.logout);
+
+router.post("/change-password", authMiddleware, authController.changePassword);
 router.put(
   "/first-login/change-password",
   authMiddleware,
@@ -43,9 +30,7 @@ router.put(
     .changeFirstLoginPassword
 );
 
-router.get(
-  "/verify-email/:token",
-  authController.verifyEmail
-);
+
+router.get("/verify-email/:token", authController.verifyEmail);
 
 module.exports = router;

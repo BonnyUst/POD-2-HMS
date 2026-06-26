@@ -1,43 +1,36 @@
-const {
-  verifyToken,
-} = require("../utils/jwt");
+const { verifyAccessToken } = require("../utils/jwt");
 
-const authMiddleware = (
-  req,
-  res,
-  next
-) => {
+const authMiddleware = (req, res, next) => {
   try {
-    const authHeader =
-      req.headers.authorization;
+     const authHeader = req.headers?.authorization;
+     const token = authHeader?.startsWith('Bearer ')
+      ? authHeader.split(' ')[1]   
+      : req.cookies?.accessToken; 
 
-    if (
-      !authHeader?.startsWith(
-        "Bearer "
-      )
-    ) {
+    if (!token) {
       return res.status(401).json({
         success: false,
-        message: "Token missing",
+        message: "Authentication required",
       });
     }
 
-    const token =
-      authHeader.split(" ")[1];
-
-    const decoded =
-      verifyToken(token);
+    const decoded = verifyAccessToken(token);
 
     req.user = decoded;
 
     next();
   } catch (error) {
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({
+        success: false,
+        code: "ACCESS_TOKEN_EXPIRED",
+        message: "Access token expired",
+      });
+    }
     return res.status(401).json({
       success: false,
-
-      message:
-        error.message ||
-        "Invalid or expired token",
+      code: "INVALID_TOKEN",
+      message: error.message || "Invalid token",
     });
   }
 };

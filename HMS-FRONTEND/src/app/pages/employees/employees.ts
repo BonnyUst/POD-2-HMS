@@ -57,6 +57,7 @@ export class Employees implements OnInit {
   selectedEmployee =
     signal<Employee | null>(null);
 
+  loggedInUserRole: string | null = null;
   loggedInUserId: string | null = null;
 
   private searchTimer:
@@ -114,6 +115,15 @@ export class Employees implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    const user = localStorage.getItem('user');
+
+    if (user) {
+      const parsedUser = JSON.parse(user);
+
+      this.loggedInUserId = parsedUser.id;
+      this.loggedInUserRole = parsedUser.roleId?.name;
+    }
+
     this.getEmployees();
   }
 

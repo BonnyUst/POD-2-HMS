@@ -1,5 +1,5 @@
-import apiClient from "../config/appClient";
-import { tokenStorage } from "../storage/tokenStorage";
+import apiClient from '../config/appClient';
+import { tokenStorage } from '../storage/tokenStorage';
 
 export interface LoginUser {
   id: string;
@@ -54,15 +54,9 @@ export const login = async (
     }
   );
 
-  const { token, user } = response.data.data;
+  const { accessToken, refreshToken, user } = response.data.data; // ← data.data
 
-  if (!token) {
-    throw new Error(
-      "Login token was not returned by the server"
-    );
-  }
-
-  await tokenStorage.saveToken(token);
+  await tokenStorage.saveTokens(accessToken, refreshToken);
 
   return user;
 };

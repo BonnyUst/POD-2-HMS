@@ -186,7 +186,7 @@ export const doctorValidators = {
   phone: [
     Validators.required,
     Validators.pattern(
-      /^[6-9][0-9]{9}$/
+      /^[6-9]\d{9}$/
     )
   ],
 

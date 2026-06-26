@@ -60,11 +60,11 @@
                     <td>
                         @if (employee.userId !== loggedInUserId) {
                         <button class="action-btn edit-btn" (click)="openEditEmployeeModal(employee)">
-                            <i class="bi bi-pencil-square"></i>
+                           
                             Edit
                         </button>
                         <button class="action-btn delete-btn" (click)="deleteEmployee(employee)">
-                            <i class="bi bi-trash"></i>
+                            Delete
                         </button>
                         }
 
@@ -237,7 +237,9 @@
                         <label for="role">Role <span>*</span></label>
                         <select formControlName="role">
                             <option value="">Select Role</option>
-                            <option value="Admin">Admin</option>
+                            @if (loggedInUserRole === 'Owner') {
+                                <option value="Admin">Admin</option>
+                            }
                             <option value="Nurse">Nurse</option>
                             <option value="Receptionist">Receptionist</option>
                             <option value="Pharmacist">Pharmacist</option>

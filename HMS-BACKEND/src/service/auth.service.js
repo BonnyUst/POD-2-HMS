@@ -1,81 +1,61 @@
-const User = require(
-  "../models/User.model"
-);
+const User = require("../models/User.model");
 
 const bcrypt = require("bcrypt");
 
 const {
   generateToken,
   verifyToken,
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
 } = require("../utils/jwt");
 
-const ApiError = require(
-  "../utils/ApiError"
-);
+const ApiError = require("../utils/ApiError");
 
-exports.loginEmployee = async ({
-  email,
-  password,
-}) => {
-  const normalizedEmail = email
-    .trim()
-    .toLowerCase();
+exports.loginEmployee = async ({ email, password }) => {
+ const normalizedEmail = email.trim().toLowerCase();
 
-  const user = await User.findOne({
-    email: normalizedEmail,
-  }).populate("roleId");
+const user = await User.findOne({
+  email: normalizedEmail,
+}).populate("roleId");
 
   if (!user) {
-    throw new ApiError(
-      404,
-      "Employee not found"
-    );
+    throw new ApiError(404, "Employee Not Found");
   }
-
+  
   if (user.status !== "ACTIVE") {
-    throw new ApiError(
-      403,
-      "This account is inactive"
-    );
-  }
+  throw new ApiError(403, "This account is inactive");
+}
 
-  const isPasswordMatch =
-    await bcrypt.compare(
-      password,
-      user.passwordHash
-    );
+  const isPasswordMatch = await bcrypt.compare(password, user.passwordHash);
 
   if (!isPasswordMatch) {
-    throw new ApiError(
-      401,
-      "Invalid credentials"
-    );
+    throw new ApiError(401, "Invalid Credentials");
   }
 
   if (!user.isVerified) {
-    throw new ApiError(
-      401,
-      "Please verify your email before login"
-    );
+    throw new ApiError(401, "Please verify your mail before login");
   }
 
-  const loginToken = generateToken(
-    {
-      userId: user._id,
-      role: user.roleId.name,
-      rolecode: user.roleId.roleCode,
-      basePath: user.roleId.basePath,
-    },
-    "1d"
-  );
+  const accessToken = generateAccessToken({
+    userId: user._id,
+    role: user.roleId.name,
+    rolecode: user.roleId.roleCode,
+    basePath: user.roleId.basePath,
+  });
 
+  const refreshToken = generateRefreshToken({
+    userId: user._id,
+  });
+
+  //this login token contains the user id and role id as the payload for the jwt token
   user.lastLoginAt = new Date();
 
   await user.save();
 
   return {
-    token: loginToken,
-
+    accessToken,
+    refreshToken,
     user: {
       id: user._id,
       firstName: user.firstName,
@@ -83,100 +63,12 @@ exports.loginEmployee = async ({
       email: user.email,
       roleId: user.roleId,
       status: user.status,
-
-      mustChangePassword: Boolean(
-        user.mustChangePassword
-      ),
+           mustChangePassword: user.mustChangePassword,
     },
   };
 };
-
-exports.verifyEmployeeEmail = async (
-  token
-) => {
-  const decoded = verifyToken(token);
-
-  const user = await User.findById(
-    decoded.userId
-  );
-
-  if (!user) {
-    throw new ApiError(
-      404,
-      "User not found"
-    );
-  }
-
-  user.isVerified = true;
-
-  await user.save();
-
-  return {
-    email: user.email,
-    isVerified: user.isVerified,
-    message:
-      "Employee email verified successfully",
-  };
-};
-
-exports.changePassword = async (
-  userId,
-  {
-    oldPassword,
-    newPassword,
-  }
-) => {
-  const user = await User.findById(userId);
-
-  if (!user) {
-    throw new ApiError(
-      404,
-      "User not found"
-    );
-  }
-
-  const isOldPasswordMatch =
-    await bcrypt.compare(
-      oldPassword,
-      user.passwordHash
-    );
-
-  if (!isOldPasswordMatch) {
-    throw new ApiError(
-      401,
-      "Old password is incorrect"
-    );
-  }
-
-  const isSamePassword =
-    await bcrypt.compare(
-      newPassword,
-      user.passwordHash
-    );
-
-  if (isSamePassword) {
-    throw new ApiError(
-      400,
-      "New password cannot be the same as the current password"
-    );
-  }
-
-  const newPasswordHash =
-    await bcrypt.hash(newPassword, 10);
-
-  user.passwordHash = newPasswordHash;
-  user.mustChangePassword = false;
-
-  await user.save();
-
-  return {
-    email: user.email,
-    mustChangePassword:
-      user.mustChangePassword,
-  };
-};
-
-exports.changeFirstLoginPassword = async (
+  
+  exports.changeFirstLoginPassword = async (
   userId,
   newPassword
 ) => {
@@ -220,5 +112,78 @@ exports.changeFirstLoginPassword = async (
     email: user.email,
     mustChangePassword:
       user.mustChangePassword,
+  };
+};
+ 
+
+exports.verifyEmployeeEmail = async (token) => {
+  const decoded = verifyToken(token);
+  const user = await User.findById(decoded.userId);
+
+  if (!user) {
+    throw new ApiError(404, "User Not Found");
+  }
+
+  user.isVerified = true;
+  await user.save();
+
+  return {
+    email: user.email,
+    isVerified: user.isVerified,
+    message: "Employee Email Verified successfully",
+  };
+};
+
+exports.changePassword = async (userId, { oldPassword, newPassword }) => {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  const isOldPasswordMatch = await bcrypt.compare(
+    oldPassword,
+    user.passwordHash,
+  );
+
+  if (!isOldPasswordMatch) {
+    throw new ApiError(401, "Old password is incorrect");
+  }
+
+  const newPasswordHash = await bcrypt.hash(newPassword, 10);
+
+  user.passwordHash = newPasswordHash;
+  user.mustChangePassword = false;
+
+  await user.save();
+
+  return {
+    email: user.email,
+    mustChangePassword: user.mustChangePassword,
+  };
+};
+
+exports.refreshAccessToken = async (refreshToken) => {
+  const decoded = verifyRefreshToken(refreshToken);
+
+  const user = await User.findById(decoded.userId).populate("roleId");
+
+  if (!user.isVerified) {
+    throw new ApiError(401, "User is not verified");
+  }
+
+  if (user.status !== "ACTIVE") {
+    throw new ApiError(401, "User account is inactive");
+  }
+
+  const accessToken = generateAccessToken({
+    userId: user._id,
+    role: user.roleId.name,
+    rolecode: user.roleId.roleCode,
+    basePath: user.roleId.basePath,
+  });
+
+  return {
+    accessToken,
   };
 };

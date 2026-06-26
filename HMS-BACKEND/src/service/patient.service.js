@@ -83,6 +83,10 @@ exports.createPatient = async (patientData, employeeId) => {
       mustChangePassword: true,
     });
 
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
     patient = await Patient.create({
       userId: user._id,
 
@@ -100,15 +104,11 @@ exports.createPatient = async (patientData, employeeId) => {
     });
   } catch (error) {
     if (patient?._id) {
-      await Patient.findByIdAndDelete(
-        patient._id
-      ).catch(() => {});
+      await Patient.findByIdAndDelete(patient._id).catch(() => { });
     }
 
     if (user?._id) {
-      await User.findByIdAndDelete(
-        user._id
-      ).catch(() => {});
+      await User.findByIdAndDelete(user._id).catch(() => { });
     }
 
     throw error;
@@ -420,14 +420,11 @@ exports.registerPatient = async (body) => {
   }
 
   const userId = user._id;
-
-  const token = await generateToken({
-    userId,
-  });
-
-  const verifyLink =
-    `http://localhost:5000/api/auth/verify-email/${token}`;
-
+  const token = generateToken(
+    { userId },
+    process.env.JWT_EMAIL_VERIFICATION_EXPIRY,
+  );
+  const verifyLink = `http://localhost:5000/api/auth/verify-email/${token}`;
   const html = `
     <h2>Welcome to HMS 👋</h2>
 
@@ -711,17 +708,10 @@ exports.softDeletePatientById = async (
     );
   }
 
-  const invalidAppointments =
-    await Appointment.find({
-      patientId: patient._id,
-
-      status: {
-        $nin: [
-          "COMPLETED",
-          "CANCELLED",
-        ],
-      },
-    });
+  const invalidAppointments = await Appointment.find({
+    patientId: patient._id,
+    status: { $nin: ["COMPLETED", "CANCELLED"] }
+  });
 
   if (invalidAppointments.length > 0) {
     throw new ApiError(

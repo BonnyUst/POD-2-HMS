@@ -17,7 +17,7 @@ import { Doctor } from '../../models/doctor.model';
 
 @Component({
   selector: 'app-appointments',
-  standalone: true,
+
   imports: [ReactiveFormsModule, DatePipe, NgClass],
   templateUrl: './appointments.html',
   styleUrl: './appointments.css'

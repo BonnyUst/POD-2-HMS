@@ -515,13 +515,15 @@
 .appointment-view-btn {
   min-width: 64px;
   height: 30px;
+  padding: 7px 12px;
+  margin-right: 8px;
 
-  border: 1px solid var(--primary);
-  background: transparent;
-  color: var(--primary);
+  border: none;
+  background: var(--primary-dark);
+  color: #ffffff;
 
-  border-radius: 6px;
-  font-size: 12px;
+  border-radius: 8px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
 
@@ -647,7 +649,7 @@
 .slot-booked {
   background: #e5e7eb;
   border-color: #d1d5db;
-  color: #9ca3af;
+  color: #4b5563;
   cursor: not-allowed;
   text-decoration: line-through;
 }
@@ -693,21 +695,6 @@
     top: 72px;
   }
 }
-.appointment-view-btn {
-  border: none;
-  background: var(--primary);
-  color: #ffffff;
-  padding: 7px 12px;
-  border-radius: 8px;
-  font-size: 13px;
-  cursor: pointer;
-  margin-right: 8px;
-}
-
-.appointment-view-btn:hover {
-  background: var(--primary-dark);
-}
-
 .appointment-table-section th:last-child,
 .appointment-table-section td:last-child {
   width: 170px;

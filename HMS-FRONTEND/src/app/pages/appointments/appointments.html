@@ -79,17 +79,12 @@
 
                     <td class="appointment-actions-cell">
                         <div class="appointment-actions">
-                            <button
-                                type="button"
-                                class="appointment-view-btn"
-                                (click)="viewDetails(appointment._id)">
+                            <button type="button" class="appointment-view-btn" (click)="viewDetails(appointment._id)">
                                 View
                             </button>
 
                             @if (canCancelAppointment(appointment)) {
-                            <button
-                                type="button"
-                                class="appointment-cancel-btn"
+                            <button type="button" class="appointment-cancel-btn"
                                 (click)="cancelAppointment(appointment._id)">
                                 Cancel
                             </button>
@@ -177,7 +172,8 @@
                         @if (showPatientSuggestions() && filteredPatients().length > 0) {
                         <div class="suggestion-list">
                             @for (patient of filteredPatients(); track patient.patientId) {
-                            <div class="suggestion-item" (click)="selectPatient(patient)">
+                            <div class="suggestion-item" (click)="selectPatient(patient)"
+                                (keydown.enter)="selectPatient(patient)" (keydown.space)="selectPatient(patient)">
                                 {{ patient.firstName }} {{ patient.lastName }} - {{ patient.UHID }}
                             </div>
                             }
@@ -209,7 +205,8 @@
                         @if (showDoctorSuggestions() && filteredDoctors().length > 0) {
                         <div class="suggestion-list">
                             @for (doctor of filteredDoctors(); track doctor.doctorId) {
-                            <div class="suggestion-item" (click)="selectDoctor(doctor)">
+                            <div class="suggestion-item" (click)="selectDoctor(doctor)"
+                                (keydown.enter)="selectDoctor(doctor)" (keydown.space)="selectDoctor(doctor)">
                                 Dr. {{ doctor.firstName }} {{ doctor.lastName }} - {{ doctor.specialization }}
                             </div>
                             }
