@@ -24,7 +24,7 @@ const passwordValidation = body(
   .withMessage(
     "Password must contain at least one lowercase letter"
   )
-  .matches(/[0-9]/)
+  .matches(/\d/)
   .withMessage(
     "Password must contain at least one number"
   )

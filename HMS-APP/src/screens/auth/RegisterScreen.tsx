@@ -12,9 +12,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { Picker } from "@react-native-picker/picker";
-import DateTimePicker, {
-  DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 import AppInput from "@/components/common/AppInput";
 import PrimaryButton from "@/components/common/PrimaryButton";
@@ -321,20 +319,8 @@ export default function RegisterScreen() {
     return `${yyyy}-${mm}-${dd}`;
   };
 
-  const onDobChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-    if (Platform.OS === "android") {
-      setShowDobPicker(false);
-    }
-    if (event.type === "set" && selectedDate) {
-      setDobDate(selectedDate);
-      const formatted = formatDateToString(selectedDate);
-      setDob(formatted);
-      clearError("dob");
-      touchAndValidate("dob", formatted);
-    }
-  };
 
-// row picker helper 
+  // row picker helper 
 
   // Renders a labelled Picker wrapped in the same visual style as AppInput 
   const renderPickerField = (
@@ -551,7 +537,25 @@ export default function RegisterScreen() {
                   mode="date"
                   display="default"
                   maximumDate={new Date()}
-                  onChange={onDobChange}
+                  onValueChange={(_event, selectedDate) => {
+                    if (!selectedDate) return;
+
+                    setDobDate(selectedDate);
+
+                    const formatted = formatDateToString(selectedDate);
+                    setDob(formatted);
+
+                    clearError("dob");
+                    touchAndValidate("dob", formatted);
+
+                    // Close Android picker after user presses OK
+                    if (Platform.OS === "android") {
+                      setShowDobPicker(false);
+                    }
+                  }}
+                  onDismiss={() => {
+                    setShowDobPicker(false);
+                  }}
                 />
               )}
 
@@ -592,7 +596,20 @@ export default function RegisterScreen() {
                       mode="date"
                       display="spinner"
                       maximumDate={new Date()}
-                      onChange={onDobChange}
+                      onValueChange={(_event, selectedDate) => {
+                        if (!selectedDate) return;
+
+                        setDobDate(selectedDate);
+
+                        const formatted = formatDateToString(selectedDate);
+                        setDob(formatted);
+
+                        clearError("dob");
+                        touchAndValidate("dob", formatted);
+                      }}
+                      onDismiss={() => {
+                        setShowDobPicker(false);
+                      }}
                       style={{ height: 200 }}
                     />
                   </View>

@@ -23,7 +23,8 @@ interface LoginApiResponse {
   statuscode?: number;
   message: string;
   data: {
-    token: string;
+    accessToken: string;
+    refreshToken: string;
     user: LoginUser;
   };
 }
@@ -54,7 +55,7 @@ export const login = async (
     }
   );
 
-  const { accessToken, refreshToken, user } = response.data.data; // ← data.data
+  const { accessToken, refreshToken, user } = response.data.data;
 
   await tokenStorage.saveTokens(accessToken, refreshToken);
 
