@@ -55,6 +55,10 @@ const seedOwner = async () => {
       mustChangePassword: false,
     });
 
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
     await Employee.create({
       userId: user._id,
       employeeCode: "OWNER",
