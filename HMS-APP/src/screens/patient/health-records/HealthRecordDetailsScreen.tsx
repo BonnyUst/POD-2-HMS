@@ -228,10 +228,10 @@ export default function HealthRecordDetailsScreen() {
       <View style={styles.sectionCard}>
         <Text style={styles.sectionTitle}>Prescription</Text>
 
-        {!healthRecord.prescription?.length ? (
+        {(healthRecord.prescription?.length??0)===0 ? (
           <Text style={styles.mutedText}>No prescription added.</Text>
         ) : (
-          healthRecord.prescription.map((medicine, index) => (
+          healthRecord.prescription?.map((medicine, index) => (
             <View
               key={`${medicine.name}-${index}`}
               style={styles.medicineCard}

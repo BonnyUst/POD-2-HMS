@@ -75,7 +75,7 @@ export const patientValidators: {
   phone: [
     Validators.required,
     Validators.pattern(
-      /^[6-9][0-9]{9}$/
+      /^[6-9]\d{9}$/
     )
   ],
 
@@ -105,7 +105,7 @@ export const patientValidators: {
   pincode: [
     Validators.required,
     Validators.pattern(
-      /^[0-9]{6}$/
+      /^\d{6}$/
     )
   ],
 
@@ -117,7 +117,7 @@ export const patientValidators: {
   emergencyContactPhone: [
     Validators.required,
     Validators.pattern(
-      /^[6-9][0-9]{9}$/
+      /^[6-9]\d{9}$/
     )
   ]
 };

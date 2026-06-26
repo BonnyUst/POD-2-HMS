@@ -1,8 +1,8 @@
 function getPagination(query = {}) {
-  const page = Math.max(parseInt(query.page) || 1, 1);
+  const page = Math.max(Number.parseInt(query.page) || 1, 1);
 
   const limit = Math.min(
-    Math.max(parseInt(query.limit) || 10, 1),
+    Math.max(Number.parseInt(query.limit) || 10, 1),
     100
   );
 

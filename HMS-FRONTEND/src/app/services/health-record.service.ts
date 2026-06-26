@@ -15,12 +15,12 @@ import { environment } from '../../environments/environment';
 })
 export class HealthRecordService {
     
-  private apiUrl = 'http://localhost:5000/api/health-records';
+  readonly baseUrl= environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(readonly http: HttpClient) {}
 
   createHealthRecord(data: CreateHealthRecordRequest): Observable<HealthRecordSingleResponse> {
-    return this.http.post<HealthRecordSingleResponse>(`${this.apiUrl}/create`, data);
+    return this.http.post<HealthRecordSingleResponse>(`${this.baseUrl}/health-records/create`, data);
   }
 
  getHealthRecords(
@@ -34,27 +34,27 @@ export class HealthRecordService {
       .set('search', search);
 
     return this.http.get<HealthRecordListResponse>(
-      `${this.apiUrl}/list`,
+      `${this.baseUrl}/health-records/list`,
       { params }
     );
   }
-  
+
   getHealthRecordById(id: string): Observable<HealthRecordSingleResponse> {
-    return this.http.get<HealthRecordSingleResponse>(`${this.apiUrl}/${id}`);
+    return this.http.get<HealthRecordSingleResponse>(`${this.baseUrl}/health-records/${id}`);
   }
 
   updateHealthRecord(
     id: string,
     data: UpdateHealthRecordRequest
   ): Observable<HealthRecordSingleResponse> {
-    return this.http.put<HealthRecordSingleResponse>(`${this.apiUrl}/update/${id}`, data);
+    return this.http.put<HealthRecordSingleResponse>(`${this.baseUrl}/health-records/update/${id}`, data);
   }
 
   finalizeHealthRecord(id: string): Observable<HealthRecordSingleResponse> {
-    return this.http.put<HealthRecordSingleResponse>(`${this.apiUrl}/finalize/${id}`, {});
+    return this.http.put<HealthRecordSingleResponse>(`${this.baseUrl}/health-records/finalize/${id}`, {});
   }
 
   deleteHealthRecord(id: string): Observable<{ success: boolean; message: string }> {
-    return this.http.delete<{ success: boolean; message: string }>(`${this.apiUrl}/delete/${id}`);
+    return this.http.delete<{ success: boolean; message: string }>(`${this.baseUrl}/health-records/delete/${id}`);
   }
 }

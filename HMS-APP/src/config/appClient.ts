@@ -16,7 +16,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(async (config) => {
     const token = await tokenStorage.getAccessToken();
     if (token) {
-        config.headers = config.headers || {};  // ← fix
+        config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -35,7 +35,7 @@ apiClient.interceptors.response.use(
 
             if (!refreshToken) {
                 await tokenStorage.clear();
-                return Promise.reject(error);
+                throw error;
             }
 
             const { data } = await axios.post(`${BASE_URL}/auth/refresh-token`, {
@@ -46,17 +46,17 @@ apiClient.interceptors.response.use(
                 },
             });
 
-            const newAccessToken = data.data.accessToken;  // ← store in variable
+            const newAccessToken = data.data.accessToken;
 
             await tokenStorage.saveTokens(newAccessToken, refreshToken);
 
-            originalRequest.headers = originalRequest.headers || {};  // ← fix
+            originalRequest.headers = originalRequest.headers || {};
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
             return apiClient(originalRequest);
         }
 
-        return Promise.reject(error);
+        throw error;
     }
 );
 

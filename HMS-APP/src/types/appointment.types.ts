@@ -62,3 +62,15 @@ export interface CreateAppointmentPayload {
   timeSlot: string;
   reason: string;
 }
+
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  totalRecords: number;
+  hasNextPage: boolean;
+}
+
+export interface AppointmentsResponse {
+  data: Appointment[];
+  pagination: PaginationMeta;
+}

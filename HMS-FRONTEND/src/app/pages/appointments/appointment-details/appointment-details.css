@@ -6,9 +6,6 @@
   box-sizing: border-box;
 }
 
-/* ===========================
-HEADER
-=========================== */
 
 .page-header {
 position: relative;
@@ -38,9 +35,7 @@ color: #64748b;
 font-size: 14px;
 }
 
-/* ===========================
-LAYOUT
-=========================== */
+
 
 .section-header,
 .modal-header,
@@ -57,9 +52,6 @@ grid-template-columns: repeat(3, 1fr);
 gap: 16px;
 }
 
-/* ===========================
-CARDS
-=========================== */
 
 .details-card,
 .health-record-card,
@@ -97,9 +89,7 @@ display: inline-block;
 min-width: 140px;
 }
 
-/* ===========================
-BUTTONS
-=========================== */
+
 
 .back-btn,
 .save-btn,
@@ -138,12 +128,12 @@ background: #1d4ed8;
 }
 
 .finalize-btn {
-background: #16a34a;
+background: #15803d;
 color: #ffffff;
 }
 
 .finalize-btn:hover {
-background: #15803d;
+background: #166c31;
 }
 
 .remove-btn {
@@ -155,9 +145,7 @@ color: #ffffff;
 background: #b91c1c;
 }
 
-/* ===========================
-STATUS BADGES
-=========================== */
+
 
 .status-badge,
 .record-status {
@@ -184,12 +172,10 @@ color: #15803d;
 
 .status-cancelled {
 background: #fee2e2;
-color: #dc2626;
+color: #991b1b;
 }
 
-/* ===========================
-HEALTH RECORD
-=========================== */
+
 
 .record-summary {
 display: grid;
@@ -217,10 +203,6 @@ gap: 10px;
 flex-wrap: wrap;
 }
 
-/* ===========================
-EMPTY STATE
-=========================== */
-
 .empty-record {
 text-align: center;
 padding: 40px 20px;
@@ -244,9 +226,7 @@ color: #64748b;
 color: #6b7280;
 }
 
-/* ===========================
-ALERTS
-=========================== */
+/* alert mssge */
 
 .error-msg {
 color: #dc2626;
@@ -266,9 +246,7 @@ border-radius: 8px;
 margin-bottom: 16px;
 }
 
-/* ===========================
-TABLES
-=========================== */
+/* tables */
 
 .prescription-table-wrapper {
 overflow-x: auto;
@@ -293,10 +271,7 @@ padding: 12px;
 border-bottom: 1px solid #e5e7eb;
 text-align: left;
 }
-
-/* ===========================
-MODAL
-=========================== */
+/* modal  */
 
 .modal-overlay {
 position: fixed;
@@ -356,9 +331,7 @@ border-radius: 8px;
 font-size: 14px;
 }
 
-/* ===========================
-FORMS
-=========================== */
+/* forms  */
 
 .form-group {
 display: flex;
@@ -391,9 +364,7 @@ outline: none;
 border-color: #2563eb;
 }
 
-/* ===========================
-MEDICINE ROW
-=========================== */
+/* medicine row  */
 
 .prescription-header {
 margin-bottom: 16px;
@@ -407,9 +378,7 @@ align-items: end;
 margin-bottom: 12px;
 }
 
-/* ===========================
-RESPONSIVE
-=========================== */
+/* responsive  */
 
 @media (max-width: 992px) {
 .details-grid {
