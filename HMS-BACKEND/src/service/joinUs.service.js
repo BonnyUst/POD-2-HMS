@@ -1,153 +1,160 @@
-const crypto = require('node:crypto');
-const JoinUs = require('../models/JoinUs.model');
-const User = require('../models/User.model');
-const ApiError = require('../utils/ApiError');
-const bcrypt = require('bcrypt')
-const Role = require('../models/Role.model')
-const Employee = require('../models/Employee.model')
-const Doctor = require('../models/Doctor.model')
+const crypto = require("node:crypto");
+const JoinUs = require("../models/JoinUs.model");
+const User = require("../models/User.model");
+const ApiError = require("../utils/ApiError");
+const bcrypt = require("bcrypt");
+const Role = require("../models/Role.model");
+const Employee = require("../models/Employee.model");
+const Doctor = require("../models/Doctor.model");
+const sendEmail = require("./mail.service");
 const {
   getPagination,
-  buildPaginationResponse
-} = require('../utils/pagination');
+  buildPaginationResponse,
+} = require("../utils/pagination");
 
 exports.createJoinUsRequest = async (joinUsData) => {
-    const {
-        firstName,
-        lastName,
-        email,
-        password,
-        phone,
-        role,
-        department,
-        designation,
-        joiningDate,
+  const {
+    firstName,
+    lastName,
+    email,
+    password,
+    phone,
+    role,
+    department,
+    designation,
+    joiningDate,
 
-        specialization,
-        qualification,
-        consultationFee,
-        medicalRegistrationNo,
-        availabilityStartTime,
-        availabilityEndTime,
-        experienceYears
-    } = joinUsData;
+    specialization,
+    qualification,
+    consultationFee,
+    medicalRegistrationNo,
+    availabilityStartTime,
+    availabilityEndTime,
+    experienceYears,
+  } = joinUsData;
 
-    const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({ email });
 
-    if (existingUser) {
-        throw new ApiError(409, 'Email already registered as user');
+  if (existingUser) {
+    throw new ApiError(409, "Email already registered as user");
+  }
+
+  const existingRequest = await JoinUs.findOne({ email });
+
+  if (existingRequest) {
+    if (!existingRequest.isVerified) {
+      const newToken = crypto.randomBytes(32).toString("hex");
+
+      existingRequest.verificationToken = newToken;
+      existingRequest.verificationTokenExpiry = new Date(
+        Date.now() + 15 * 60 * 1000,
+      );
+
+      await existingRequest.save();
+
+      const verificationLink = `http://localhost:5000/api/join-us/verify/${newToken}`;
+
+      console.log("Verification Link Resent:", verificationLink);
+
+      return {
+        message: "Verification email resent. Please verify your email.",
+        data: existingRequest,
+      };
     }
 
-    const existingRequest = await JoinUs.findOne({ email });
+    throw new ApiError(409, "Join request already exists with this email");
+  }
+  const passwordHash = await bcrypt.hash(password, 10);
+  const verificationToken = crypto.randomBytes(32).toString("hex"); //decide later on the jwt
 
+  const joinUsRequest = await JoinUs.create({
+    firstName,
+    lastName,
+    email,
+    passwordHash,
+    phone,
+    role,
+    department,
+    designation,
+    joiningDate,
 
-    if (existingRequest) {
-        if (!existingRequest.isVerified) {
-            const newToken = crypto.randomBytes(32).toString('hex');
+    specialization: role === "Doctor" ? specialization : undefined,
+    qualification: role === "Doctor" ? qualification : undefined,
+    consultationFee: role === "Doctor" ? consultationFee : undefined,
+    medicalRegistrationNo:
+      role === "Doctor" ? medicalRegistrationNo : undefined,
+    availabilityStartTime:
+      role === "Doctor" ? availabilityStartTime : undefined,
+    availabilityEndTime: role === "Doctor" ? availabilityEndTime : undefined,
+    experienceYears: role === "Doctor" ? experienceYears : undefined,
 
-            existingRequest.verificationToken = newToken;
-            existingRequest.verificationTokenExpiry = new Date(Date.now() + 15 * 60 * 1000);
+    isVerified: false,
+    approvalStatus: "PENDING",
+    verificationToken,
+    verificationTokenExpiry: new Date(Date.now() + 15 * 60 * 1000),
+  });
+  const verificationLink = `http://localhost:5000/api/join-us/verify/${verificationToken}`;
 
-            await existingRequest.save();
+  console.log("Verification Link:", verificationLink);
 
-            const verificationLink =
-                `http://localhost:5000/api/join-us/verify/${newToken}`;
+  // Send verification email
+  await sendEmail(
+    joinUsRequest.email,
+    "Verify Your Email",
+    `Please click the following link to verify your email: ${verificationLink}`,
+  );
 
-            console.log('Verification Link Resent:', verificationLink);
-
-            return {
-                message: 'Verification email resent. Please verify your email.',
-                data: existingRequest
-            };
-        }
-
-        throw new ApiError(409, 'Join request already exists with this email');
-    }
-    const passwordHash = await bcrypt.hash(password, 10);
-    const verificationToken = crypto.randomBytes(32).toString('hex');//decide later on the jwt 
-
-    const joinUsRequest = await JoinUs.create({
-        firstName,
-        lastName,
-        email,
-        passwordHash,
-        phone,
-        role,
-        department,
-        designation,
-        joiningDate,
-
-        specialization: role === 'Doctor' ? specialization : undefined,
-        qualification: role === 'Doctor' ? qualification : undefined,
-        consultationFee: role === 'Doctor' ? consultationFee : undefined,
-        medicalRegistrationNo: role === 'Doctor' ? medicalRegistrationNo : undefined,
-        availabilityStartTime: role === 'Doctor' ? availabilityStartTime : undefined,
-        availabilityEndTime: role === 'Doctor' ? availabilityEndTime : undefined,
-        experienceYears: role === 'Doctor' ? experienceYears : undefined,
-
-        isVerified: false,
-        approvalStatus: 'PENDING',
-        verificationToken,
-        verificationTokenExpiry: new Date(Date.now() + 15 * 60 * 1000)
-    });
-    const verificationLink =
-        `http://localhost:5000/api/join-us/verify/${verificationToken}`;
-
-    console.log('Verification Link:', verificationLink);
-
-    return {
-        message: 'Join request submitted. Please verify your email.',
-        data: joinUsRequest
-    };
+  return {
+    message: "Join request submitted. Please verify your email.",
+    data: joinUsRequest,
+  };
 };
 
 exports.verifyJoinUsEmail = async (token) => {
-    const joinUsRequest = await JoinUs.findOne({
-        verificationToken: token,
-        verificationTokenExpiry: { $gt: new Date() }
-    });
+  const joinUsRequest = await JoinUs.findOne({
+    verificationToken: token,
+    verificationTokenExpiry: { $gt: new Date() },
+  });
 
-    if (!joinUsRequest) {
-        throw new ApiError(400, 'Invalid or expired verification token');
-    }
+  if (!joinUsRequest) {
+    throw new ApiError(400, "Invalid or expired verification token");
+  }
 
-    joinUsRequest.isVerified = true;
-    joinUsRequest.verificationToken = undefined;
-    joinUsRequest.verificationTokenExpiry = undefined;
+  joinUsRequest.isVerified = true;
+  joinUsRequest.verificationToken = undefined;
+  joinUsRequest.verificationTokenExpiry = undefined;
 
-    await joinUsRequest.save();
+  await joinUsRequest.save();
 
-    return joinUsRequest;
+  return joinUsRequest;
 };
 
 exports.getAllJoinUsRequests = async (query = {}) => {
   const { page, limit, skip, sortBy, sortOrder } = getPagination(query);
-  const search = query.search ? query.search.trim() : '';
+  const search = query.search ? query.search.trim() : "";
 
   const allowedSortFields = [
-    'createdAt',
-    'firstName',
-    'lastName',
-    'email',
-    'status'
+    "createdAt",
+    "firstName",
+    "lastName",
+    "email",
+    "status",
   ];
 
-  const finalSortBy = allowedSortFields.includes(sortBy)
-    ? sortBy
-    : 'createdAt';
+  const finalSortBy = allowedSortFields.includes(sortBy) ? sortBy : "createdAt";
 
   const filter = {};
 
   if (search) {
     filter.$or = [
-      { firstName: { $regex: search, $options: 'i' } },
-      { lastName: { $regex: search, $options: 'i' } },
-      { email: { $regex: search, $options: 'i' } },
-      { phone: { $regex: search, $options: 'i' } },
-      { role: { $regex: search, $options: 'i' } },
-      { department: { $regex: search, $options: 'i' } },
-      { designation: { $regex: search, $options: 'i' } },
-      { status: { $regex: search, $options: 'i' } }
+      { firstName: { $regex: search, $options: "i" } },
+      { lastName: { $regex: search, $options: "i" } },
+      { email: { $regex: search, $options: "i" } },
+      { phone: { $regex: search, $options: "i" } },
+      { role: { $regex: search, $options: "i" } },
+      { department: { $regex: search, $options: "i" } },
+      { designation: { $regex: search, $options: "i" } },
+      { status: { $regex: search, $options: "i" } },
     ];
   }
 
@@ -164,44 +171,42 @@ exports.getAllJoinUsRequests = async (query = {}) => {
       ...buildPaginationResponse({
         page,
         limit,
-        totalRecords
+        totalRecords,
       }),
       sortBy: finalSortBy,
-      sortOrder: sortOrder === 1 ? 'asc' : 'desc'
-    }
+      sortOrder: sortOrder === 1 ? "asc" : "desc",
+    },
   };
 };
 
 exports.getPendingJoinUsRequests = async (query = {}) => {
   const { page, limit, skip, sortBy, sortOrder } = getPagination(query);
-  const search = query.search ? query.search.trim() : '';
+  const search = query.search ? query.search.trim() : "";
 
   const allowedSortFields = [
-    'createdAt',
-    'firstName',
-    'lastName',
-    'email',
-    'approvalStatus'
+    "createdAt",
+    "firstName",
+    "lastName",
+    "email",
+    "approvalStatus",
   ];
 
-  const finalSortBy = allowedSortFields.includes(sortBy)
-    ? sortBy
-    : 'createdAt';
+  const finalSortBy = allowedSortFields.includes(sortBy) ? sortBy : "createdAt";
 
   const filter = {
     isVerified: true,
-    approvalStatus: 'PENDING'
+    approvalStatus: "PENDING",
   };
 
   if (search) {
     filter.$or = [
-      { firstName: { $regex: search, $options: 'i' } },
-      { lastName: { $regex: search, $options: 'i' } },
-      { email: { $regex: search, $options: 'i' } },
-      { phone: { $regex: search, $options: 'i' } },
-      { role: { $regex: search, $options: 'i' } },
-      { department: { $regex: search, $options: 'i' } },
-      { designation: { $regex: search, $options: 'i' } }
+      { firstName: { $regex: search, $options: "i" } },
+      { lastName: { $regex: search, $options: "i" } },
+      { email: { $regex: search, $options: "i" } },
+      { phone: { $regex: search, $options: "i" } },
+      { role: { $regex: search, $options: "i" } },
+      { department: { $regex: search, $options: "i" } },
+      { designation: { $regex: search, $options: "i" } },
     ];
   }
 
@@ -218,136 +223,170 @@ exports.getPendingJoinUsRequests = async (query = {}) => {
       ...buildPaginationResponse({
         page,
         limit,
-        totalRecords
+        totalRecords,
       }),
       sortBy: finalSortBy,
-      sortOrder: sortOrder === 1 ? 'asc' : 'desc'
-    }
+      sortOrder: sortOrder === 1 ? "asc" : "desc",
+    },
   };
 };
 
 exports.checkJoinUsEmail = async (email) => {
-    const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({ email });
 
-    if (existingUser) {
-        throw new ApiError(409, 'Email already registered as user');
-    }
+  if (existingUser) {
+    throw new ApiError(409, "Email already registered as user");
+  }
 
-    const existingRequest = await JoinUs.findOne({ email });
+  const existingRequest = await JoinUs.findOne({ email });
 
-    if (existingRequest) {
-        if (!existingRequest.isVerified) {
-            return {
-                canContinue: false,
-                message: 'Join request already exists but email is not verified. Please verify your email.'
-            };
-        }
-
-        return {
-            canContinue: false,
-            message: 'Join request already exists with this email.'
-        };
+  if (existingRequest) {
+    if (!existingRequest.isVerified) {
+      return {
+        canContinue: false,
+        message:
+          "Join request already exists but email is not verified. Please verify your email.",
+      };
     }
 
     return {
-        canContinue: true,
-        message: 'Email available. Continue filling the form.'
+      canContinue: false,
+      message: "Join request already exists with this email.",
     };
+  }
+
+  return {
+    canContinue: true,
+    message: "Email available. Continue filling the form.",
+  };
 };
+
+exports.rejectJoinUsRequest = async (requestId, rejectedBy, reason) => {
+  const request = await JoinUs.findById(requestId);
+
+  if (!request) {
+    throw new ApiError(404, "Join request not found");
+  }
+
+  if (request.approvalStatus === "APPROVED") {
+    throw new ApiError(400, "Cannot reject an already approved request");
+  }
+
+  if (request.approvalStatus === "REJECTED") {
+    throw new ApiError(400, "Request is already rejected");
+  }
+
+  request.approvalStatus = "REJECTED";
+  request.rejectionReason = reason?.trim() || "No reason provided";
+
+  await JoinUs.findByIdAndDelete(requestId);
+
+  return {
+    message: "Join request rejected successfully",
+    data: request,
+  };
+};
+
 exports.approveJoinUsRequest = async (requestId, approvedBy) => {
-    const joinUsRequest = await JoinUs.findById(requestId).select('+passwordHash');
+  const joinUsRequest =
+    await JoinUs.findById(requestId).select("+passwordHash");
 
-    if (!joinUsRequest) {
-        throw new ApiError(404, 'Join request not found');
-    }
+  if (!joinUsRequest) {
+    throw new ApiError(404, "Join request not found");
+  }
 
-    if (!joinUsRequest.isVerified) {
-        throw new ApiError(400, 'Email is not verified yet');
-    }
+  if (!joinUsRequest.isVerified) {
+    throw new ApiError(400, "Email is not verified yet");
+  }
 
-    if (joinUsRequest.approvalStatus !== 'PENDING') {
-        throw new ApiError(400, 'Join request is already processed');
-    }
+  if (joinUsRequest.approvalStatus !== "PENDING") {
+    throw new ApiError(400, "Join request is already processed");
+  }
 
-    if (!joinUsRequest.passwordHash) {
-        throw new ApiError(400, 'Password hash missing in join request. Please create a new join request.');
-    }
+  if (!joinUsRequest.passwordHash) {
+    throw new ApiError(
+      400,
+      "Password hash missing in join request. Please create a new join request.",
+    );
+  }
 
-    const existingUser = await User.findOne({ email: User.email });
+  const existingUser = await User.findOne({ email: User.email });
 
-    if (existingUser) {
-        throw new ApiError(409, 'User already exists with this email');
-    }
+  if (existingUser) {
+    throw new ApiError(409, "User already exists with this email");
+  }
 
-    const role = await Role.findOne({ name: joinUsRequest.role });
+  const role = await Role.findOne({ name: joinUsRequest.role });
 
-    if (!role) {
-        throw new ApiError(404, 'Role not found');
-    }
+  if (!role) {
+    throw new ApiError(404, "Role not found");
+  }
 
-    const newUser = await User.create({
-        firstName: joinUsRequest.firstName,
-        lastName: joinUsRequest.lastName,
-        email: joinUsRequest.email,
-        passwordHash: joinUsRequest.passwordHash,
-        phone: joinUsRequest.phone,
-        roleId: role._id,
-        isVerified: true,
-        status: 'ACTIVE'
+  const newUser = await User.create({
+    firstName: joinUsRequest.firstName,
+    lastName: joinUsRequest.lastName,
+    email: joinUsRequest.email,
+    passwordHash: joinUsRequest.passwordHash,
+    phone: joinUsRequest.phone,
+    roleId: role._id,
+    isVerified: true,
+    status: "ACTIVE",
+  });
+
+  if (!joinUsRequest) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Request not found" });
+  }
+
+  if (!newUser) {
+    return res.status(400).json({ success: false, message: "User not found" });
+  }
+
+  const newEmployee = await Employee.create({
+    userId: newUser._id,
+    phone: joinUsRequest.phone,
+    department: joinUsRequest.department,
+    designation: joinUsRequest.designation,
+    joiningDate: joinUsRequest.joiningDate,
+  });
+
+  let newDoctor = null;
+
+  const isDoctor = joinUsRequest.role?.toLowerCase() === "doctor";
+
+  if (isDoctor) {
+    newDoctor = await Doctor.create({
+      userId: newUser._id,
+      employeeId: newEmployee._id,
+      specialization: joinUsRequest.specialization,
+      qualification: joinUsRequest.qualification,
+      consultationFee: joinUsRequest.consultationFee,
+      medicalRegistrationNo: joinUsRequest.medicalRegistrationNo,
+      availabilityStartTime: joinUsRequest.availabilityStartTime,
+      availabilityEndTime: joinUsRequest.availabilityEndTime,
+      experienceYears: joinUsRequest.experienceYears,
     });
+  }
 
-    if (!joinUsRequest) {
-        return res.status(400).json({ success: false, message: "Request not found" });
-    }
+  joinUsRequest.approvalStatus = "APPROVED";
+  joinUsRequest.approvedAt = new Date();
 
-    if(!newUser){
-        return res.status(400).json({ success: false, message: "User not found" });
-    }
+  if (approvedBy) {
+    joinUsRequest.approvedBy = approvedBy;
+  }
 
-    const newEmployee = await Employee.create({
-        userId: newUser._id,
-        phone: joinUsRequest.phone,
-        department: joinUsRequest.department,
-        designation: joinUsRequest.designation,
-        joiningDate: joinUsRequest.joiningDate
-    });
+  await joinUsRequest.save();
 
-    let newDoctor = null;
+  const userResponse = newUser.toObject();
+  delete userResponse.passwordHash;
 
-    const isDoctor = joinUsRequest.role?.toLowerCase() === 'doctor';
-
-    if (isDoctor) {
-        newDoctor = await Doctor.create({
-            userId: newUser._id,
-            employeeId: newEmployee._id,
-            specialization: joinUsRequest.specialization,
-            qualification: joinUsRequest.qualification,
-            consultationFee: joinUsRequest.consultationFee,
-            medicalRegistrationNo: joinUsRequest.medicalRegistrationNo,
-            availabilityStartTime: joinUsRequest.availabilityStartTime,
-            availabilityEndTime: joinUsRequest.availabilityEndTime,
-            experienceYears: joinUsRequest.experienceYears
-        });
-    }
-
-    joinUsRequest.approvalStatus = 'APPROVED';
-    joinUsRequest.approvedAt = new Date();
-
-    if (approvedBy) {
-        joinUsRequest.approvedBy = approvedBy;
-    }
-
-    await joinUsRequest.save();
-
-    const userResponse = newUser.toObject();
-    delete userResponse.passwordHash;
-
-    return {
-        message: 'Join request approved successfully',
-        data: {
-            user: userResponse,
-            employee: newEmployee,
-            doctor: newDoctor
-        }
-    };
+  return {
+    message: "Join request approved successfully",
+    data: {
+      user: userResponse,
+      employee: newEmployee,
+      doctor: newDoctor,
+    },
+  };
 };

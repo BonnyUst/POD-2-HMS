@@ -40,6 +40,14 @@ router.get(
     authRoles(permissions.PENDING_APPROVE_EMPLOYEE),
     joinUsController.getAllJoinUsRequests
 );
+
+router.put(
+    '/reject/:requestId',
+    authMiddleware,
+    authRoles(permissions.APPROVE_EMPLOYEE), 
+    joinUsController.rejectJoinUsRequest
+);
+
 router.put(
     '/approve/:requestId',
     authMiddleware,

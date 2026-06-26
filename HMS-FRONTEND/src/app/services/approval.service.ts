@@ -6,35 +6,29 @@ import { environment } from '../../environments/environment';
 import { ApprovalRequest } from '../models/approval.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ApprovalsService {
-
   readonly baseUrl = environment.apiUrl;
 
-  constructor(readonly http: HttpClient) { }
+  constructor(readonly http: HttpClient) {}
 
   getPendingRequests(
     page: number,
     limit: number,
-    search: string
+    search: string,
   ): Observable<PaginatedResponse<ApprovalRequest>> {
-    const params = new HttpParams()
-      .set('page', page)
-      .set('limit', limit)
-      .set('search', search);
+    const params = new HttpParams().set('page', page).set('limit', limit).set('search', search);
 
-    return this.http.get<PaginatedResponse<ApprovalRequest>>(
-      `${this.baseUrl}/join-us/pending`,
-      { params }
-    );
+    return this.http.get<PaginatedResponse<ApprovalRequest>>(`${this.baseUrl}/join-us/pending`, {
+      params,
+    });
   }
   approveRequest(requestId: string): Observable<any> {
     return this.http.put(`${this.baseUrl}/join-us/approve/${requestId}`, {});
   }
 
-  rejectRequest(requestId: string, rejectionReason: string): Observable<any> {
-    return this.http.put(`${this.baseUrl}/join-us/reject/${requestId}`, { rejectionReason });
+  rejectRequest(requestId: string, reason: string) {
+    return this.http.put(`${this.baseUrl}/join-us/reject/${requestId}`, { reason });
   }
-
 }

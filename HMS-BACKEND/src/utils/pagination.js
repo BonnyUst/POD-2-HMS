@@ -1,26 +1,26 @@
 function getPagination(query = {}) {
   const page = Math.max(parseInt(query.page) || 1, 1);
 
-  const limit = Math.min(
-    Math.max(parseInt(query.limit) || 10, 1),
-    100
-  );
+  const limit = Math.min(Math.max(parseInt(query.limit) || 10, 1), 100);
 
   const skip = (page - 1) * limit;
 
-  const sortBy = query.sortBy || 'createdAt';
-  const sortOrder = query.sortOrder === 'asc' ? 1 : -1;
+  const sortBy = query.sortBy || "createdAt";
+
+  // asc => 1, desc => -1
+  const sortOrder = query.sortOrder === "asc" ? 1 : -1;
 
   return {
     page,
     limit,
     skip,
     sortBy,
-    sortOrder
+    sortOrder,
   };
 }
 
 function buildPaginationResponse({ page, limit, totalRecords }) {
+  // Calculate total pages required
   const totalPages = Math.ceil(totalRecords / limit);
 
   return {
@@ -28,12 +28,14 @@ function buildPaginationResponse({ page, limit, totalRecords }) {
     limit,
     totalRecords,
     totalPages,
+
     hasNextPage: page < totalPages,
-    hasPreviousPage: page > 1
+
+    hasPreviousPage: page > 1,
   };
 }
 
 module.exports = {
   getPagination,
-  buildPaginationResponse
+  buildPaginationResponse,
 };
