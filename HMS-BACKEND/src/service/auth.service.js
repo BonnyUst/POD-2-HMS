@@ -13,11 +13,19 @@ const {
 const ApiError = require("../utils/ApiError");
 
 exports.loginEmployee = async ({ email, password }) => {
-  const user = await User.findOne({ email }).populate("roleId");
+ const normalizedEmail = email.trim().toLowerCase();
+
+const user = await User.findOne({
+  email: normalizedEmail,
+}).populate("roleId");
 
   if (!user) {
     throw new ApiError(404, "Employee Not Found");
   }
+  
+  if (user.status !== "ACTIVE") {
+  throw new ApiError(403, "This account is inactive");
+}
 
   const isPasswordMatch = await bcrypt.compare(password, user.passwordHash);
 
@@ -55,10 +63,58 @@ exports.loginEmployee = async ({ email, password }) => {
       email: user.email,
       roleId: user.roleId,
       status: user.status,
-      mustChangePassword: user.mustChangePassword,
+           mustChangePassword: user.mustChangePassword,
     },
   };
 };
+  
+  exports.changeFirstLoginPassword = async (
+  userId,
+  newPassword
+) => {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new ApiError(
+      404,
+      "User not found"
+    );
+  }
+
+  if (!user.mustChangePassword) {
+    throw new ApiError(
+      400,
+      "First-login password change is not required"
+    );
+  }
+
+  const isTemporaryPasswordReused =
+    await bcrypt.compare(
+      newPassword,
+      user.passwordHash
+    );
+
+  if (isTemporaryPasswordReused) {
+    throw new ApiError(
+      400,
+      "New password cannot be the same as the temporary password"
+    );
+  }
+
+  user.passwordHash =
+    await bcrypt.hash(newPassword, 10);
+
+  user.mustChangePassword = false;
+
+  await user.save();
+
+  return {
+    email: user.email,
+    mustChangePassword:
+      user.mustChangePassword,
+  };
+};
+ 
 
 exports.verifyEmployeeEmail = async (token) => {
   const decoded = verifyToken(token);

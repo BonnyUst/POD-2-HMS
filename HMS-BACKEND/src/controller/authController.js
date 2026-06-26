@@ -130,10 +130,39 @@ const changePassword = async (req, res, next) => {
   }
 };
 
+const changeFirstLoginPassword = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const userId = req.user.userId;
+
+    const { newPassword } = req.body;
+
+    const result =
+      await authService.changeFirstLoginPassword(
+        userId,
+        newPassword
+      );
+
+    return res.status(200).json({
+      success: true,
+
+      message:
+        "Password changed successfully. Please log in again using your new password.",
+
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 module.exports = {
   verifyEmail,
   login,
   refreshToken,
   logout,
   changePassword,
+  changeFirstLoginPassword,
 };
