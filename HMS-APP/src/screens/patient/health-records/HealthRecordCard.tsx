@@ -5,9 +5,9 @@ import { router } from 'expo-router';
 import { HealthRecord } from '../../../types/health-record.types';
 import { styles } from '../../../styles/patient/health-records/HealthRecordsScreen.style';
 
-type HealthRecordCardProps = {
+type HealthRecordCardProps =Readonly< {
   record: HealthRecord;
-};
+}>;
 
 export default function HealthRecordCard({
   record,

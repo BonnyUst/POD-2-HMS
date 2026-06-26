@@ -86,7 +86,7 @@ export class Login {
             return;
           }
 
-          if (user.roleId.name === 'Admin') {
+          if (user.roleId.name === 'Admin' || user.roleId.name === 'Owner') {
             this.router.navigate(['/admin/dashboard']);
           } else if (user.roleId.name === 'Receptionist') {
             this.router.navigate([`${basePath}/patients`]);

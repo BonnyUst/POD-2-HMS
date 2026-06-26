@@ -64,14 +64,23 @@
                             {{ patient.createdAt | date:'dd-MM-yyyy' }}
                         </td>
                         <td>
-                        <button
-                            class="action-btn edit-btn"
-                            type="button"
-                            (click)="openEditPatientModal(patient)"
-                        >
-                            <i class="bi bi-pencil-square"></i>
-                            Edit
-                        </button>
+                            <div class="patient-action-buttons">
+                                <button
+                                    class="patient-edit-btn"
+                                    type="button"
+                                    (click)="openEditPatientModal(patient)"
+                                >
+                                    Edit
+                                </button>
+
+                                <button
+                                    class="patient-delete-btn"
+                                    type="button"
+                                    (click)="deletePatient(patient)"
+                                >
+                                    Delete
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 }

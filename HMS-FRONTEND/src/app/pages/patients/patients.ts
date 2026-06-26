@@ -297,6 +297,42 @@ export class Patients implements OnInit {
     );
   }
 
+  deletePatient(patient: Patient): void {
+  const confirmed = confirm(
+    `Are you sure you want to delete ${patient.firstName} ${patient.lastName}?`
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  this.patientService
+    .deletePatient(patient.patientId)
+    .subscribe({
+      next: () => {
+        alert('Patient deleted successfully!');
+
+        if (
+          this.patients().length === 1 &&
+          this.currentPage() > 1
+        ) {
+          this.currentPage.update((page) => page - 1);
+        }
+
+        this.getPatients();
+      },
+
+      error: (err) => {
+        console.error('Error deleting patient:', err);
+
+        alert(
+          err.error?.message ||
+          'Unable to delete patient'
+        );
+      }
+    });
+}
+
   savePatient(): void {
   if (this.patientForm.invalid) {
   this.patientForm.markAllAsTouched();

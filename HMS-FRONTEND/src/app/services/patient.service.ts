@@ -54,9 +54,18 @@ export class PatientService {
   createPatient(
     payload: CreatePatientPayload
   ): Observable<ApiResponse<CreatePatientResult>> {
+    console.log(payload)
     return this.http.post<ApiResponse<CreatePatientResult>>(
       `${this.baseUrl}/patients/create`,
       payload
+    );
+  }
+
+  deletePatient(
+    patientId: string
+  ): Observable<ApiResponse<{ message: string }>> {
+    return this.http.delete<ApiResponse<{ message: string }>>(
+      `${this.baseUrl}/patients/delete/${patientId}`
     );
   }
 

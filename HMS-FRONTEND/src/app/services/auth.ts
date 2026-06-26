@@ -5,7 +5,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root',
 })
 export class Auth {
-  readonly baseUrl=environment.apiUrl;
+  readonly baseUrl = environment.apiUrl;
 
   constructor(readonly http: HttpClient) { }
 
@@ -40,6 +40,19 @@ export class Auth {
     return this.http.post(
       `${this.baseUrl}/auth/refresh-token`,
       {},
+      {
+        withCredentials: true
+      }
+    );
+  }
+
+  changePassword(oldPassword: string, newPassword: string) {
+    return this.http.post<any>(
+      `${this.baseUrl}/auth/change-password`,
+      {
+        oldPassword,
+        newPassword,
+      },
       {
         withCredentials: true
       }

@@ -25,7 +25,7 @@ const employeeSchema = new mongoose.Schema(
         },
         designation: {
             type: String,
-            enum: ['Jr Doctor', 'Nurse', 'Receptionist', 'Administrator',]
+            enum: ['Jr Doctor', 'Nurse', 'Receptionist', 'Administrator','Owner']
         },
         status: {
             type: String,
