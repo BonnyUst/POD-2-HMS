@@ -65,6 +65,41 @@ export const routes: Routes = [
         ]
     },
 
+    {
+        path: 'Owner', component: DashboardLayout, canActivate: [authGuard],
+        children: [
+            {
+                path: 'dashboard', component: AdminDashboard
+            },
+            {
+                path: 'patients', component: Patients
+            },
+            {
+                path: 'employees', component: Employees
+            },
+            {
+                path: 'appointments', component: Appointments
+            },
+            {
+                path: 'appointments/details/:id',
+                component: AppointmentDetails
+            },
+            {
+                path: 'health-records',
+                component: HealthRecords
+            },
+            {
+                path: 'approvals', component: Approvals
+            },
+            {
+                path: 'doctors', component: Doctors
+            }
+
+
+
+        ]
+    },
+
 
 
     {
