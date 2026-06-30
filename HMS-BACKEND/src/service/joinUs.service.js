@@ -351,3 +351,29 @@ exports.approveJoinUsRequest = async (requestId, approvedBy) => {
         }
     };
 };
+
+exports.rejectJoinUsRequest = async (requestId, rejectedBy, reason) => {
+  const request = await JoinUs.findById(requestId);
+
+  if (!request) {
+    throw new ApiError(404, "Join request not found");
+  }
+
+  if (request.approvalStatus === "APPROVED") {
+    throw new ApiError(400, "Cannot reject an already approved request");
+  }
+
+  if (request.approvalStatus === "REJECTED") {
+    throw new ApiError(400, "Request is already rejected");
+  }
+
+  request.approvalStatus = "REJECTED";
+  request.rejectionReason = reason?.trim() || "No reason provided";
+
+  await JoinUs.findByIdAndDelete(requestId);
+
+  return {
+    message: "Join request rejected successfully",
+    data: request,
+  };
+};
