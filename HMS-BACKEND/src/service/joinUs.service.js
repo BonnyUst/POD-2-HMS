@@ -1,5 +1,5 @@
 const crypto = require('node:crypto');
-const JoinUs = require('../models/JoinUs.model');
+const JoinUs = require('../models/joinUs.model');
 const User = require('../models/User.model');
 const ApiError = require('../utils/ApiError');
 const bcrypt = require('bcrypt')
