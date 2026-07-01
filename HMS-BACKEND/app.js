@@ -27,6 +27,14 @@ app.use(morgan("dev"));
 
 app.use(express.json());
 
+//to check the vercel is running 
+app.get("/", (req, res) => {
+  return res.status(200).json({
+    success: true,
+    message: "HMS backend is running",
+  });
+});
+
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
