@@ -13,6 +13,7 @@ const appointmentRoutes = require("./src/routes/appointment.route");
 const joinUsRoutes = require("./src/routes/joinUs.route");
 const healthRecordRoutes = require("./src/routes/healthRecord.route");
 const errorMiddleware = require("./src/middleware/error.middleware");
+const seedRoutes = require("./src/routes/seed.route");
 
 const app = new express();
 
@@ -36,6 +37,7 @@ app.get("/", (req, res) => {
 });
 
 app.use(cookieParser());
+app.use("/api/seed", seedRoutes);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
