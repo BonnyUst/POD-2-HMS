@@ -51,7 +51,7 @@ exports.createJoinUsRequest = async (joinUsData) => {
             await existingRequest.save();
 
             const verificationLink =
-                `http://localhost:5000/api/join-us/verify/${newToken}`;
+                `${process.env.BACKEND_URL}/api/join-us/verify/${newToken}`;
 
             console.log('Verification Link Resent:', verificationLink);
 
@@ -91,7 +91,7 @@ exports.createJoinUsRequest = async (joinUsData) => {
         verificationTokenExpiry: new Date(Date.now() + 15 * 60 * 1000)
     });
     const verificationLink =
-        `http://localhost:5000/api/join-us/verify/${verificationToken}`;
+        `${process.env.BACKEND_URL}/api/join-us/verify/${verificationToken}`;
 
     console.log('Verification Link:', verificationLink);
 
