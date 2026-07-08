@@ -14,10 +14,6 @@ const validateCreateEmployeeByAdmin = [
         .isEmail()
         .withMessage("Not a valid Email"),
 
-    body("password")
-        .isStrongPassword()
-        .withMessage("Enter a Strong Password"),
-
     body("phone")
         .isMobilePhone()
         .withMessage("Enter a Valid Phone No"),
