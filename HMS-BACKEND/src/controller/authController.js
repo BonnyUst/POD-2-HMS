@@ -20,7 +20,7 @@ const verifyEmail = async (req, res) => {
 const login = async (req, res) => {
   try {
     const result = await authService.loginEmployee(req.body);
-    const isMobile = req.headers['x-client-type'] === 'mobile';//specifically for mobile sending the token not to expose the tokens in the angular side 
+    const isMobile = req.headers["x-client-type"] === "mobile"; //specifically for mobile sending the token not to expose the tokens in the angular side
 
     res.cookie("accessToken", result.accessToken, {
       httpOnly: true,
@@ -55,7 +55,7 @@ const login = async (req, res) => {
 
 const refreshToken = async (req, res) => {
   try {
-    const isMobile = req.headers['x-client-type'] === 'mobile';
+    const isMobile = req.headers["x-client-type"] === "mobile";
     const refreshTokenCookie = isMobile
       ? req.body.refreshToken
       : req.cookies?.refreshToken;
@@ -82,16 +82,15 @@ const refreshToken = async (req, res) => {
       success: true,
       message: "Access token refreshed",
       ...(isMobile && {
-        data: { accessToken: result.accessToken }
+        data: { accessToken: result.accessToken },
       }),
     });
   } catch (error) {
     return res.status(401).json({
       success: false,
       code: "REFRESH_TOKEN_INVALID",
-      message: error.message || "Unable to refresh token"
+      message: error.message || "Unable to refresh token",
     });
-
   }
 };
 
@@ -105,7 +104,7 @@ const logout = async (req, res) => {
   res.clearCookie("refreshToken", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   });
 
   return res.status(200).json({
@@ -130,21 +129,16 @@ const changePassword = async (req, res, next) => {
   }
 };
 
-const changeFirstLoginPassword = async (
-  req,
-  res,
-  next
-) => {
+const changeFirstLoginPassword = async (req, res, next) => {
   try {
     const userId = req.user.userId;
 
     const { newPassword } = req.body;
 
-    const result =
-      await authService.changeFirstLoginPassword(
-        userId,
-        newPassword
-      );
+    const result = await authService.changeFirstLoginPassword(
+      userId,
+      newPassword,
+    );
 
     return res.status(200).json({
       success: true,
@@ -158,6 +152,38 @@ const changeFirstLoginPassword = async (
     next(error);
   }
 };
+
+const forgotPassword = async (req, res, next) => {
+  try {
+    await authService.forgotPassword(req.body.email);
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "If an account with that email exists, a password reset link has been sent.",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const resetPassword = async (req, res, next) => {
+  try {
+    const { token } = req.params;
+    const { newPassword } = req.body;
+
+    const result = await authService.resetPassword(token, newPassword);
+
+    return res.status(200).json({
+      success: true,
+      message: "Password reset successfully",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   verifyEmail,
   login,
@@ -165,4 +191,6 @@ module.exports = {
   logout,
   changePassword,
   changeFirstLoginPassword,
+  forgotPassword,
+  resetPassword,
 };

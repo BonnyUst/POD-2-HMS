@@ -15,6 +15,20 @@ router.post(
   authController.login,
 );
 
+router.post(
+  "/forgot-password",
+  authValidator.validateForgotPassword,
+  validate,
+  authController.forgotPassword,
+);
+
+router.post(
+  "/reset-password/:token",
+  authValidator.validateResetPassword,
+  validate,
+  authController.resetPassword
+);
+
 router.post("/refresh-token", authController.refreshToken);
 
 router.post("/logout", authController.logout);
@@ -23,13 +37,10 @@ router.post("/change-password", authMiddleware, authController.changePassword);
 router.put(
   "/first-login/change-password",
   authMiddleware,
-  authValidator
-    .validateFirstLoginPasswordChange,
+  authValidator.validateFirstLoginPasswordChange,
   validate,
-  authController
-    .changeFirstLoginPassword
+  authController.changeFirstLoginPassword,
 );
-
 
 router.get("/verify-email/:token", authController.verifyEmail);
 
