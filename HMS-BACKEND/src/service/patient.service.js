@@ -368,7 +368,7 @@ exports.registerPatient = async (body) => {
     { userId },
     process.env.JWT_EMAIL_VERIFICATION_EXPIRY,
   );
-  const verifyLink = `http://localhost:5000/api/auth/verify-email/${token}`;
+  const verifyLink = `${process.env.BACKEND_URL}/api/auth/verify-email/${token}`;
   const html = `
     <h2>Welcome to HMS 👋</h2>
 
