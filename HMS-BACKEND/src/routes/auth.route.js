@@ -20,6 +20,16 @@ router.post("/refresh-token", authController.refreshToken);
 router.post("/logout", authController.logout);
 
 router.post("/change-password", authMiddleware, authController.changePassword);
+router.put(
+  "/first-login/change-password",
+  authMiddleware,
+  authValidator
+    .validateFirstLoginPasswordChange,
+  validate,
+  authController
+    .changeFirstLoginPassword
+);
+
 
 router.get("/verify-email/:token", authController.verifyEmail);
 

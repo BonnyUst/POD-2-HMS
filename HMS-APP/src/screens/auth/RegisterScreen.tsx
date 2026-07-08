@@ -12,13 +12,14 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { Picker } from "@react-native-picker/picker";
-import DateTimePicker, {
-  DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 import AppInput from "@/components/common/AppInput";
 import PrimaryButton from "@/components/common/PrimaryButton";
-import { registerStyles as styles, pickerStyles } from "@/styles/auth/register.style";
+import {
+  registerStyles as styles,
+  pickerStyles,
+} from "@/styles/auth/register.style";
 import { registerPatient } from "@/services/register.service";
 import { RegisterPatientPayload } from "@/types/register.types";
 
@@ -34,7 +35,6 @@ import {
   validateGender,
   validatePincode,
 } from "@/validations/register.validation";
-
 
 export default function RegisterScreen() {
   const [firstName, setFirstName] = useState("");
@@ -211,8 +211,8 @@ export default function RegisterScreen() {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {
-      firstName: validateRequiredField(firstName, "First name"),
-      lastName: validateRequiredField(lastName, "Last name"),
+      firstName: validateNameField(firstName, "First name"),
+      lastName: validateNameField(lastName, "Last name"),
       email: validateRegisterEmail(email),
       password: validateRegisterPassword(password),
       confirmPassword: validateConfirmPassword(password, confirmPassword),
@@ -319,24 +319,8 @@ export default function RegisterScreen() {
     return `${yyyy}-${mm}-${dd}`;
   };
 
-  
-  const onDobChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-    if (Platform.OS === "android") {
-      setShowDobPicker(false);
-    }
-    if (event.type === "set" && selectedDate) {
-      setDobDate(selectedDate);
-      const formatted = formatDateToString(selectedDate);
-      setDob(formatted);
-      clearError("dob");
-      touchAndValidate("dob", formatted);
-    }
-  };
-  const dobPickerProps = {
-  onChange: onDobChange,
-};
 
-// row picker helper 
+  // row picker helper 
 
   // Renders a labelled Picker wrapped in the same visual style as AppInput 
   const renderPickerField = (
@@ -360,7 +344,7 @@ export default function RegisterScreen() {
         >
           <Picker
             selectedValue={selectedValue}
-            onValueChange={(value:string) => {
+            onValueChange={(value) => {
               onValueChange(value);
               clearError(fieldKey);
               touchAndValidate(fieldKey, value);
@@ -379,9 +363,7 @@ export default function RegisterScreen() {
             ))}
           </Picker>
         </View>
-        {!!errorMsg && (
-          <Text style={pickerStyles.errorText}>{errorMsg}</Text>
-        )}
+        {!!errorMsg && <Text style={pickerStyles.errorText}>{errorMsg}</Text>}
       </View>
     );
   };
@@ -522,9 +504,7 @@ export default function RegisterScreen() {
 
             {/* Date of Birth */}
             <View style={{ marginBottom: 12 }}>
-              <Text style={pickerStyles.label}>
-                Date of Birth
-              </Text>
+              <Text style={pickerStyles.label}>Date of Birth</Text>
 
               <TouchableOpacity
                 style={[
@@ -536,7 +516,9 @@ export default function RegisterScreen() {
               >
                 <Text
                   style={
-                    dob ? pickerStyles.dobValueText : pickerStyles.dobPlaceholderText
+                    dob
+                      ? pickerStyles.dobValueText
+                      : pickerStyles.dobPlaceholderText
                   }
                 >
                   {dob || "YYYY-MM-DD"}
@@ -555,7 +537,25 @@ export default function RegisterScreen() {
                   mode="date"
                   display="default"
                   maximumDate={new Date()}
-                    {...dobPickerProps}
+                  onValueChange={(_event, selectedDate) => {
+                    if (!selectedDate) return;
+
+                    setDobDate(selectedDate);
+
+                    const formatted = formatDateToString(selectedDate);
+                    setDob(formatted);
+
+                    clearError("dob");
+                    touchAndValidate("dob", formatted);
+
+                    // Close Android picker after user presses OK
+                    if (Platform.OS === "android") {
+                      setShowDobPicker(false);
+                    }
+                  }}
+                  onDismiss={() => {
+                    setShowDobPicker(false);
+                  }}
                 />
               )}
 
@@ -572,12 +572,8 @@ export default function RegisterScreen() {
                   />
                   <View style={pickerStyles.iosPickerContainer}>
                     <View style={pickerStyles.iosPickerHeader}>
-                      <TouchableOpacity
-                        onPress={() => setShowDobPicker(false)}
-                      >
-                        <Text style={pickerStyles.iosPickerCancel}>
-                          Cancel
-                        </Text>
+                      <TouchableOpacity onPress={() => setShowDobPicker(false)}>
+                        <Text style={pickerStyles.iosPickerCancel}>Cancel</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
                         onPress={() => {
@@ -600,7 +596,20 @@ export default function RegisterScreen() {
                       mode="date"
                       display="spinner"
                       maximumDate={new Date()}
-                       {...dobPickerProps}
+                      onValueChange={(_event, selectedDate) => {
+                        if (!selectedDate) return;
+
+                        setDobDate(selectedDate);
+
+                        const formatted = formatDateToString(selectedDate);
+                        setDob(formatted);
+
+                        clearError("dob");
+                        touchAndValidate("dob", formatted);
+                      }}
+                      onDismiss={() => {
+                        setShowDobPicker(false);
+                      }}
                       style={{ height: 200 }}
                     />
                   </View>

@@ -51,17 +51,18 @@
                 </button>
               </td>
 
-              <td>
-                <div class="action-buttons">
-                  <button class="approve-btn" (click)="approveRequest(request._id)">
-                    Approve
-                  </button>
-                  <button class="reject-btn" (click)="openRejectModal(request._id)">
-                    Reject
-                  </button>
-                </div>
-              </td>
-            </tr>
+          <td>
+            <div class="action-buttons">
+              <button type="button" class="approve-btn" (click)="approveRequest(request._id)">
+                Approve
+              </button>
+
+              <button type="button" class="reject-btn" (click)="rejectRequest(request._id)">
+                Reject
+              </button>
+            </div>
+          </td>
+        </tr>
 
             @if (expandedRequestId() === request._id) {
               <tr class="expanded-row">

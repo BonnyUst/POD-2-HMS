@@ -1,12 +1,11 @@
-const crypto = require("node:crypto");
-const JoinUs = require("../models/JoinUs.model");
-const User = require("../models/User.model");
-const ApiError = require("../utils/ApiError");
-const bcrypt = require("bcrypt");
-const Role = require("../models/Role.model");
-const Employee = require("../models/Employee.model");
-const Doctor = require("../models/Doctor.model");
-const sendEmail = require("./mail.service");
+const crypto = require('node:crypto');
+const JoinUs = require('../models/joinUs.model');
+const User = require('../models/User.model');
+const ApiError = require('../utils/ApiError');
+const bcrypt = require('bcrypt')
+const Role = require('../models/Role.model')
+const Employee = require('../models/Employee.model')
+const Doctor = require('../models/Doctor.model')
 const {
   getPagination,
   buildPaginationResponse,
@@ -388,5 +387,31 @@ exports.approveJoinUsRequest = async (requestId, approvedBy) => {
       employee: newEmployee,
       doctor: newDoctor,
     },
+  };
+};
+
+exports.rejectJoinUsRequest = async (requestId, rejectedBy, reason) => {
+  const request = await JoinUs.findById(requestId);
+
+  if (!request) {
+    throw new ApiError(404, "Join request not found");
+  }
+
+  if (request.approvalStatus === "APPROVED") {
+    throw new ApiError(400, "Cannot reject an already approved request");
+  }
+
+  if (request.approvalStatus === "REJECTED") {
+    throw new ApiError(400, "Request is already rejected");
+  }
+
+  request.approvalStatus = "REJECTED";
+  request.rejectionReason = reason?.trim() || "No reason provided";
+
+  await JoinUs.findByIdAndDelete(requestId);
+
+  return {
+    message: "Join request rejected successfully",
+    data: request,
   };
 };

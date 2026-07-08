@@ -23,7 +23,9 @@ const seedOwner = async () => {
         userId: existingOwner._id,
       });
 
-      if (!existingOwnerEmployee) {
+      if (existingOwnerEmployee) {
+        console.log("Owner already seeded");
+      } else {
         await Employee.create({
           userId: existingOwner._id,
           employeeCode: "OWNER",
@@ -33,10 +35,7 @@ const seedOwner = async () => {
           status: "ACTIVE",
           joiningDate: new Date(),
         });
-
         console.log("Owner employee record created");
-      } else {
-        console.log("Owner already seeded");
       }
 
       return;
@@ -54,6 +53,10 @@ const seedOwner = async () => {
       status: "ACTIVE",
       mustChangePassword: false,
     });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
 
     await Employee.create({
       userId: user._id,

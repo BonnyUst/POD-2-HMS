@@ -55,4 +55,11 @@ router.put(
     joinUsController.approveJoinUsRequest
 );
 
+router.put(
+    '/reject/:requestId',
+    authMiddleware,
+    authRoles(permissions.APPROVE_EMPLOYEE), 
+    joinUsController.rejectJoinUsRequest
+);
+
 module.exports = router;
