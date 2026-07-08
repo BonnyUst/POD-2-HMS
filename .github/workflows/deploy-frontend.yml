@@ -14,14 +14,16 @@ jobs:
         uses: appleboy/ssh-action@v1.2.0
 
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          host: ${{ secrets.SEETHA_EC2_HOST }}
+          username: ${{ secrets.SEETHA_EC2_USER }}
+          key: ${{ secrets.SEETHA_EC2_KEY }}
+          port: ${{ secrets.SEETHA_EC2_PORT }}
 
           script: |
             cd ~/HMS-DEPO/POD-2-HMS/HMS-FRONTEND
 
             git switch feature/sprint5/seetha-depoly
+
             git pull origin feature/sprint5/seetha-depoly
 
             npm install
@@ -31,4 +33,4 @@ jobs:
             sudo rm -rf /var/www/hms-frontend/*
             sudo cp -r dist/HMS-FRONTEND/browser/* /var/www/hms-frontend/
 
-            echo "Deployment completed successfully."
+            echo "Deployment completed successfully!"
