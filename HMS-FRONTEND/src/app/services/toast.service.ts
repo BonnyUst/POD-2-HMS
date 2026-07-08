@@ -1,10 +1,10 @@
 import { Injectable, signal } from "@angular/core";
-import Toast from "../models/toast.model"; 
+import Toast from "../models/toast.model";
 
 @Injectable({
     providedIn: 'root'
 })
-export class ToastService {
+export class ToastService{
     private counter = 0;
     toasts = signal<Toast[]>([]);
     show(message: string, type: 'success' | 'error' | 'info' = 'info') {

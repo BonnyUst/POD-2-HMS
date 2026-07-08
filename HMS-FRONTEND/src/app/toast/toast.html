@@ -1,0 +1,7 @@
+<div class="toast-container">
+    @for (toast of toasts(); track toast.id) {
+    <div class="toast-card" [ngClass]="toast.type">
+        <span class="toast-message">{{ toast.message }}</span>
+    </div>
+    }
+</div>
