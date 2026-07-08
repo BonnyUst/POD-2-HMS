@@ -20,6 +20,7 @@ jobs:
           host: ${{ secrets.BONNY_EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.BONNY_EC2_SSH_KEY }}
+          script_stop: true
           script: |
 
             set -e
