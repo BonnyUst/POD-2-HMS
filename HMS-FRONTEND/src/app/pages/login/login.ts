@@ -3,7 +3,7 @@ import { Auth } from '../../services/auth';
 import { Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { timeout, finalize } from 'rxjs';
-import { ToastService } from '../../services/toast.service';
+import { ToastService } from '../../services/toast.service'; 
 
 @Component({
   selector: 'app-login',
@@ -21,7 +21,7 @@ export class Login {
     readonly router: Router,
     readonly fb: FormBuilder,
     readonly cd:ChangeDetectorRef,
-    readonly toastServce: ToastService
+    readonly toastService: ToastService
   ) {
     this.loginForm = this.fb.group({
       email: [
@@ -78,7 +78,7 @@ export class Login {
 
           const user = res.data.user;
           const basePath = user.roleId.basePath;
-          this.toastServce.success('welcome back');
+          this.toastService.success('welcome back');
           localStorage.setItem('role', user.roleId.name);
           localStorage.setItem('user', JSON.stringify(user));
           localStorage.setItem('basePath', basePath);
@@ -109,7 +109,7 @@ export class Login {
 
           this.errorMessage =
             err?.error?.message || 'Invalid email or password';
-          this.toastServce.error(this.errorMessage);
+          this.toastService.error(this.errorMessage);
           this.cd.markForCheck();
         }
       });
