@@ -1,0 +1,34 @@
+name: Deploy Angular Frontend
+
+on:
+  push:
+    branches:
+      - feature/sprint5/seetha-depoly
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.2.0
+
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+
+          script: |
+            cd ~/HMS-DEPO/POD-2-HMS/HMS-FRONTEND
+
+            git switch feature/sprint5/seetha-depoly
+            git pull origin feature/sprint5/seetha-depoly
+
+            npm install
+
+            npx ng build --configuration ec2
+
+            sudo rm -rf /var/www/hms-frontend/*
+            sudo cp -r dist/HMS-FRONTEND/browser/* /var/www/hms-frontend/
+
+            echo "Deployment completed successfully."
