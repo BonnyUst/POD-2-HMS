@@ -75,7 +75,7 @@ export class Login {
       .subscribe({
         next: (res) => {
           console.log('LOGIN RESPONSE:', res);
-
+          this.toastService.success('welcome back');
           const user = res.data.user;
           const basePath = user.roleId.basePath;
           this.toastServce.success('welcome back');
@@ -112,6 +112,7 @@ export class Login {
           this.toastServce.error(this.errorMessage);
           this.cd.markForCheck();
         }
+
       });
   }
 }
