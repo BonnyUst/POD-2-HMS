@@ -103,12 +103,6 @@
 
                     </div>
 
-                    @if (errorMessage) {
-                    <div class="error-message">
-                        {{ errorMessage }}
-                    </div>
-                    }
-
                     <button type="submit" [disabled]="isLoading" class="login-button">
                         {{ isLoading ? 'Logging in...' : 'Login' }}
                     </button>
