@@ -20,8 +20,8 @@ export class Login {
     readonly auth: Auth,
     readonly router: Router,
     readonly fb: FormBuilder,
-    readonly cd: ChangeDetectorRef,
-    readonly toastService: ToastService
+    readonly cd:ChangeDetectorRef,
+    readonly toastServce: ToastService
   ) {
     this.loginForm = this.fb.group({
       email: [
@@ -78,7 +78,7 @@ export class Login {
           this.toastService.success('welcome back');
           const user = res.data.user;
           const basePath = user.roleId.basePath;
-
+          this.toastServce.success('welcome back');
           localStorage.setItem('role', user.roleId.name);
           localStorage.setItem('user', JSON.stringify(user));
           localStorage.setItem('basePath', basePath);
@@ -100,8 +100,8 @@ export class Login {
         },
 
         error: (err) => {
+          
           console.log('LOGIN ERROR:', err);
-
           if (err.name === 'TimeoutError') {
             this.errorMessage = 'Login is taking too long. Please try again.';
             return;
@@ -109,7 +109,7 @@ export class Login {
 
           this.errorMessage =
             err?.error?.message || 'Invalid email or password';
-          this.toastService.error(this.errorMessage);
+          this.toastServce.error(this.errorMessage);
           this.cd.markForCheck();
         }
 
