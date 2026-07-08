@@ -10,13 +10,12 @@ const {
   getPagination,
   buildPaginationResponse,
 } = require("../utils/pagination");
-
+const generateTemporaryPassword = require('../utils/passwordGenerator');
 exports.createEmployeeUser = async (userData, loggedInUserId) => {
   const {
     firstName,
     lastName,
     email,
-    password,
     phone,
     role,
     department,
@@ -60,7 +59,7 @@ exports.createEmployeeUser = async (userData, loggedInUserId) => {
   if (!employeeRole) {
     throw new ApiError(404, "Employee role Not Found");
   }
-
+  const password = generateTemporaryPassword();
   const passwordHash = await bcrypt.hash(password, 10);
 
   const user = await User.create({
