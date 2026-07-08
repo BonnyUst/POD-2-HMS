@@ -14,7 +14,12 @@ const joinUsRoutes = require("./src/routes/joinUs.route");
 const healthRecordRoutes = require("./src/routes/healthRecord.route");
 const errorMiddleware = require("./src/middleware/error.middleware");
 const seedRoutes = require("./src/routes/seed.route");
-
+const seedOwner = require("./src/utils/seedOwner");
+const seedData = require("./src/utils/seedData");
+const seedMenus = require("./src/utils/seedMenus");
+seedData();
+seedOwner();
+seedMenus();
 const app = new express();
 
 app.use(

@@ -46,7 +46,10 @@ const joinUsSchema = new mongoose.Schema(
 
         designation: {
             type: String,
-            enum: ['Jr Doctor', 'Nurse', 'Receptionist', 'Administrator'],
+            enum: [
+                'Junior',
+                'Senior'
+            ],
             required: true
         },
 
