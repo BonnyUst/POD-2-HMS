@@ -4,6 +4,7 @@ const Employee = require("../models/Employee.model");
 const Doctor = require("../models/Doctor.model");
 const ApiError = require("../utils/ApiError");
 const Patient = require("../models/Patient.model");
+const User = require("../models/User.model");
 
 const {
   getPagination,
@@ -128,12 +129,56 @@ exports.getHealthRecords = async (loggedInUser, query = {}) => {
   }
 
   if (search) {
+    const matchingPatients = await Patient.find({
+      $or: [
+        { firstName: { $regex: search, $options: "i" } },
+        { lastName: { $regex: search, $options: "i" } },
+        { UHID: { $regex: search, $options: "i" } },
+      ],
+    }).select("_id");
+
+    const matchingPatientIds = matchingPatients.map((patient) => patient._id);
+
+    const matchingUsers = await User.find({
+      $or: [
+        { firstName: { $regex: search, $options: "i" } },
+        { lastName: { $regex: search, $options: "i" } },
+      ],
+    }).select("_id");
+
+    const matchingUserIds = matchingUsers.map((user) => user._id);
+
+    const matchingEmployees = await Employee.find({
+      userId: { $in: matchingUserIds },
+    }).select("_id");
+
+    const matchingEmployeeIds = matchingEmployees.map(
+      (employee) => employee._id,
+    );
+
+    const matchingDoctors = await Doctor.find({
+      employeeId: { $in: matchingEmployeeIds },
+    }).select("_id");
+
+    const matchingDoctorIds = matchingDoctors.map((doctor) => doctor._id);
+
     filter.$or = [
-      { medicalRecordId: { $regex: search, $options: "i" } },
-      { status: { $regex: search, $options: "i" } },
-      { diagnosis: { $regex: search, $options: "i" } },
-      { notes: { $regex: search, $options: "i" } },
-      { treatmentPlan: { $regex: search, $options: "i" } },
+      {
+        medicalRecordId: {
+          $regex: search,
+          $options: "i",
+        },
+      },
+      {
+        patientId: {
+          $in: matchingPatientIds,
+        },
+      },
+      {
+        doctorId: {
+          $in: matchingDoctorIds,
+        },
+      },
     ];
   }
 
