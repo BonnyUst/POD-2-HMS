@@ -1,14 +1,16 @@
 <div class="approval-section">
-
   <div class="section-header">
     <h2>Pending Approvals</h2>
   </div>
 
   <div class="table-toolbar">
     <div class="search-box">
-      <input type="text" placeholder="Search pending requests..."
+      <input
+        type="text"
+        placeholder="Search pending requests..."
         [value]="searchText()"
-        (input)="searchText.set($any($event.target).value); filterRequests()" />
+        (input)="searchText.set($any($event.target).value); filterRequests()"
+      />
     </div>
   </div>
 
@@ -51,25 +53,24 @@
                 </button>
               </td>
 
-          <td>
-            <div class="action-buttons">
-              <button type="button" class="approve-btn" (click)="approveRequest(request._id)">
-                Approve
-              </button>
+              <td>
+                <div class="action-buttons">
+                  <button type="button" class="approve-btn" (click)="approveRequest(request._id)">
+                    Approve
+                  </button>
 
-              <button type="button" class="reject-btn" (click)="rejectRequest(request._id)">
-                Reject
-              </button>
-            </div>
-          </td>
-        </tr>
+                  <button type="button" class="reject-btn" (click)="openRejectModal(request._id)">
+                    Reject
+                  </button>
+                </div>
+              </td>
+            </tr>
 
             @if (expandedRequestId() === request._id) {
               <tr class="expanded-row">
                 <td colspan="7">
                   <div class="details-box">
                     <div class="details-grid">
-
                       <div>
                         <label>Full Name</label>
                         <p>{{ request.firstName }} {{ request.lastName }}</p>
@@ -109,14 +110,12 @@
                         <label>Approval Status</label>
                         <p>{{ request.approvalStatus }}</p>
                       </div>
-
                     </div>
 
                     @if (request.role === 'Doctor') {
                       <div class="doctor-section">
                         <h4>Doctor Details</h4>
                         <div class="details-grid">
-
                           <div>
                             <label>Specialization</label>
                             <p>{{ request.specialization }}</p>
@@ -144,13 +143,14 @@
 
                           <div>
                             <label>Availability</label>
-                            <p>{{ request.availabilityStartTime }} - {{ request.availabilityEndTime }}</p>
+                            <p>
+                              {{ request.availabilityStartTime }} -
+                              {{ request.availabilityEndTime }}
+                            </p>
                           </div>
-
                         </div>
                       </div>
                     }
-
                   </div>
                 </td>
               </tr>
@@ -163,15 +163,21 @@
     <div class="table-footer">
       <p>Records: {{ startRecord }} - {{ endRecord }} of {{ totalRecords() }}</p>
       <div class="pagination">
-        <button type="button" class="pagination-icon-button"
+        <button
+          type="button"
+          class="pagination-icon-button"
           [disabled]="currentPage() === 1"
-          (click)="goToPreviousPage()">
+          (click)="goToPreviousPage()"
+        >
           <i class="bi bi-chevron-left"></i>
         </button>
         <span class="page-info">Page {{ currentPage() }} of {{ totalPages() }}</span>
-        <button type="button" class="pagination-icon-button"
+        <button
+          type="button"
+          class="pagination-icon-button"
           [disabled]="currentPage() === totalPages() || totalPages() === 0"
-          (click)="goToNextPage()">
+          (click)="goToNextPage()"
+        >
           <i class="bi bi-chevron-right"></i>
         </button>
       </div>
@@ -187,7 +193,8 @@
           [value]="rejectReason()"
           (input)="rejectReason.set($any($event.target).value)"
           rows="4"
-          placeholder="Enter rejection reason...">
+          placeholder="Enter rejection reason..."
+        >
         </textarea>
         <div class="modal-actions">
           <button class="cancel-btn" (click)="closeRejectModal()">Cancel</button>
@@ -196,5 +203,4 @@
       </div>
     </div>
   }
-
 </div>
