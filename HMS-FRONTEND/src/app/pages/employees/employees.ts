@@ -79,11 +79,6 @@ export class Employees implements OnInit {
       employeeValidators.email
     ),
 
-    password: new FormControl(
-      '',
-      employeeValidators.password
-    ),
-
     phone: new FormControl(
       '',
       employeeValidators.phone
@@ -280,8 +275,6 @@ export class Employees implements OnInit {
 
       email:
         employee.email ?? '',
-
-      password: '',
 
       phone:
         employee.phone ?? '',

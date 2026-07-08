@@ -67,16 +67,13 @@
               class="enterprise-input"
             />
 
-            @if (password?.touched && password?.hasError('required')) {
-              <small class="field-error"> Password is required </small>
-            }
-          </div>
+                        @if (password?.touched && password?.hasError('required')) {
+                        <small class="field-error">
+                            Password is required
+                        </small>
+                        }
 
-          @if (errorMessage) {
-            <div class="error-message">
-              {{ errorMessage }}
-            </div>
-          }
+                    </div>
 
           <button type="submit" [disabled]="isLoading" class="login-button">
             {{ isLoading ? 'Logging in...' : 'Login' }}

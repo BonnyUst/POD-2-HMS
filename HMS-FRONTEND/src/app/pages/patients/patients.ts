@@ -16,6 +16,7 @@ import { PatientService } from '../../services/patient.service';
 import {
   patientValidators
 } from '../../validations/patient.validation';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-patients',
@@ -111,8 +112,9 @@ export class Patients implements OnInit {
   });
 
   constructor(
-    readonly patientService: PatientService
-  ) {}
+    readonly patientService: PatientService,
+    readonly toastSerive: ToastService
+  ) { }
 
   ngOnInit(): void {
     this.getPatients();
@@ -162,7 +164,7 @@ export class Patients implements OnInit {
 
     return (
       (this.currentPage() - 1) *
-        this.itemsPerPage +
+      this.itemsPerPage +
       1
     );
   }
@@ -298,132 +300,116 @@ export class Patients implements OnInit {
   }
 
   deletePatient(patient: Patient): void {
-  const confirmed = confirm(
-    `Are you sure you want to delete ${patient.firstName} ${patient.lastName}?`
-  );
+    const confirmed = confirm(
+      `Are you sure you want to delete ${patient.firstName} ${patient.lastName}?`
+    );
 
-  if (!confirmed) {
-    return;
-  }
+    if (!confirmed) {
+      return;
+    }
 
-  this.patientService
-    .deletePatient(patient.patientId)
-    .subscribe({
-      next: () => {
-        alert('Patient deleted successfully!');
+    this.patientService
+      .deletePatient(patient.patientId)
+      .subscribe({
+        next: () => {
+          this.toastSerive.success('Patient deleted');
 
-        if (
-          this.patients().length === 1 &&
-          this.currentPage() > 1
-        ) {
-          this.currentPage.update((page) => page - 1);
+          if (
+            this.patients().length === 1 &&
+            this.currentPage() > 1
+          ) {
+            this.currentPage.update((page) => page - 1);
+          }
+
+          this.getPatients();
+        },
+
+        error: (err) => {
+          console.error('Error deleting patient:', err);
+
+          alert(
+            err.error?.message ||
+            'Unable to delete patient'
+          );
         }
-
-        this.getPatients();
-      },
-
-      error: (err) => {
-        console.error('Error deleting patient:', err);
-
-        alert(
-          err.error?.message ||
-          'Unable to delete patient'
-        );
-      }
-    });
-}
+      });
+  }
 
   savePatient(): void {
-  if (this.patientForm.invalid) {
-  this.patientForm.markAllAsTouched();
-  return;
-  }
-
-  const payload =
-  this.patientForm.getRawValue();
-
-  const selectedPatient =
-  this.selectedPatient();
-
-  if (
-  this.isEditMode() &&
-  selectedPatient
-  ) {
-  this.patientService
-  .updatePatient(
-  selectedPatient.patientId,
-  payload
-  )
-  .subscribe({
-  next: () => {
-  alert(
-  'Patient updated successfully!'
-  );
-
-
-        this.closeAddPatientModal();
-
-        this.getPatients();
-      },
-
-      error: (err) => {
-        console.error(
-          'Error updating patient:',
-          err
-        );
-
-        alert(
-          err.error?.message ||
-          'Something went wrong'
-        );
-      }
-    });
-
-  return;
-
-
-  }
-
-  this.patientService
-  .createPatient(
-  payload as CreatePatientPayload
-  )
-  .subscribe({
-  next: (res) => {
-
-
-      if (
-        res.data.credentialsEmailSent
-      ) {
-        alert(
-          'Patient created and login credentials emailed successfully!'
-        );
-      } else {
-        alert(
-          'Patient created, but login credentials could not be emailed.'
-        );
-      }
-
-      this.closeAddPatientModal();
-
-      this.currentPage.set(1);
-      this.searchText.set('');
-
-      this.getPatients();
-    },
-
-    error: (err) => {
-      console.error(
-        'Error creating patient:',
-        err
-      );
-
-      alert(
-        err.error?.message ||
-        'Something went wrong'
-      );
+    if (this.patientForm.invalid) {
+      this.patientForm.markAllAsTouched();
+      return;
     }
-  });
+
+    const payload =
+      this.patientForm.getRawValue();
+
+    const selectedPatient =
+      this.selectedPatient();
+
+    if (
+      this.isEditMode() &&
+      selectedPatient
+    ) {
+      this.patientService
+        .updatePatient(
+          selectedPatient.patientId,
+          payload
+        )
+        .subscribe({
+          next: () => {
+            this.toastSerive.success('Patient updated successfully!');
+
+
+
+            this.closeAddPatientModal();
+
+            this.getPatients();
+          },
+
+          error: (err) => {
+            this.toastSerive.error(err.error?.message || 'Something went wrong');
+          }
+        });
+
+      return;
+
+
+    }
+
+    this.patientService
+      .createPatient(
+        payload as CreatePatientPayload
+      )
+      .subscribe({
+        next: (res) => {
+
+
+          if (
+            res.data.credentialsEmailSent
+          ) {
+            this.toastSerive.success('Patient created and login credentials emailed successfully!');
+          } else {
+            this.toastSerive.success(
+              'Patient created, but login credentials could not be emailed.'
+            );
+          }
+
+          this.closeAddPatientModal();
+
+          this.currentPage.set(1);
+          this.searchText.set('');
+
+          this.getPatients();
+        },
+
+        error: (err) => {
+          this.toastSerive.error(
+            err.error?.message ||
+            'Something went wrong'
+          );
+        }
+      });
 
 
   }
