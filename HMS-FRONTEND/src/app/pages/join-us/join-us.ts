@@ -32,17 +32,31 @@ export class JoinUs {
     const today = new Date();
 
     const minDate = new Date();
-    minDate.setMonth(today.getMonth() - 2);
+    minDate.setHours(0, 0, 0, 0);
 
     const maxDate = new Date();
-    maxDate.setMonth(today.getMonth() + 2);
+    maxDate.setMonth(maxDate.getMonth() + 2);
+    maxDate.setHours(23, 59, 59, 999);
+
+    selected.setHours(0, 0, 0, 0);
 
     if (selected < minDate || selected > maxDate) {
-      return { dateOutOfRange: true };
+        return { dateOutOfRange: true };
     }
 
     return null;
   }
+
+  specializationCommaValidator(control: AbstractControl): ValidationErrors | null {
+
+    if (!control.value) return null;
+
+    const commas = (control.value.match(/,/g) || []).length;
+
+    return commas <= 2 ? null : { maxComma: true };
+
+  }
+
   joinUsForm = new FormGroup({
     firstName: new FormControl('', [
       Validators.required,
@@ -70,26 +84,119 @@ export class JoinUs {
     department: new FormControl('', [Validators.required]),
     designation: new FormControl('', [Validators.required]),
     joiningDate: new FormControl('', [Validators.required,this.joiningDateRangeValidator]),
+   
+    specialization: new FormControl('', [
+        Validators.pattern(/^(?!.*\d)(?!.*[\(\)\[\]\{\}@#$%^&*+=<>!?;:'"`~\\|])[A-Za-z\s\/,-]+$/),
+        this.specializationCommaValidator
+      ]),
 
-    specialization: new FormControl(''),
-    qualification: new FormControl(''),
-    consultationFee: new FormControl<number | null>(null),
-    medicalRegistrationNo: new FormControl(''),
-    availabilityStartTime: new FormControl(''),
-    availabilityEndTime: new FormControl(''),
-    experienceYears: new FormControl<number | null>(null)
+      qualification: new FormControl(''),
+
+      consultationFee: new FormControl<number | null>(null, [
+        Validators.min(500)
+      ]),
+
+      medicalRegistrationNo: new FormControl('', [
+        Validators.pattern(/^[A-Za-z0-9/-]+$/)
+      ]),
+
+      availabilityStartTime: new FormControl(''),
+
+      availabilityEndTime: new FormControl(''),
+
+      experienceYears: new FormControl<number | null>(null, [
+        Validators.min(0),
+        Validators.max(40)
+      ])
   });
 
   constructor(
     readonly auth: Auth,
     readonly cd: ChangeDetectorRef
-  ) { }
+  ) {
 
- getTodayDate(): string {
-  const today = new Date();
-  today.setMonth(today.getMonth() - 2);
-  return today.toISOString().split('T')[0];
-}
+    this.joinUsForm.get('role')?.valueChanges.subscribe((role) => {
+
+      const specialization = this.joinUsForm.get('specialization');
+      const qualification = this.joinUsForm.get('qualification');
+      const consultationFee = this.joinUsForm.get('consultationFee');
+      const medicalRegistrationNo = this.joinUsForm.get('medicalRegistrationNo');
+      const availabilityStartTime = this.joinUsForm.get('availabilityStartTime');
+      const availabilityEndTime = this.joinUsForm.get('availabilityEndTime');
+      const experienceYears = this.joinUsForm.get('experienceYears');
+
+      if (role === 'Doctor') {
+
+        specialization?.setValidators([
+          Validators.required,
+          Validators.pattern(/^(?!.*\d)(?!.*[\(\)\[\]\{\}@#$%^&*+=<>!?;:'"`~\\|])[A-Za-z\s\/,-]+$/),
+          this.specializationCommaValidator
+        ]);
+
+        qualification?.setValidators([
+          Validators.required
+        ]);
+
+        consultationFee?.setValidators([
+          Validators.required,
+          Validators.min(500)
+        ]);
+
+        medicalRegistrationNo?.setValidators([
+          Validators.required,
+          Validators.pattern(/^[A-Za-z0-9/-]+$/)
+        ]);
+
+        availabilityStartTime?.setValidators([
+          Validators.required
+        ]);
+
+        availabilityEndTime?.setValidators([
+          Validators.required
+        ]);
+
+        experienceYears?.setValidators([
+          Validators.required,
+          Validators.min(0),
+          Validators.max(40)
+        ]);
+
+      } else {
+
+        specialization?.clearValidators();
+        qualification?.clearValidators();
+        consultationFee?.clearValidators();
+        medicalRegistrationNo?.clearValidators();
+        availabilityStartTime?.clearValidators();
+        availabilityEndTime?.clearValidators();
+        experienceYears?.clearValidators();
+
+        specialization?.setErrors(null);
+        qualification?.setErrors(null);
+        consultationFee?.setErrors(null);
+        medicalRegistrationNo?.setErrors(null);
+        availabilityStartTime?.setErrors(null);
+        availabilityEndTime?.setErrors(null);
+        experienceYears?.setErrors(null);
+
+      }
+
+      specialization?.updateValueAndValidity();
+      qualification?.updateValueAndValidity();
+      consultationFee?.updateValueAndValidity();
+      medicalRegistrationNo?.updateValueAndValidity();
+      availabilityStartTime?.updateValueAndValidity();
+      availabilityEndTime?.updateValueAndValidity();
+      experienceYears?.updateValueAndValidity();
+
+    });
+
+  }
+
+  getTodayDate(): string {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  }
   getMaxDate(): string {
     const today = new Date();
     today.setMonth(today.getMonth() + 2);
@@ -111,12 +218,31 @@ export class JoinUs {
 
     this.auth.checkJoinUsEmail({ email }).subscribe({
       next: (res: any) => {
-        this.successMessage = res.message || 'Email available. Continue filling the form.';
+
+      this.isCheckingEmail = false;
+
+      if (res.canContinue) {
+
+        this.successMessage = res.message;
+        this.errorMessage = '';
+
         this.emailChecked = true;
-        this.joinUsForm.patchValue({ email: email });
-        this.isCheckingEmail = false;
-        this.cd.detectChanges();
-      },
+
+        this.joinUsForm.patchValue({
+          email: email
+        });
+
+      } else {
+
+        this.successMessage = '';
+        this.errorMessage = res.message;
+
+        this.emailChecked = false;
+
+      }
+
+      this.cd.detectChanges();
+    },
       error: (err) => {
         this.errorMessage = err.error?.message || 'Email already exists';
         this.emailChecked = false;
@@ -190,6 +316,7 @@ export class JoinUs {
   ];
 
   designations = [
-    'Jr Doctor', 'Nurse', 'Receptionist', 'Administrator'
+    'Junior',
+    'Senior'
   ];
 }

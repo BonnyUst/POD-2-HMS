@@ -6,10 +6,78 @@ const bcrypt = require('bcrypt')
 const Role = require('../models/Role.model')
 const Employee = require('../models/Employee.model')
 const Doctor = require('../models/Doctor.model')
+const sendMail = require('./mail.service');
+
 const {
   getPagination,
   buildPaginationResponse
 } = require('../utils/pagination');
+const sendEmail = require('./mail.service');
+
+const sendJoinUsVerificationMail = async ({
+    email,
+    firstName,
+    verificationLink
+}) => {
+
+    const html = `
+    <div style="font-family: Arial, sans-serif; padding:20px;">
+
+        <h2 style="color:#2563eb;">
+            Verify Your Email
+        </h2>
+
+        <p>Hello <strong>${firstName}</strong>,</p>
+
+        <p>
+            Thank you for submitting your Join Us request.
+        </p>
+
+        <p>
+            Please click the button below to verify your email.
+        </p>
+
+        <p style="margin:30px 0;">
+            <a
+                href="${verificationLink}"
+                style="
+                    background:#2563eb;
+                    color:white;
+                    padding:12px 22px;
+                    text-decoration:none;
+                    border-radius:6px;
+                    display:inline-block;
+                ">
+                Verify Email
+            </a>
+        </p>
+
+        <p>
+            This verification link is valid for
+            <strong>15 minutes</strong>.
+        </p>
+
+        <p>
+            If you did not request this, please ignore this email.
+        </p>
+
+        <br>
+
+        <p>
+            Regards,<br>
+            <strong>Hospital Management System</strong>
+        </p>
+
+    </div>
+    `;
+
+    await sendEmail(
+        email,
+        'Verify Your Join Us Request',
+        html
+    );
+
+};
 
 exports.createJoinUsRequest = async (joinUsData) => {
     const {
@@ -32,12 +100,14 @@ exports.createJoinUsRequest = async (joinUsData) => {
         experienceYears
     } = joinUsData;
 
+    console.log("Check point 1");
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
         throw new ApiError(409, 'Email already registered as user');
     }
 
+    console.log("Check point 2");
     const existingRequest = await JoinUs.findOne({ email });
 
 
@@ -51,7 +121,13 @@ exports.createJoinUsRequest = async (joinUsData) => {
             await existingRequest.save();
 
             const verificationLink =
-                `http://localhost:5000/api/join-us/verify/${newToken}`;
+                `https://pod2hms.duckdns.org/api/join-us/verify/${newToken}`;
+
+            await sendJoinUsVerificationMail({
+                email,
+                firstName,
+                verificationLink
+            });
 
             console.log('Verification Link Resent:', verificationLink);
 
@@ -63,6 +139,7 @@ exports.createJoinUsRequest = async (joinUsData) => {
 
         throw new ApiError(409, 'Join request already exists with this email');
     }
+    console.log("Check point 3");
     const passwordHash = await bcrypt.hash(password, 10);
     const verificationToken = crypto.randomBytes(32).toString('hex');//decide later on the jwt 
 
@@ -90,9 +167,15 @@ exports.createJoinUsRequest = async (joinUsData) => {
         verificationToken,
         verificationTokenExpiry: new Date(Date.now() + 15 * 60 * 1000)
     });
+    console.log("Check point 4");
     const verificationLink =
-        `http://localhost:5000/api/join-us/verify/${verificationToken}`;
+        `https://pod2hms.duckdns.org/api/join-us/verify/${verificationToken}`;
 
+    await sendJoinUsVerificationMail({
+        email,
+        firstName,
+        verificationLink
+    });
     console.log('Verification Link:', verificationLink);
 
     return {
@@ -227,6 +310,7 @@ exports.getPendingJoinUsRequests = async (query = {}) => {
 };
 
 exports.checkJoinUsEmail = async (email) => {
+
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -236,15 +320,36 @@ exports.checkJoinUsEmail = async (email) => {
     const existingRequest = await JoinUs.findOne({ email });
 
     if (existingRequest) {
+
         if (!existingRequest.isVerified) {
+
+            const newToken = crypto.randomBytes(32).toString('hex');
+
+            existingRequest.verificationToken = newToken;
+            existingRequest.verificationTokenExpiry = new Date(Date.now() + 15 * 60 * 1000);
+
+            await existingRequest.save();
+
+            const verificationLink =
+                `https://pod2hms.duckdns.org/join-us/verify/${newToken}`;
+
+            console.log('Verification Link Resent:', verificationLink);
+
+            await sendJoinUsVerificationMail({
+                email:existingRequest.email,
+                firstName: existingRequest.firstName,
+                verificationLink
+            });
             return {
                 canContinue: false,
-                message: 'Join request already exists but email is not verified. Please verify your email.'
+                resend: true,
+                message: 'Verification link has been resent. Please verify your email.'
             };
         }
 
         return {
             canContinue: false,
+            resend: false,
             message: 'Join request already exists with this email.'
         };
     }
@@ -254,6 +359,7 @@ exports.checkJoinUsEmail = async (email) => {
         message: 'Email available. Continue filling the form.'
     };
 };
+
 exports.approveJoinUsRequest = async (requestId, approvedBy) => {
     const joinUsRequest = await JoinUs.findById(requestId).select('+passwordHash');
 
