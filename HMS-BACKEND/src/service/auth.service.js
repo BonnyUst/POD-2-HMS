@@ -1,5 +1,5 @@
 const User = require("../models/User.model");
-
+const sendEmail = require("./mail.service");
 const bcrypt = require("bcrypt");
 
 const {
@@ -8,24 +8,26 @@ const {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
+  generatePasswordResetToken,
+  verifyPasswordResetToken,
 } = require("../utils/jwt");
 
 const ApiError = require("../utils/ApiError");
 
 exports.loginEmployee = async ({ email, password }) => {
- const normalizedEmail = email.trim().toLowerCase();
+  const normalizedEmail = email.trim().toLowerCase();
 
-const user = await User.findOne({
-  email: normalizedEmail,
-}).populate("roleId");
+  const user = await User.findOne({
+    email: normalizedEmail,
+  }).populate("roleId");
 
   if (!user) {
     throw new ApiError(404, "Employee Not Found");
   }
-  
+
   if (user.status !== "ACTIVE") {
-  throw new ApiError(403, "This account is inactive");
-}
+    throw new ApiError(403, "This account is inactive");
+  }
 
   const isPasswordMatch = await bcrypt.compare(password, user.passwordHash);
 
@@ -63,46 +65,35 @@ const user = await User.findOne({
       email: user.email,
       roleId: user.roleId,
       status: user.status,
-           mustChangePassword: user.mustChangePassword,
+      mustChangePassword: user.mustChangePassword,
     },
   };
 };
-  
-  exports.changeFirstLoginPassword = async (
-  userId,
-  newPassword
-) => {
+
+exports.changeFirstLoginPassword = async (userId, newPassword) => {
   const user = await User.findById(userId);
 
   if (!user) {
-    throw new ApiError(
-      404,
-      "User not found"
-    );
+    throw new ApiError(404, "User not found");
   }
 
   if (!user.mustChangePassword) {
-    throw new ApiError(
-      400,
-      "First-login password change is not required"
-    );
+    throw new ApiError(400, "First-login password change is not required");
   }
 
-  const isTemporaryPasswordReused =
-    await bcrypt.compare(
-      newPassword,
-      user.passwordHash
-    );
+  const isTemporaryPasswordReused = await bcrypt.compare(
+    newPassword,
+    user.passwordHash,
+  );
 
   if (isTemporaryPasswordReused) {
     throw new ApiError(
       400,
-      "New password cannot be the same as the temporary password"
+      "New password cannot be the same as the temporary password",
     );
   }
 
-  user.passwordHash =
-    await bcrypt.hash(newPassword, 10);
+  user.passwordHash = await bcrypt.hash(newPassword, 10);
 
   user.mustChangePassword = false;
 
@@ -110,11 +101,9 @@ const user = await User.findOne({
 
   return {
     email: user.email,
-    mustChangePassword:
-      user.mustChangePassword,
+    mustChangePassword: user.mustChangePassword,
   };
 };
- 
 
 exports.verifyEmployeeEmail = async (token) => {
   const decoded = verifyToken(token);
@@ -185,5 +174,105 @@ exports.refreshAccessToken = async (refreshToken) => {
 
   return {
     accessToken,
+  };
+};
+
+exports.forgotPassword = async (email) => {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  const user = await User.findOne({
+    email: normalizedEmail,
+  });
+
+  // Always return success to prevent email enumeration
+  if (!user) {
+    return;
+  }
+
+  const token = generatePasswordResetToken({
+    userId: user._id,
+  });
+
+  const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; line-height:1.6;">
+      <h2>Password Reset Request</h2>
+
+      <p>Hello ${user.firstName},</p>
+
+      <p>
+        We received a request to reset your password.
+      </p>
+
+      <p>
+        Click the button below to create a new password.
+      </p>
+
+      <a
+        href="${resetLink}"
+        style="
+          display:inline-block;
+          padding:10px 20px;
+          background:#185FA5;
+          color:#fff;
+          text-decoration:none;
+          border-radius:5px;
+        "
+      >
+        Reset Password
+      </a>
+
+      <p style="margin-top:20px;">
+        Or copy this link into your browser:
+      </p>
+
+      <p>${resetLink}</p>
+
+      <p>
+        This link will expire in 15 minutes.
+      </p>
+
+      <p>
+        If you did not request this password reset, you can safely ignore this email.
+      </p>
+
+      <br>
+
+      <p>
+        Hospital Management System
+      </p>
+    </div>
+  `;
+
+  await sendEmail(normalizedEmail, "Reset your HMS password", html);
+};
+
+exports.resetPassword = async (token, newPassword) => {
+  const decoded = verifyPasswordResetToken(token);
+
+  const user = await User.findById(decoded.userId);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  const isSamePassword = await bcrypt.compare(newPassword, user.passwordHash);
+
+  if (isSamePassword) {
+    throw new ApiError(
+      400,
+      "New password cannot be the same as the current password",
+    );
+  }
+
+  user.passwordHash = await bcrypt.hash(newPassword, 10);
+
+  user.mustChangePassword = false;
+
+  await user.save();
+
+  return {
+    email: user.email,
   };
 };

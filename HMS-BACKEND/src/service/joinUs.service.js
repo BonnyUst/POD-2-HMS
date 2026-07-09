@@ -121,13 +121,7 @@ exports.createJoinUsRequest = async (joinUsData) => {
             await existingRequest.save();
 
             const verificationLink =
-                `https://pod2hms.duckdns.org/api/join-us/verify/${newToken}`;
-
-            await sendJoinUsVerificationMail({
-                email,
-                firstName,
-                verificationLink
-            });
+                `${process.env.FRONTEND_URL}/api/join-us/verify/${newToken}`;
 
             console.log('Verification Link Resent:', verificationLink);
 
@@ -141,7 +135,7 @@ exports.createJoinUsRequest = async (joinUsData) => {
     }
     console.log("Check point 3");
     const passwordHash = await bcrypt.hash(password, 10);
-    const verificationToken = crypto.randomBytes(32).toString('hex');//decide later on the jwt 
+    const verificationToken = crypto.randomBytes(32).toString('hex');//decide later on the jwt
 
     const joinUsRequest = await JoinUs.create({
         firstName,
@@ -169,7 +163,7 @@ exports.createJoinUsRequest = async (joinUsData) => {
     });
     console.log("Check point 4");
     const verificationLink =
-        `https://pod2hms.duckdns.org/api/join-us/verify/${verificationToken}`;
+        `${process.env.FRONTEND_URL}/api/join-us/verify/${verificationToken}`;
 
     await sendJoinUsVerificationMail({
         email,
