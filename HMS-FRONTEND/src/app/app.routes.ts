@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 
+import { ResetPassword } from './pages/reset-password/reset-password';
 import { Signup } from './pages/signup/signup';
 import { Login } from './pages/login/login';
 import { AdminDashboard } from './pages/admin-dashboard/admin-dashboard';
@@ -15,6 +16,7 @@ import { JoinUs } from './pages/join-us/join-us';
 import { Doctors } from './pages/doctors/doctors';
 import { AppointmentDetails } from './pages/appointments/appointment-details/appointment-details';
 import { HealthRecords } from './pages/health-records/health-records';
+import { ForgotPassword } from './pages/forgot-password/forgot-password';
 
 export const routes: Routes = [
     {
@@ -24,7 +26,9 @@ export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
     { path: 'signup', component: Signup },
     { path: 'login', component: Login },
+    { path: 'forgot-password', component: ForgotPassword },
     { path: 'change-password', component: ChangePassword },
+    { path: 'reset-password/:token', component: ResetPassword },
     {
         path: 'profile',
         component: Profile,

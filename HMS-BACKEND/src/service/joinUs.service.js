@@ -51,7 +51,7 @@ exports.createJoinUsRequest = async (joinUsData) => {
             await existingRequest.save();
 
             const verificationLink =
-                `http://localhost:5000/api/join-us/verify/${newToken}`;
+                `${process.env.FRONTEND_URL}/api/join-us/verify/${newToken}`;
 
             console.log('Verification Link Resent:', verificationLink);
 
@@ -64,7 +64,7 @@ exports.createJoinUsRequest = async (joinUsData) => {
         throw new ApiError(409, 'Join request already exists with this email');
     }
     const passwordHash = await bcrypt.hash(password, 10);
-    const verificationToken = crypto.randomBytes(32).toString('hex');//decide later on the jwt 
+    const verificationToken = crypto.randomBytes(32).toString('hex');//decide later on the jwt
 
     const joinUsRequest = await JoinUs.create({
         firstName,
@@ -91,7 +91,7 @@ exports.createJoinUsRequest = async (joinUsData) => {
         verificationTokenExpiry: new Date(Date.now() + 15 * 60 * 1000)
     });
     const verificationLink =
-        `http://localhost:5000/api/join-us/verify/${verificationToken}`;
+        `${process.env.FRONTEND_URL}/api/join-us/verify/${verificationToken}`;
 
     console.log('Verification Link:', verificationLink);
 

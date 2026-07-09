@@ -23,12 +23,22 @@ const generateRefreshToken = (payload) => {
   });
 };
 
+const generatePasswordResetToken = (payload) => {
+  return jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_PASSWORD_RESET_EXPIRY,
+  });
+};
+
 const verifyAccessToken = (token) => {
   return jwt.verify(token, process.env.JWT_SECRET);
 };
 
 const verifyRefreshToken = (token) => {
   return jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+};
+
+const verifyPasswordResetToken = (token) => {
+  return jwt.verify(token, process.env.JWT_SECRET);
 };
 
 module.exports = {
@@ -38,4 +48,6 @@ module.exports = {
   generateRefreshToken,
   verifyAccessToken,
   verifyRefreshToken,
+  generatePasswordResetToken,
+  verifyPasswordResetToken,
 };
