@@ -99,7 +99,16 @@
 
         <div class="form-group">
           <label for="phone">Phone</label>
-          <input type="text" formControlName="phone" placeholder="Enter phone number">
+          <input
+            type="text"
+            formControlName="phone"
+            placeholder="Enter phone number"
+            maxlength="10"
+            inputmode="numeric"
+            (input)="joinUsForm.get('phone')?.setValue(
+              $any($event.target).value.replace(/\D/g,'').slice(0,10),
+              { emitEvent: false }
+            )">
           @if (joinUsForm.get('phone')?.invalid && joinUsForm.get('phone')?.touched) {
           @if (joinUsForm.get('phone')?.errors?.['required']) {
           <small class="error-text">Phone number is required.</small>
@@ -185,29 +194,67 @@
             @if (joinUsForm.get('specialization')?.invalid && joinUsForm.get('specialization')?.touched) {
             <small class="error-text">Specialization is required.</small>
             }
+            @if (joinUsForm.get('specialization')?.errors?.['pattern']) {
+            <small class="error-text">
+            Only letters, space, /, -, comma are allowed.
+            </small>
+            }
+
+            @if (joinUsForm.get('specialization')?.errors?.['maxComma']) {
+            <small class="error-text">
+            Maximum two commas are allowed.
+            </small>
+            }
           </div>
 
           <div class="form-group">
             <label for="qualification">Qualification</label>
             <input type="text" formControlName="qualification" placeholder="Eg: MBBS MD">
             @if (joinUsForm.get('qualification')?.invalid && joinUsForm.get('qualification')?.touched) {
-            <small class="error-text">Qualification is required.</small>
+              @if (joinUsForm.get('qualification')?.errors?.['required']) {
+                <small class="error-text">Qualification is required.</small>
+              }
             }
           </div>
 
           <div class="form-group">
             <label for="consultationFee">Consultation Fee</label>
-            <input type="number" formControlName="consultationFee" placeholder="Enter consultation fee">
+            <input
+              type="number"
+              formControlName="consultationFee"
+              placeholder="Enter consultation fee"
+              min="500"
+              step="1">
             @if (joinUsForm.get('consultationFee')?.invalid && joinUsForm.get('consultationFee')?.touched) {
-            <small class="error-text">Consultation fee is required.</small>
+
+              @if (joinUsForm.get('consultationFee')?.errors?.['required']) {
+              <small class="error-text">
+              Consultation fee is required.
+              </small>
+              }
+
+              @if (joinUsForm.get('consultationFee')?.errors?.['min']) {
+              <small class="error-text">
+              Consultation fee must be ₹500 or above.
+              </small>
+              }
+
             }
           </div>
 
           <div class="form-group">
             <label for="medicalRegistrationNo">Medical Registration No</label>
             <input type="text" formControlName="medicalRegistrationNo" placeholder="Eg: KL-MED-12345">
-            @if (joinUsForm.get('medicalRegistrationNo')?.invalid && joinUsForm.get('medicalRegistrationNo')?.touched) {
-            <small class="error-text">Medical registration number is required.</small>
+            @if (joinUsForm.get('medicalRegistrationNo')?.errors?.['required']) {
+              <small class="error-text">
+                Medical registration number is required.
+              </small>
+            }
+
+            @if (joinUsForm.get('medicalRegistrationNo')?.errors?.['pattern']) {
+              <small class="error-text">
+                Only letters, numbers, '/' and '-' are allowed.
+              </small>
             }
           </div>
 
@@ -215,7 +262,9 @@
             <label for="availabilityStartTime">Availability Start Time</label>
             <input type="text" formControlName="availabilityStartTime" placeholder="Eg: 09:00 AM">
             @if (joinUsForm.get('availabilityStartTime')?.invalid && joinUsForm.get('availabilityStartTime')?.touched) {
-            <small class="error-text">Availability start time is required.</small>
+              @if (joinUsForm.get('availabilityStartTime')?.errors?.['required']) {
+                <small class="error-text">Availability start time is required.</small>
+              }
             }
           </div>
 
@@ -223,15 +272,41 @@
             <label for="availabilityEndTime">Availability End Time</label>
             <input type="text" formControlName="availabilityEndTime" placeholder="Eg: 04:00 PM">
             @if (joinUsForm.get('availabilityEndTime')?.invalid && joinUsForm.get('availabilityEndTime')?.touched) {
-            <small class="error-text">Availability end time is required.</small>
+              @if (joinUsForm.get('availabilityEndTime')?.errors?.['required']) {
+                <small class="error-text">Availability end time is required.</small>
+              }
             }
           </div>
 
           <div class="form-group">
             <label for="experienceYears">Experience Years</label>
-            <input type="number" formControlName="experienceYears" placeholder="Enter experience years">
+            <input
+              type="number"
+              formControlName="experienceYears"
+              placeholder="Enter experience years"
+              min="0"
+              max="40"
+              step="1">
             @if (joinUsForm.get('experienceYears')?.invalid && joinUsForm.get('experienceYears')?.touched) {
-            <small class="error-text">Experience years is required.</small>
+
+              @if (joinUsForm.get('experienceYears')?.errors?.['required']) {
+              <small class="error-text">
+              Experience years is required.
+              </small>
+              }
+
+              @if (joinUsForm.get('experienceYears')?.errors?.['min']) {
+              <small class="error-text">
+              Experience cannot be negative.
+              </small>
+              }
+
+              @if (joinUsForm.get('experienceYears')?.errors?.['max']) {
+              <small class="error-text">
+              Experience cannot exceed 40 years.
+              </small>
+              }
+
             }
           </div>
 
