@@ -338,7 +338,7 @@ exports.checkJoinUsEmail = async (email) => {
             await existingRequest.save();
 
             const verificationLink =
-                `${process.env.FRONTEND_URL}/api/join-us/verify/${newToken}`;
+            `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
 
             console.log('Verification Link Resent:', verificationLink);
 
