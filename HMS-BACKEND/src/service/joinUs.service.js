@@ -7,12 +7,18 @@ const Role = require('../models/Role.model')
 const Employee = require('../models/Employee.model')
 const Doctor = require('../models/Doctor.model')
 const sendMail = require('./mail.service');
+const ms = require("ms");
 
 const {
   getPagination,
   buildPaginationResponse
 } = require('../utils/pagination');
 const sendEmail = require('./mail.service');
+
+const expiryText = process.env.JWT_EMAIL_VERIFICATION_EXPIRY;
+
+const getVerificationExpiry = () =>
+    new Date(Date.now() + ms(process.env.JWT_EMAIL_VERIFICATION_EXPIRY));
 
 const sendJoinUsVerificationMail = async ({
     email,
@@ -54,7 +60,7 @@ const sendJoinUsVerificationMail = async ({
 
         <p>
             This verification link is valid for
-            <strong>15 minutes</strong>.
+            <strong>${expiryText}</strong>.
         </p>
 
         <p>
@@ -116,7 +122,7 @@ exports.createJoinUsRequest = async (joinUsData) => {
             const newToken = crypto.randomBytes(32).toString('hex');
 
             existingRequest.verificationToken = newToken;
-            existingRequest.verificationTokenExpiry = new Date(Date.now() + 15 * 60 * 1000);
+            existingRequest.verificationTokenExpiry = getVerificationExpiry();
 
             await existingRequest.save();
 
@@ -159,7 +165,7 @@ exports.createJoinUsRequest = async (joinUsData) => {
         isVerified: false,
         approvalStatus: 'PENDING',
         verificationToken,
-        verificationTokenExpiry: new Date(Date.now() + 15 * 60 * 1000)
+        verificationTokenExpiry: getVerificationExpiry()
     });
     console.log("Check point 4");
     const verificationLink =
@@ -320,12 +326,12 @@ exports.checkJoinUsEmail = async (email) => {
             const newToken = crypto.randomBytes(32).toString('hex');
 
             existingRequest.verificationToken = newToken;
-            existingRequest.verificationTokenExpiry = new Date(Date.now() + 15 * 60 * 1000);
+            existingRequest.verificationTokenExpiry = getVerificationExpiry();
 
             await existingRequest.save();
 
             const verificationLink =
-                `https://pod2hms.duckdns.org/join-us/verify/${newToken}`;
+                `${process.env.FRONTEND_URL}/api/join-us/verify/${newToken}`;
 
             console.log('Verification Link Resent:', verificationLink);
 
