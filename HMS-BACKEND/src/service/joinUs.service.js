@@ -56,6 +56,11 @@ const sendJoinUsVerificationMail = async ({
                 ">
                 Verify Email
             </a>
+
+        <p>or click the below link to verify your account</p>
+        <br>
+        <p>
+          ${verificationLink}
         </p>
 
         <p>
