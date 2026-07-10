@@ -105,7 +105,7 @@ const logout = async (req, res) => {
   res.clearCookie("refreshToken", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   });
 
   return res.status(200).json({
@@ -158,6 +158,38 @@ const changeFirstLoginPassword = async (
     next(error);
   }
 };
+
+const forgotPassword = async (req, res, next) => {
+  try {
+    await authService.forgotPassword(req.body.email);
+ 
+    return res.status(200).json({
+      success: true,
+      message:
+        "If an account with that email exists, a password reset link has been sent.",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+ 
+const resetPassword = async (req, res, next) => {
+  try {
+    const { token } = req.params;
+    const { newPassword } = req.body;
+ 
+    const result = await authService.resetPassword(token, newPassword);
+ 
+    return res.status(200).json({
+      success: true,
+      message: "Password reset successfully",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   verifyEmail,
   login,
@@ -165,4 +197,6 @@ module.exports = {
   logout,
   changePassword,
   changeFirstLoginPassword,
+  forgotPassword,
+  resetPassword
 };
