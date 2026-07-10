@@ -1,15 +1,15 @@
 <div class="navbar">
 
     <div class="navbar-left-section">
-        HMS LOGO 
+        HMS LOGO
     </div>
 
     <div class="navbar-right-section">
 
         <div class="navbar-profile-wrapper">
-            <div class="navbar-profile-icon" (click)="toggleProfileDropdown()">
+            <button class="navbar-profile-icon" (click)="toggleProfileDropdown()" type="button">
                 👤
-            </div>
+            </button>
 
             @if (showProfileDropdown) {
             <div class="navbar-profile-dropdown">
