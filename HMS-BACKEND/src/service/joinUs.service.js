@@ -176,7 +176,7 @@ exports.createJoinUsRequest = async (joinUsData) => {
     });
     console.log("Check point 4");
     const verificationLink =
-        `${process.env.FRONTEND_URL}/api/join-us/verify/${verificationToken}`;
+    `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
 
     await sendJoinUsVerificationMail({
         email,
@@ -338,7 +338,7 @@ exports.checkJoinUsEmail = async (email) => {
             await existingRequest.save();
 
             const verificationLink =
-            `${process.env.FRONTEND_URL}/verify-email/${newToken}`;
+                `${process.env.FRONTEND_URL}/api/join-us/verify/${newToken}`;
 
             console.log('Verification Link Resent:', verificationLink);
 
